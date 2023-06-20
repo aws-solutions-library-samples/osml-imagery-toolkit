@@ -1,0 +1,101 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "1cc5e6d6-e12f-430d-adf0-8d2276ce8c5a",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -43.679691,
+          -22.941953
+        ]
+      },
+      "properties": {
+        "bounds_imcoords": [
+          429,
+          553,
+          440,
+          561
+        ],
+        "feature_types": {
+          "ground_motor_passenger_vehicle": 0.2961518168449402
+        },
+        "detection_score": 0.2961518168449402,
+        "image_id": "7db12549-3bcb-49c8-acba-25d46ef5cbf3:s3://spacenet-dataset/AOIs/AOI_1_Rio/srcData/mosaic_3band/013022223131.tif"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "840fd48d-1eae-43b1-af64-fae55a7614f3",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -43.679762,
+          -22.941742
+        ]
+      },
+      "properties": {
+        "bounds_imcoords": [
+          414,
+          505,
+          423,
+          515
+        ],
+        "feature_types": {
+          "ground_motor_passenger_vehicle": 0.2887502908706665
+        },
+        "detection_score": 0.2887502908706665,
+        "image_id": "7db12549-3bcb-49c8-acba-25d46ef5cbf3:s3://spacenet-dataset/AOIs/AOI_1_Rio/srcData/mosaic_3band/013022223131.tif"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "c1d2f672-d1be-4935-8435-82929999fc2f",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -43.678638,
+          -22.942155
+        ]
+      },
+      "properties": {
+        "bounds_imcoords": [
+          664,
+          597,
+          674,
+          607
+        ],
+        "feature_types": {
+          "ground_motor_passenger_vehicle": 0.2716290056705475
+        },
+        "detection_score": 0.2716290056705475,
+        "image_id": "7db12549-3bcb-49c8-acba-25d46ef5cbf3:s3://spacenet-dataset/AOIs/AOI_1_Rio/srcData/mosaic_3band/013022223131.tif"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "1a62fef1-aa93-4476-ae6d-839078d20145",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -43.678724,
+          -22.946874
+        ]
+      },
+      "properties": {
+        "bounds_imcoords": [
+          646,
+          1649,
+          654,
+          1658
+        ],
+        "feature_types": {
+          "ground_motor_passenger_vehicle": 0.25180017948150635
+        },
+        "detection_score": 0.25180017948150635,
+        "image_id": "7db12549-3bcb-49c8-acba-25d46ef5cbf3:s3://spacenet-dataset/AOIs/AOI_1_Rio/srcData/mosaic_3band/013022223131.tif"
+      }
+    }
+  ]
+}

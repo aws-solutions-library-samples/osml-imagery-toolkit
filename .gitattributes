@@ -1,0 +1,7 @@
+*.[nN][iI][tT][fF] filter=lfs diff=lfs merge=lfs -text
+*.[nN][tT][fF] filter=lfs diff=lfs merge=lfs -text
+*.[gG][eE][oO][tT][iI][fF][fF] filter=lfs diff=lfs merge=lfs -text
+*.[tT][iI][fF][fF] filter=lfs diff=lfs merge=lfs -text
+*.[tT][iI][fF] filter=lfs diff=lfs merge=lfs -text
+
+

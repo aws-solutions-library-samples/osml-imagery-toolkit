@@ -1,0 +1,17 @@
+<tres>
+    <tre name="CSCRNA" location="image">
+        <field name="PREDICT_CORNERS" value="Y" />
+        <field name="ULCNR_LAT" value="+26.56989" />
+        <field name="ULCNR_LONG" value="+119.76788" />
+        <field name="ULCNR_HT" value="+00124.8" />
+        <field name="URCNR_LAT" value="+26.55140" />
+        <field name="URCNR_LONG" value="+120.02523" />
+        <field name="URCNR_HT" value="+00012.0" />
+        <field name="LRCNR_LAT" value="+26.49186" />
+        <field name="LRCNR_LONG" value="+120.02524" />
+        <field name="LRCNR_HT" value="+00027.0" />
+        <field name="LLCNR_LAT" value="+26.50850" />
+        <field name="LLCNR_LONG" value="+119.76862" />
+        <field name="LLCNR_HT" value="+00198.7" />
+    </tre>
+</tres>
