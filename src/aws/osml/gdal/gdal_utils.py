@@ -21,9 +21,12 @@ def load_gdal_dataset(image_path: str) -> Tuple[gdal.Dataset, Optional[SensorMod
         (e.g. /vsis3/...)
     :return: the raster dataset and sensor model
     """
-    ds = gdal.Open(image_path)
-    logger.info("GDAL attempted to load image: %s", image_path)
-    if ds is None:
+    try:
+        logger.info("GDAL attempted to load image: %s", image_path)
+        ds = gdal.Open(image_path)
+        if ds is None:
+            raise RuntimeError("GDAL Unable to load dataset and UseExceptions is not enabled.")
+    except RuntimeError:
         logger.info("Skipping: %s - GDAL Unable to Process", image_path)
         raise ValueError("GDAL Unable to Load: {}".format(image_path))
 

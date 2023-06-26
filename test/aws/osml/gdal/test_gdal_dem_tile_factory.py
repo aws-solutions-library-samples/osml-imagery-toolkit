@@ -4,12 +4,18 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import pytest
+from osgeo import gdal
 
 from configuration import TEST_ENV_CONFIG
 
 
 @patch.dict("os.environ", TEST_ENV_CONFIG, clear=True)
 class TestGDALDemTileFactory(TestCase):
+    def setUp(self):
+        # GDAL 4.0 will begin using exceptions as the default; at this point the software is written to assume
+        # no exceptions so we call this explicitly until the software can be updated to match.
+        gdal.DontUseExceptions()
+
     def test_load_geotiff_tile(self):
         from aws.osml.gdal.gdal_dem_tile_factory import GDALDigitalElevationModelTileFactory
         from aws.osml.photogrammetry import GeodeticWorldCoordinate

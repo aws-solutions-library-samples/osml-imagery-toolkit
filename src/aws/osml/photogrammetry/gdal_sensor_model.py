@@ -66,7 +66,7 @@ class GDALAffineSensorModel(SensorModel):
         :return: the longitude, latitude, elevation world coordinate
         """
         # The transform is expecting coordinates [x, y, 1.0] as an input.
-        augmented_image_coord = np.append(image_coordinate.coordinate, [1.0]).reshape(3, 1)
+        augmented_image_coord = np.append(image_coordinate.coordinate, [1.0])
         lonlat_coordinate = np.matmul(self.transform, augmented_image_coord)
         world_coordinate = GeodeticWorldCoordinate([radians(lonlat_coordinate[0]), radians(lonlat_coordinate[1]), 0.0])
         if elevation_model:

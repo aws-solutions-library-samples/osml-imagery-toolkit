@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional, Tuple
 
 from cachetools import LRUCache, cachedmethod
-from scipy.interpolate import interp2d
+from scipy.interpolate import RectBivariateSpline
 
 from .coordinates import GeodeticWorldCoordinate
 from .elevation_model import ElevationModel
@@ -119,10 +119,10 @@ class DigitalElevationModel(ElevationModel):
 
         if interpolation_grid is not None and sensor_model is not None:
             image_coordinate = sensor_model.world_to_image(geodetic_world_coordinate)
-            geodetic_world_coordinate.elevation = interpolation_grid(image_coordinate.x, image_coordinate.y)
+            geodetic_world_coordinate.elevation = interpolation_grid(image_coordinate.x, image_coordinate.y)[0][0]
 
     @cachedmethod(operator.attrgetter("raster_cache"))
-    def get_interpolation_grid(self, tile_path: str) -> Tuple[Optional[interp2d], Optional[SensorModel]]:
+    def get_interpolation_grid(self, tile_path: str) -> Tuple[Optional[RectBivariateSpline], Optional[SensorModel]]:
         """
         This method loads and converts an array of elevation values into a class that can
         interpolate values that lie between measured elevations. The sensor model is also
@@ -142,6 +142,6 @@ class DigitalElevationModel(ElevationModel):
             height, width = elevations_array.shape
             x = range(0, width)
             y = range(0, height)
-            return interp2d(x, y, elevations_array, kind="linear"), sensor_model
+            return RectBivariateSpline(x, y, elevations_array.T, kx=1, ky=1), sensor_model
         else:
             return None, None
