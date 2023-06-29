@@ -1,4 +1,4 @@
-# OversightML Imagery Core Libraries
+# OversightML Imagery Toolkit
 
 The OversightML Imagery Core is a Python package that contains image processing and photogrammetry routines commonly
 used during the analysis of imagery collected by satellites and unmanned aerial vehicles (UAVs). It builds upon GDAL
@@ -10,7 +10,7 @@ Imagery Transmission Format (NITF) standards.
 The intent is to vend / distribute this software through a Python Package Index. If your environment has a distribution 
 you should be able to install it using pip:
 ```shell
-pip install aws-osml-imagery-core[gdal]
+pip install osml-imagery-toolkit[gdal]
 ```
 
 If you are working from a source code you can build and install the package from the root directory of the
@@ -98,4 +98,4 @@ See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more inform
 
 ## License
 
-This library is licensed under the MIT-0 License. See the LICENSE file.
+This library is licensed under the MIT-0 License. See the [LICENSE](LICENSE) file.
