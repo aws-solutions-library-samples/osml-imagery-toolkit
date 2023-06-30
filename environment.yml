@@ -1,7 +1,7 @@
-name: osml_model_runner
+name: osml_imagery_toolkit
 channels:
   - conda-forge
 dependencies:
-  - conda-forge::python
-  - conda-forge::gdal
-  - conda-forge::proj
+  - conda-forge::python=3.10
+  - conda-forge::gdal=3.7.0
+  - conda-forge::proj=9.2.1
