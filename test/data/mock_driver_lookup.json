@@ -1,0 +1,377 @@
+{
+    "ACE2": [
+        "ACE2"
+    ],
+    "ARC Digitized Raster Graphics": [
+        "gen"
+    ],
+    "ASCII Gridded XYZ": [
+        "xyz"
+    ],
+    "Arc/Info ASCII Grid": [
+        "asc"
+    ],
+    "Arc/Info E00 (ASCII) Coverage": [
+        "e00"
+    ],
+    "AutoCAD DXF": [
+        "dxf"
+    ],
+    "AutoCAD Driver": [
+        "dwg"
+    ],
+    "CALS (Type 1)": [
+        "cal",
+        "ct1"
+    ],
+    "Comma Separated Value (.csv)": [
+        "csv"
+    ],
+    "Czech Cadastral Exchange Data Format": [
+        "vfk"
+    ],
+    "DRDC COASP SAR Processor Raster": [
+        "hdr"
+    ],
+    "DTED Elevation Raster": [
+        "dt0",
+        "dt1",
+        "dt2"
+    ],
+    "ECRG TOC format": [
+        "xml"
+    ],
+    "ERMapper .ers Labelled": [
+        "ers"
+    ],
+    "ESRI .hdr Labelled": [
+        "bil"
+    ],
+    "ESRI FileGDB": [
+        "gdb"
+    ],
+    "ESRI Shapefile": [
+        "shp",
+        "dbf",
+        "shz",
+        "shp.zip"
+    ],
+    "ESRIJSON": [
+        "json"
+    ],
+    "EUMETSAT Archive native (.nat)": [
+        "nat"
+    ],
+    "Envisat Image Format": [
+        "n1"
+    ],
+    "Erdas Imagine Images (.img)": [
+        "img"
+    ],
+    "FARSITE v.4 Landscape File (.lcp)": [
+        "lcp"
+    ],
+    "FlatGeobuf": [
+        "fgb"
+    ],
+    "French EDIGEO exchange format": [
+        "thf"
+    ],
+    "GMT ASCII Vectors (.gmt)": [
+        "gmt"
+    ],
+    "GPSBabel": [
+        "mps",
+        "gdb",
+        "osm",
+        "tcx",
+        "igc"
+    ],
+    "GPX": [
+        "gpx"
+    ],
+    "GRIdded Binary (.grb, .grb2)": [
+        "grb",
+        "grb2",
+        "grib2"
+    ],
+    "GeoJSON": [
+        "json",
+        "geojson"
+    ],
+    "GeoJSON Sequence": [
+        "geojsonl",
+        "geojsons"
+    ],
+    "GeoPackage": [
+        "gpkg"
+    ],
+    "GeoSoft Grid Exchange Format": [
+        "gxf"
+    ],
+    "GeoTIFF": [
+        "tif",
+        "tiff"
+    ],
+    "Geoconcept": [
+        "gxt",
+        "txt"
+    ],
+    "Geography Markup Language (GML)": [
+        "gml",
+        "xml"
+    ],
+    "Geospatial PDF": [
+        "pdf"
+    ],
+    "Golden Software 7 Binary Grid (.grd)": [
+        "grd"
+    ],
+    "Golden Software ASCII Grid (.grd)": [
+        "grd"
+    ],
+    "Golden Software Binary Grid (.grd)": [
+        "grd"
+    ],
+    "Graphics Interchange Format (.gif)": [
+        "gif"
+    ],
+    "Ground-based SAR Applications Testbed File Format (.gff)": [
+        "gff"
+    ],
+    "HF2/HFZ heightfield raster": [
+        "hf2"
+    ],
+    "IHO S-57 (ENC)": [
+        "000"
+    ],
+    "ILWIS Raster Map": [
+        "mpr",
+        "mpl"
+    ],
+    "IRIS data (.PPI, .CAPPi etc)": [
+        "ppi"
+    ],
+    "Idrisi Raster A.1": [
+        "rst"
+    ],
+    "Idrisi Vector (.vct)": [
+        "vct"
+    ],
+    "International Service for the Geoid": [
+        "isg"
+    ],
+    "JPEG JFIF": [
+        "jpg",
+        "jpeg"
+    ],
+    "JPEG-2000 driver based on OpenJPEG library": [
+        "jp2",
+        "j2k"
+    ],
+    "Japanese DEM (.mem)": [
+        "mem"
+    ],
+    "KOLOR Raw": [
+        "kro"
+    ],
+    "Kadaster LV BAG Extract 2.0": [
+        "xml"
+    ],
+    "Keyhole Markup Language (KML)": [
+        "kml"
+    ],
+    "Kml Super Overlay": [
+        "kml",
+        "kmz"
+    ],
+    "Leveller heightfield": [
+        "ter"
+    ],
+    "MBTiles": [
+        "mbtiles"
+    ],
+    "MS Office Open XML spreadsheet": [
+        "xlsx",
+        "xlsm"
+    ],
+    "MS Windows Device Independent Bitmap": [
+        "bmp"
+    ],
+    "Magellan topo (.blx)": [
+        "blx"
+    ],
+    "MapInfo File": [
+        "tab",
+        "mif",
+        "mid"
+    ],
+    "Mapbox Vector Tiles": [
+        "mvt",
+        "mvt.gz",
+        "pbf"
+    ],
+    "Maptech BSB Nautical Charts": [
+        "kap"
+    ],
+    "Meta Raster Format": [
+        "mrf"
+    ],
+    "Microstation DGN": [
+        "dgn"
+    ],
+    "NASA Planetary Data System 4": [
+        "xml"
+    ],
+    "NOAA NGS Geoid Height Grids": [
+        "bin"
+    ],
+    "NOAA Vertical Datum .GTX": [
+        "gtx"
+    ],
+    "NTv2 Datum Grid Shift": [
+        "gsb",
+        "gvb"
+    ],
+    "National Imagery Transmission Format": [
+        "ntf"
+    ],
+    "Natural Resources Canada's Geoid": [
+        "byn",
+        "err"
+    ],
+    "Northwood Classified Grid Format .grc/.tab": [
+        "grc"
+    ],
+    "Northwood Numeric Grid Format .grd/.tab": [
+        "grd"
+    ],
+    "Open Document/ LibreOffice / OpenOffice Spreadsheet ": [
+        "ods"
+    ],
+    "OpenJUMP JML": [
+        "jml"
+    ],
+    "OpenStreetMap XML and PBF": [
+        "osm",
+        "pbf"
+    ],
+    "PCIDSK Database File": [
+        "pix"
+    ],
+    "PCRaster Raster File": [
+        "map"
+    ],
+    "Portable Network Graphics": [
+        "png"
+    ],
+    "Portable Pixmap Format (netpbm)": [
+        "pgm",
+        "ppm",
+        "pnm"
+    ],
+    "PostgreSQL SQL dump": [
+        "sql"
+    ],
+    "R Object Data Store": [
+        "rda"
+    ],
+    "R Raster": [
+        "grd"
+    ],
+    "Racurs PHOTOMOD PRF": [
+        "prf"
+    ],
+    "Raster Matrix Format": [
+        "rsw"
+    ],
+    "Raster Product Format TOC format": [
+        "toc"
+    ],
+    "Rasterlite": [
+        "sqlite"
+    ],
+    "SAGA GIS Binary Grid (.sdat, .sg-grd-z)": [
+        "sdat",
+        "sg-grd-z"
+    ],
+    "SDTS Raster": [
+        "ddf"
+    ],
+    "SGI Image File Format 1.0": [
+        "rgb"
+    ],
+    "SQLite / Spatialite": [
+        "sqlite",
+        "db"
+    ],
+    "SRTMHGT File Format": [
+        "hgt"
+    ],
+    "Scalable Vector Graphics": [
+        "svg"
+    ],
+    "Scaled Integer Gridded DEM .sigdem": [
+        "sigdem"
+    ],
+    "Snow Data Assimilation System": [
+        "hdr"
+    ],
+    "Spatio-Temporal Asset Catalog Tiled Assets": [
+        "json"
+    ],
+    "Standard Raster Product (ASRP/USRP)": [
+        "img"
+    ],
+    "Storage and eXchange Format": [
+        "sxf"
+    ],
+    "Swedish Grid RIK (.rik)": [
+        "rik"
+    ],
+    "TGA/TARGA Image File Format": [
+        "tga"
+    ],
+    "Terragen heightfield": [
+        "ter"
+    ],
+    "TopoJSON": [
+        "json",
+        "topojson"
+    ],
+    "USGS Astrogeology ISIS cube (Version 3)": [
+        "lbl",
+        "cub"
+    ],
+    "USGS Optional ASCII DEM (and CDED)": [
+        "dem"
+    ],
+    "VDV-451/VDV-452/INTREST Data Format": [
+        "txt",
+        "x10"
+    ],
+    "VRT - Virtual Datasource": [
+        "vrt"
+    ],
+    "VTP .bt (Binary Terrain) 1.3 Format": [
+        "bt"
+    ],
+    "Vexcel MFF Raster": [
+        "hdr"
+    ],
+    "Virtual Raster": [
+        "vrt"
+    ],
+    "WAsP .map format": [
+        "map"
+    ],
+    "WEBP": [
+        "webp"
+    ],
+    "X11 PixMap Format": [
+        "xpm"
+    ],
+    "ZMap Plus Grid": [
+        "dat"
+    ]
+}

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 125
+
+[tool.isort]
+profile = "black"
+line_length = 125
+known_first_party = ["aws.osml.*"]
+src_paths = ["src", "test"]
+
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "test"
+]
+
+# Note Flake8 can't currently be configured in pyproject.toml. See .flake8 for the configuration settings.
