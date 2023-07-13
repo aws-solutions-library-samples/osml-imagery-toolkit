@@ -1,7 +1,7 @@
 import logging
 from enum import Enum
 from typing import List, Optional
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from osgeo import gdal
 
@@ -20,7 +20,7 @@ class ChippedImageInfoFacade:
     so that they can easily be used to create an ChippedImageSensorModel
     """
 
-    def __init__(self, ichipb_tre: ElementTree.Element) -> None:
+    def __init__(self, ichipb_tre: ET.Element) -> None:
         """
         Constructor initializes the properties from values in the TRE.
 
@@ -73,8 +73,8 @@ class SensorModelFactory:
         self,
         actual_image_width: int,
         actual_image_height: int,
-        xml_tres: Optional[ElementTree.Element] = None,
-        xml_dess: Optional[ElementTree.Element] = None,
+        xml_tres: Optional[ET.Element] = None,
+        xml_dess: Optional[ET.Element] = None,
         geo_transform: Optional[List[float]] = None,
         ground_control_points: Optional[List[gdal.GCP]] = None,
         selected_sensor_model_types: Optional[List[SensorModelTypes]] = None,

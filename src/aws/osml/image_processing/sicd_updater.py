@@ -1,7 +1,9 @@
 import logging
 import re
 from typing import Callable, List, TypeVar
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
+
+from defusedxml import ElementTree
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +16,7 @@ class SICDUpdater:
     This class provides a means to perform common updates to a SICD XML metadata document.
     """
 
-    def __init__(self, sicd_element: ElementTree.Element):
+    def __init__(self, sicd_element: ET.Element):
         """
         Construct a new instance of this class to manage a given set of SICD metadata.
 

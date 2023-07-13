@@ -1,11 +1,11 @@
 from typing import Callable, List, TypeVar
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 # This is a type placeholder needed by the _get_tre_field_value() type hints
 T = TypeVar("T")
 
 
-def get_tre_field_value(tre: ElementTree.Element, field_name: str, type_conversion: Callable[[str], T]) -> T:
+def get_tre_field_value(tre: ET.Element, field_name: str, type_conversion: Callable[[str], T]) -> T:
     """
     This is a private utility function that will find a named "field" element in the children of a TRE Element and
     return the "value" attribute of that named field. A type conversion function can be provided to convert the
@@ -26,7 +26,7 @@ def get_tre_field_value(tre: ElementTree.Element, field_name: str, type_conversi
     return type_conversion(str_value)
 
 
-def parse_rpc_coefficients(tre: ElementTree.Element, repeated_name: str) -> List[float]:
+def parse_rpc_coefficients(tre: ET.Element, repeated_name: str) -> List[float]:
     """
     This private utility function parses RPC coefficients from the child elements of a <repeated ...> tag in the
     XML TREs.

@@ -1,6 +1,6 @@
 import logging
 from typing import List, Optional
-from xml.etree import ElementTree
+from xml.etree import ElementTree as ET
 
 from aws.osml.photogrammetry import (
     RSMContext,
@@ -43,7 +43,7 @@ class RSMSensorModelBuilder(SensorModelBuilder):
     See STDI-0002 Volume 1 Appendix U for more detailed information.
     """
 
-    def __init__(self, xml_tres: ElementTree.Element) -> None:
+    def __init__(self, xml_tres: ET.Element) -> None:
         """
         Constructor for the builder accepting the required XML TREs.
 
@@ -115,7 +115,7 @@ class RSMSensorModelBuilder(SensorModelBuilder):
             return None
 
     @staticmethod
-    def _build_rsm_ground_domain(rsmid_tre: ElementTree.Element) -> RSMGroundDomain:
+    def _build_rsm_ground_domain(rsmid_tre: ET.Element) -> RSMGroundDomain:
         """
         This private method constructs the ground domain from information in the RSMIDA TRE.
 
@@ -184,7 +184,7 @@ class RSMSensorModelBuilder(SensorModelBuilder):
         )
 
     @staticmethod
-    def _build_rsm_image_domain(rsmid_tre: ElementTree.Element) -> RSMImageDomain:
+    def _build_rsm_image_domain(rsmid_tre: ET.Element) -> RSMImageDomain:
         """
         This private method constructs the image domain from information in the RSMIDA TRE.
 
@@ -199,7 +199,7 @@ class RSMSensorModelBuilder(SensorModelBuilder):
         )
 
     @staticmethod
-    def _build_rsm_context(rsmid_tre: ElementTree.Element) -> RSMContext:
+    def _build_rsm_context(rsmid_tre: ET.Element) -> RSMContext:
         """
         This private method constructs a RSM context from information in the RSMIDA TRE.
 
@@ -213,7 +213,7 @@ class RSMSensorModelBuilder(SensorModelBuilder):
         )
 
     @staticmethod
-    def _build_rsm_polynomial(rsmpc_tre: ElementTree.Element, polynomial_prefix: str) -> RSMPolynomial:
+    def _build_rsm_polynomial(rsmpc_tre: ET.Element, polynomial_prefix: str) -> RSMPolynomial:
         """
         This private method constructs an RSM polynomial from a group of related fields in the RSMPCA TRE. These
         TREs have similar fields grouped by the RN, RD, CN, and CD prefixes which correspond to the row or column
@@ -234,9 +234,7 @@ class RSMSensorModelBuilder(SensorModelBuilder):
         )
 
     @staticmethod
-    def _build_rsm_polynomial_sensor_model(
-        rsmpc_tre: ElementTree.Element, rsm_context: RSMContext
-    ) -> RSMPolynomialSensorModel:
+    def _build_rsm_polynomial_sensor_model(rsmpc_tre: ET.Element, rsm_context: RSMContext) -> RSMPolynomialSensorModel:
         """
         This private method constructs an RSM polynomial sensor model from an RSMPCA TRE and the context object.
 
@@ -266,7 +264,7 @@ class RSMSensorModelBuilder(SensorModelBuilder):
         )
 
     @staticmethod
-    def _build_loworder_rsm_polynomial(rsmpi_tre: ElementTree.Element, polynomial_prefix: str) -> RSMLowOrderPolynomial:
+    def _build_loworder_rsm_polynomial(rsmpi_tre: ET.Element, polynomial_prefix: str) -> RSMLowOrderPolynomial:
         """
         This private method constructs a low order RSM polynomial from a group of related fields in the RSMPIA TRE.
         These TREs have similar fields grouped by the R and C prefixes which correspond to the row or column
@@ -287,7 +285,7 @@ class RSMSensorModelBuilder(SensorModelBuilder):
 
     @staticmethod
     def _build_rsm_sectioned_polynomial_sensor_model(
-        rsmpi_tre: ElementTree.Element,
+        rsmpi_tre: ET.Element,
         rsm_context: RSMContext,
         rsm_polynomial_sensor_models: List[RSMPolynomialSensorModel],
     ) -> RSMSectionedPolynomialSensorModel:

@@ -1,8 +1,8 @@
 import logging
 import re
 from typing import Dict, List, Optional, Tuple
-from xml.etree import ElementTree
 
+from defusedxml import ElementTree
 from osgeo import gdal, gdalconst
 
 from aws.osml.photogrammetry import SensorModel

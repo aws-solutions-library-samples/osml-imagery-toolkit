@@ -1,9 +1,9 @@
 from unittest import TestCase
 from unittest.mock import patch
-from xml.etree import ElementTree
 
 import numpy as np
 import pytest
+from defusedxml import ElementTree
 
 from configuration import TEST_ENV_CONFIG
 

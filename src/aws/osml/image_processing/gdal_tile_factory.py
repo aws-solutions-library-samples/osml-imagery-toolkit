@@ -2,8 +2,8 @@ import base64
 import logging
 from secrets import token_hex
 from typing import Any, Dict, List, Optional
-from xml.etree import ElementTree
 
+from defusedxml import ElementTree
 from osgeo import gdal, gdalconst
 
 from aws.osml.gdal import GDALCompressionOptions, GDALImageFormats, NITFDESAccessor, get_type_and_scales
