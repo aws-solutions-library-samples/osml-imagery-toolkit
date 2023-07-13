@@ -22,3 +22,5 @@ __pycache__/
 /build
 /dist
 /htmlcov
+
+tox_conda_tmp*.yaml
