@@ -1,0 +1,641 @@
+<tres>
+  <tre name="RSMDCA" location="des TRE_OVERFLOW">
+    <field name="IID" value="2_8" />
+    <field name="EDITION" value="1101222272-2" />
+    <field name="TID" value="1101222272-1" />
+    <field name="NPAR" value="06" />
+    <field name="NIMGE" value="001" />
+    <field name="NPART" value="00006" />
+    <repeated name="IMAGE" number="1">
+      <group index="0">
+        <field name="IID" value="2_8" />
+        <field name="NPARI" value="06" />
+      </group>
+    </repeated>
+    <field name="XUOL" value="-2.42965895449297E+06" />
+    <field name="YUOL" value="-4.76049894293300E+06" />
+    <field name="ZUOL" value="+3.46898407315533E+06" />
+    <field name="XUXL" value="+8.90698769551156E-01" />
+    <field name="XUYL" value="+2.48664813021570E-01" />
+    <field name="XUZL" value="-3.80554217799520E-01" />
+    <field name="YUXL" value="-4.54593996792805E-01" />
+    <field name="YUYL" value="+4.87215943350720E-01" />
+    <field name="YUZL" value="-7.45630553709282E-01" />
+    <field name="ZUXL" value="+0.00000000000000E+00" />
+    <field name="ZUYL" value="+8.37129879594448E-01" />
+    <field name="ZUZL" value="+5.47004172461403E-01" />
+    <field name="IRO" value="" />
+    <field name="IRX" value="" />
+    <field name="IRY" value="" />
+    <field name="IRZ" value="" />
+    <field name="IRXX" value="" />
+    <field name="IRXY" value="" />
+    <field name="IRXZ" value="" />
+    <field name="IRYY" value="" />
+    <field name="IRYZ" value="" />
+    <field name="IRZZ" value="" />
+    <field name="IC0" value="" />
+    <field name="ICX" value="" />
+    <field name="ICY" value="" />
+    <field name="ICZ" value="" />
+    <field name="ICXX" value="" />
+    <field name="ICXY" value="" />
+    <field name="ICXZ" value="" />
+    <field name="ICYY" value="" />
+    <field name="ICYZ" value="" />
+    <field name="ICZZ" value="" />
+    <field name="GXO" value="01" />
+    <field name="GYO" value="02" />
+    <field name="GZO" value="03" />
+    <field name="GXR" value="04" />
+    <field name="GYR" value="05" />
+    <field name="GZR" value="06" />
+    <field name="GS" value="" />
+    <field name="GXX" value="" />
+    <field name="GXY" value="" />
+    <field name="GXZ" value="" />
+    <field name="GYX" value="" />
+    <field name="GYY" value="" />
+    <field name="GYZ" value="" />
+    <field name="GZX" value="" />
+    <field name="GZY" value="" />
+    <field name="GZZ" value="" />
+    <repeated name="DERCOV" number="21">
+      <group index="0">
+        <field name="DERCOV" value="+5.77388827727787E+04" />
+      </group>
+      <group index="1">
+        <field name="DERCOV" value="+2.60049315375747E+03" />
+      </group>
+      <group index="2">
+        <field name="DERCOV" value="+3.19928338117848E+03" />
+      </group>
+      <group index="3">
+        <field name="DERCOV" value="-1.31174811541913E+00" />
+      </group>
+      <group index="4">
+        <field name="DERCOV" value="+2.20596677933116E+01" />
+      </group>
+      <group index="5">
+        <field name="DERCOV" value="-2.84031890108660E+00" />
+      </group>
+      <group index="6">
+        <field name="DERCOV" value="+5.11824419774739E+04" />
+      </group>
+      <group index="7">
+        <field name="DERCOV" value="+1.11777635517993E+03" />
+      </group>
+      <group index="8">
+        <field name="DERCOV" value="-1.93235228164728E+01" />
+      </group>
+      <group index="9">
+        <field name="DERCOV" value="+1.74818259318562E+00" />
+      </group>
+      <group index="10">
+        <field name="DERCOV" value="+7.06800879909857E+00" />
+      </group>
+      <group index="11">
+        <field name="DERCOV" value="+1.75094830424667E+04" />
+      </group>
+      <group index="12">
+        <field name="DERCOV" value="-1.51827591855326E+00" />
+      </group>
+      <group index="13">
+        <field name="DERCOV" value="+2.88288601417383E+00" />
+      </group>
+      <group index="14">
+        <field name="DERCOV" value="-3.57854210117485E-01" />
+      </group>
+      <group index="15">
+        <field name="DERCOV" value="+9.21252244533737E-03" />
+      </group>
+      <group index="16">
+        <field name="DERCOV" value="-1.05784554995790E-03" />
+      </group>
+      <group index="17">
+        <field name="DERCOV" value="-3.62502042683891E-03" />
+      </group>
+      <group index="18">
+        <field name="DERCOV" value="+1.04702372207584E-02" />
+      </group>
+      <group index="19">
+        <field name="DERCOV" value="-1.05046419207449E-03" />
+      </group>
+      <group index="20">
+        <field name="DERCOV" value="+1.14369570920252E-02" />
+      </group>
+    </repeated>
+  </tre>
+  <tre name="RSMECA" location="des TRE_OVERFLOW">
+    <field name="IID" value="2_8" />
+    <field name="EDITION" value="1101222272-2" />
+    <field name="TID" value="1101222272-1" />
+    <field name="INCLIC" value="Y" />
+    <field name="INCLUC" value="N" />
+    <field name="NPAR" value="06" />
+    <field name="NPARO" value="07" />
+    <field name="IGN" value="01" />
+    <field name="CVDATE" value="" />
+    <field name="XUOL" value="-2.42965895449297E+06" />
+    <field name="YUOL" value="-4.76049894293300E+06" />
+    <field name="ZUOL" value="+3.46898407315533E+06" />
+    <field name="XUXL" value="+8.90698769551156E-01" />
+    <field name="XUYL" value="+2.48664813021570E-01" />
+    <field name="XUZL" value="-3.80554217799520E-01" />
+    <field name="YUXL" value="-4.54593996792805E-01" />
+    <field name="YUYL" value="+4.87215943350720E-01" />
+    <field name="YUZL" value="-7.45630553709282E-01" />
+    <field name="ZUXL" value="+0.00000000000000E+00" />
+    <field name="ZUYL" value="+8.37129879594448E-01" />
+    <field name="ZUZL" value="+5.47004172461403E-01" />
+    <field name="IRO" value="" />
+    <field name="IRX" value="" />
+    <field name="IRY" value="" />
+    <field name="IRZ" value="" />
+    <field name="IRXX" value="" />
+    <field name="IRXY" value="" />
+    <field name="IRXZ" value="" />
+    <field name="IRYY" value="" />
+    <field name="IRYZ" value="" />
+    <field name="IRZZ" value="" />
+    <field name="IC0" value="" />
+    <field name="ICX" value="" />
+    <field name="ICY" value="" />
+    <field name="ICZ" value="" />
+    <field name="ICXX" value="" />
+    <field name="ICXY" value="" />
+    <field name="ICXZ" value="" />
+    <field name="ICYY" value="" />
+    <field name="ICYZ" value="" />
+    <field name="ICZZ" value="" />
+    <field name="GXO" value="01" />
+    <field name="GYO" value="02" />
+    <field name="GZO" value="03" />
+    <field name="GXR" value="04" />
+    <field name="GYR" value="05" />
+    <field name="GZR" value="06" />
+    <field name="GS" value="" />
+    <field name="GXX" value="" />
+    <field name="GXY" value="" />
+    <field name="GXZ" value="" />
+    <field name="GYX" value="" />
+    <field name="GYY" value="" />
+    <field name="GYZ" value="" />
+    <field name="GZX" value="" />
+    <field name="GZY" value="" />
+    <field name="GZZ" value="" />
+    <repeated name="IG" number="1">
+      <group index="0">
+        <field name="NUMOPG" value="07" />
+        <repeated name="EG" number="28">
+          <group index="0">
+            <field name="ERRCVG" value="+1.00000000000000E+04" />
+          </group>
+          <group index="1">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="2">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="3">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="4">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="5">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="6">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="7">
+            <field name="ERRCVG" value="+1.00000000000000E+04" />
+          </group>
+          <group index="8">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="9">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="10">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="11">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="12">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="13">
+            <field name="ERRCVG" value="+1.00000000000000E+04" />
+          </group>
+          <group index="14">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="15">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="16">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="17">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="18">
+            <field name="ERRCVG" value="+1.00000000000000E-02" />
+          </group>
+          <group index="19">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="20">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="21">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="22">
+            <field name="ERRCVG" value="+1.00000000000000E-02" />
+          </group>
+          <group index="23">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="24">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="25">
+            <field name="ERRCVG" value="+1.00000000000000E-02" />
+          </group>
+          <group index="26">
+            <field name="ERRCVG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="27">
+            <field name="ERRCVG" value="+1.00000000000000E-02" />
+          </group>
+        </repeated>
+        <field name="TCDF" value="1" />
+        <field name="NCSEG" value="2" />
+        <repeated name="CORSEG" number="2">
+          <group index="0">
+            <field name="CORSEG" value="+1.00000000000000E+00" />
+            <field name="TAUSEG" value="+0.00000000000000E+00" />
+          </group>
+          <group index="1">
+            <field name="CORSEG" value="+0.00000000000000E+00" />
+            <field name="TAUSEG" value="+1.00000000000000E-07" />
+          </group>
+        </repeated>
+      </group>
+    </repeated>
+    <repeated name="MAP" number="42">
+      <group index="0">
+        <field name="MAP" value="-1.00008176833852E+00" />
+      </group>
+      <group index="1">
+        <field name="MAP" value="-1.11437111194167E-05" />
+      </group>
+      <group index="2">
+        <field name="MAP" value="-2.10928468971611E-04" />
+      </group>
+      <group index="3">
+        <field name="MAP" value="+5.63463890093240E+02" />
+      </group>
+      <group index="4">
+        <field name="MAP" value="+2.10378945726364E+03" />
+      </group>
+      <group index="5">
+        <field name="MAP" value="-2.41578874722478E-01" />
+      </group>
+      <group index="6">
+        <field name="MAP" value="+1.74077554574873E+02" />
+      </group>
+      <group index="7">
+        <field name="MAP" value="+1.31005883607607E-05" />
+      </group>
+      <group index="8">
+        <field name="MAP" value="-9.99948437979009E-01" />
+      </group>
+      <group index="9">
+        <field name="MAP" value="-1.72134893831482E-04" />
+      </group>
+      <group index="10">
+        <field name="MAP" value="-1.91914100398291E+03" />
+      </group>
+      <group index="11">
+        <field name="MAP" value="+6.18659653597604E+02" />
+      </group>
+      <group index="12">
+        <field name="MAP" value="-2.05410691498182E-01" />
+      </group>
+      <group index="13">
+        <field name="MAP" value="+2.29140321587218E+02" />
+      </group>
+      <group index="14">
+        <field name="MAP" value="-1.88000374720331E-05" />
+      </group>
+      <group index="15">
+        <field name="MAP" value="+1.33640873294927E-05" />
+      </group>
+      <group index="16">
+        <field name="MAP" value="-9.96994960856037E-01" />
+      </group>
+      <group index="17">
+        <field name="MAP" value="+6.54111494045653E+01" />
+      </group>
+      <group index="18">
+        <field name="MAP" value="+6.28462636194570E+01" />
+      </group>
+      <group index="19">
+        <field name="MAP" value="-7.12623476845529E-01" />
+      </group>
+      <group index="20">
+        <field name="MAP" value="+8.65286410729262E+02" />
+      </group>
+      <group index="21">
+        <field name="MAP" value="+8.15131122853020E-10" />
+      </group>
+      <group index="22">
+        <field name="MAP" value="+5.09474138589725E-09" />
+      </group>
+      <group index="23">
+        <field name="MAP" value="+1.98482385443210E-07" />
+      </group>
+      <group index="24">
+        <field name="MAP" value="+8.89408128622832E-01" />
+      </group>
+      <group index="25">
+        <field name="MAP" value="-2.82198392231150E-01" />
+      </group>
+      <group index="26">
+        <field name="MAP" value="-3.58263953168625E-02" />
+      </group>
+      <group index="27">
+        <field name="MAP" value="-2.22004330300662E-01" />
+      </group>
+      <group index="28">
+        <field name="MAP" value="+7.69281402473103E-09" />
+      </group>
+      <group index="29">
+        <field name="MAP" value="+5.64817629532889E-11" />
+      </group>
+      <group index="30">
+        <field name="MAP" value="-2.27099775858959E-07" />
+      </group>
+      <group index="31">
+        <field name="MAP" value="+2.48154450641811E-01" />
+      </group>
+      <group index="32">
+        <field name="MAP" value="+9.61895506456725E-01" />
+      </group>
+      <group index="33">
+        <field name="MAP" value="+2.26849271978781E-02" />
+      </group>
+      <group index="34">
+        <field name="MAP" value="+2.44306094490897E-01" />
+      </group>
+      <group index="35">
+        <field name="MAP" value="+4.71499538150666E-09" />
+      </group>
+      <group index="36">
+        <field name="MAP" value="+3.43903372974882E-09" />
+      </group>
+      <group index="37">
+        <field name="MAP" value="+5.91159234969748E-09" />
+      </group>
+      <group index="38">
+        <field name="MAP" value="-3.79954994290064E-01" />
+      </group>
+      <group index="39">
+        <field name="MAP" value="-3.23458982189980E-02" />
+      </group>
+      <group index="40">
+        <field name="MAP" value="+9.99096719019677E-01" />
+      </group>
+      <group index="41">
+        <field name="MAP" value="-9.45517636383226E-03" />
+      </group>
+    </repeated>
+  </tre>
+  <tre name="RSMIDA" location="des TRE_OVERFLOW">
+    <field name="IID" value="2_8" />
+    <field name="EDITION" value="1101222272-2" />
+    <field name="ISID" value="" />
+    <field name="SID" value="" />
+    <field name="STID" value="FRAME" />
+    <field name="YEAR" value="1970" />
+    <field name="MONTH" value="01" />
+    <field name="DAY" value="01" />
+    <field name="HOUR" value="00" />
+    <field name="MINUTE" value="00" />
+    <field name="SECOND" value="00.000000" />
+    <field name="NRG" value="" />
+    <field name="NCG" value="" />
+    <field name="TRG" value="" />
+    <field name="TCG" value="" />
+    <field name="GRNDD" value="R" />
+    <field name="XUOR" value="-2.42965895449297E+06" />
+    <field name="YUOR" value="-4.76049894293300E+06" />
+    <field name="ZUOR" value="+3.46898407315533E+06" />
+    <field name="XUXR" value="+8.90233155120443E-01" />
+    <field name="XUYR" value="+2.50327118321895E-01" />
+    <field name="XUZR" value="-3.80553890213932E-01" />
+    <field name="YUXR" value="-4.55502457571841E-01" />
+    <field name="YUYR" value="+4.86367706250322E-01" />
+    <field name="YUZR" value="-7.45629911861651E-01" />
+    <field name="ZUXR" value="-1.56226448294838E-03" />
+    <field name="ZUYR" value="+8.37127701219746E-01" />
+    <field name="ZUZR" value="+5.47005275276417E-01" />
+    <field name="V1X" value="+3.60917770743581E+01" />
+    <field name="V1Y" value="-2.28824840001127E+01" />
+    <field name="V1Z" value="-9.99992874460703E+02" />
+    <field name="V2X" value="+5.18884362473253E+03" />
+    <field name="V2Y" value="-2.87450036723962E+01" />
+    <field name="V2Z" value="-1.00211587769373E+03" />
+    <field name="V3X" value="+3.79919348686812E+01" />
+    <field name="V3Y" value="+4.59734548268640E+03" />
+    <field name="V3Z" value="-1.00166489059808E+03" />
+    <field name="V4X" value="+5.01402740997898E+03" />
+    <field name="V4Y" value="+4.85440104533856E+03" />
+    <field name="V4Z" value="-1.00381011450997E+03" />
+    <field name="V5X" value="-3.60920649717823E+01" />
+    <field name="V5Y" value="+2.28826665274178E+01" />
+    <field name="V5Z" value="+1.00000085119816E+03" />
+    <field name="V6X" value="+1.88541350122103E+03" />
+    <field name="V6Y" value="+2.07081675817197E+01" />
+    <field name="V6Z" value="+9.99720731314608E+02" />
+    <field name="V7X" value="-3.53972599523443E+01" />
+    <field name="V7Y" value="+1.74601545186290E+03" />
+    <field name="V7Z" value="+9.99761368681871E+02" />
+    <field name="V8X" value="+1.81960288385246E+03" />
+    <field name="V8Y" value="+1.84110851608994E+03" />
+    <field name="V8Z" value="+9.99477441903243E+02" />
+    <field name="GRPX" value="" />
+    <field name="GRPY" value="" />
+    <field name="GRPZ" value="" />
+    <field name="FULLR" value="" />
+    <field name="FULLC" value="" />
+    <field name="MINR" value="00000000" />
+    <field name="MAXR" value="00009292" />
+    <field name="MINC" value="00000000" />
+    <field name="MAXC" value="00009122" />
+    <field name="IE0" value="" />
+    <field name="IER" value="" />
+    <field name="IEC" value="" />
+    <field name="IERR" value="" />
+    <field name="IERC" value="" />
+    <field name="IECC" value="" />
+    <field name="IA0" value="" />
+    <field name="IAR" value="" />
+    <field name="IAC" value="" />
+    <field name="IARR" value="" />
+    <field name="IARC" value="" />
+    <field name="IACC" value="" />
+    <field name="SPX" value="" />
+    <field name="SVX" value="" />
+    <field name="SAX" value="" />
+    <field name="SPY" value="" />
+    <field name="SVY" value="" />
+    <field name="SAY" value="" />
+    <field name="SPZ" value="" />
+    <field name="SVZ" value="" />
+    <field name="SAZ" value="" />
+  </tre>
+  <tre name="RSMPCA" location="des TRE_OVERFLOW">
+    <field name="IID" value="2_8" />
+    <field name="EDITION" value="1101222272-2" />
+    <field name="RSN" value="001" />
+    <field name="CSN" value="001" />
+    <field name="RFEP" value="+3.98498860405865E-09" />
+    <field name="CFEP" value="+3.63668781918539E-09" />
+    <field name="RNRMO" value="+4.64600000000000E+03" />
+    <field name="CNRMO" value="+4.56100000000000E+03" />
+    <field name="XNRMO" value="+2.65571142640788E+03" />
+    <field name="YNRMO" value="+2.40732324869712E+03" />
+    <field name="ZNRMO" value="-2.33161661728923E+00" />
+    <field name="RNRMSF" value="+5.59920000000000E+03" />
+    <field name="CNRMSF" value="+5.49720000000000E+03" />
+    <field name="XNRMSF" value="+3.11793659470231E+03" />
+    <field name="YNRMSF" value="+2.96084811268529E+03" />
+    <field name="ZNRMSF" value="+1.00233148808220E+03" />
+    <field name="RNPWRX" value="1" />
+    <field name="RNPWRY" value="1" />
+    <field name="RNPWRZ" value="1" />
+    <field name="RNTRMS" value="008" />
+    <repeated name="RNPCF" number="8">
+      <group index="0">
+        <field name="RNPCF" value="+4.63481151803541E-01" />
+      </group>
+      <group index="1">
+        <field name="RNPCF" value="+1.47720153582094E+00" />
+      </group>
+      <group index="2">
+        <field name="RNPCF" value="+2.45032267644299E-02" />
+      </group>
+      <group index="3">
+        <field name="RNPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="4">
+        <field name="RNPCF" value="+3.89362443002779E-01" />
+      </group>
+      <group index="5">
+        <field name="RNPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="6">
+        <field name="RNPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="7">
+        <field name="RNPCF" value="+0.00000000000000E+00" />
+      </group>
+    </repeated>
+    <field name="RDPWRX" value="1" />
+    <field name="RDPWRY" value="1" />
+    <field name="RDPWRZ" value="1" />
+    <field name="RDTRMS" value="008" />
+    <repeated name="RDPCF" number="8">
+      <group index="0">
+        <field name="RDPCF" value="+1.00000000000000E+00" />
+      </group>
+      <group index="1">
+        <field name="RDPCF" value="+5.02862720499332E-02" />
+      </group>
+      <group index="2">
+        <field name="RDPCF" value="-3.02226608403966E-02" />
+      </group>
+      <group index="3">
+        <field name="RDPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="4">
+        <field name="RDPCF" value="-4.48001662401358E-01" />
+      </group>
+      <group index="5">
+        <field name="RDPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="6">
+        <field name="RDPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="7">
+        <field name="RDPCF" value="+0.00000000000000E+00" />
+      </group>
+    </repeated>
+    <field name="CNPWRX" value="1" />
+    <field name="CNPWRY" value="1" />
+    <field name="CNPWRZ" value="1" />
+    <field name="CNTRMS" value="008" />
+    <repeated name="CNPCF" number="8">
+      <group index="0">
+        <field name="CNPCF" value="+3.66773732052461E-01" />
+      </group>
+      <group index="1">
+        <field name="CNPCF" value="-3.99759610583925E-02" />
+      </group>
+      <group index="2">
+        <field name="CNPCF" value="+1.49479106149881E+00" />
+      </group>
+      <group index="3">
+        <field name="CNPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="4">
+        <field name="CNPCF" value="+3.60340008196375E-01" />
+      </group>
+      <group index="5">
+        <field name="CNPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="6">
+        <field name="CNPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="7">
+        <field name="CNPCF" value="+0.00000000000000E+00" />
+      </group>
+    </repeated>
+    <field name="CDPWRX" value="1" />
+    <field name="CDPWRY" value="1" />
+    <field name="CDPWRZ" value="1" />
+    <field name="CDTRMS" value="008" />
+    <repeated name="CDPCF" number="8">
+      <group index="0">
+        <field name="CDPCF" value="+1.00000000000000E+00" />
+      </group>
+      <group index="1">
+        <field name="CDPCF" value="+5.02862720498340E-02" />
+      </group>
+      <group index="2">
+        <field name="CDPCF" value="-3.02226608402894E-02" />
+      </group>
+      <group index="3">
+        <field name="CDPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="4">
+        <field name="CDPCF" value="-4.48001662401429E-01" />
+      </group>
+      <group index="5">
+        <field name="CDPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="6">
+        <field name="CDPCF" value="+0.00000000000000E+00" />
+      </group>
+      <group index="7">
+        <field name="CDPCF" value="+0.00000000000000E+00" />
+      </group>
+    </repeated>
+  </tre>
+</tres>
