@@ -1,5 +1,6 @@
 from typing import Callable, List, TypeVar
-from xml.etree import ElementTree
+
+from defusedxml import ElementTree
 
 # This is a type placeholder needed by the _get_tre_field_value() type hints
 T = TypeVar("T")

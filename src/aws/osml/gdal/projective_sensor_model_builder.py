@@ -1,7 +1,8 @@
 import logging
 from math import radians
 from typing import Optional
-from xml.etree import ElementTree
+
+from defusedxml import ElementTree
 
 from aws.osml.photogrammetry import GeodeticWorldCoordinate, ImageCoordinate, ProjectiveSensorModel
 

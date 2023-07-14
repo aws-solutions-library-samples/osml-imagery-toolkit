@@ -27,7 +27,7 @@ RUN wget -c ${MINICONDA_URL} \
 ENV PATH=/opt/conda/bin:$PATH
 
 # set all the ENV vars needed for build
-ENV CONDA_TARGET_ENV=osml_model_runner
+ENV CONDA_TARGET_ENV=osml_imagery_toolkit
 ENV CC="clang"
 ENV CXX="clang++"
 ENV ARCHFLAGS="-arch x86_64"
@@ -35,7 +35,7 @@ ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/opt/conda/lib/:/opt/conda/bin:/usr/incl
 ENV PROJ_LIB=/opt/conda/share/proj
 
 # copy our conda env configuration for Python 3.10
-COPY osml-model-runner/environment-py311.yml environment.yml
+COPY environment-py311.yml environment.yml
 
 # create the conda env
 RUN conda env create

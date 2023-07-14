@@ -38,3 +38,10 @@ repos:
             "--in-place"
           ]
         types: [file, python]
+
+  - repo: https://github.com/aws-samples/automated-security-helper
+    rev: '1.0.9-e-16May2023' # update with the latest tagged version in the repository
+    hooks:
+      - id: ash
+        # uncomment the line below if using "finch" on MacOS
+        # args: [ "-f" ]

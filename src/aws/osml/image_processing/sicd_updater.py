@@ -1,7 +1,8 @@
 import logging
 import re
 from typing import Callable, List, TypeVar
-from xml.etree import ElementTree
+
+from defusedxml import ElementTree
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,7 @@
 import logging
 from typing import List, Optional
-from xml.etree import ElementTree
+
+from defusedxml import ElementTree
 
 from aws.osml.photogrammetry import (
     RSMContext,

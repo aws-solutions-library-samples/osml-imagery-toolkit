@@ -1,11 +1,11 @@
 import unittest
-import xml.etree.ElementTree as ElementTree
 from math import degrees, radians
 from unittest import TestCase
 from unittest.mock import patch
 
 import numpy as np
 import pytest
+from defusedxml import ElementTree
 from osgeo import gdal
 
 from configuration import TEST_ENV_CONFIG

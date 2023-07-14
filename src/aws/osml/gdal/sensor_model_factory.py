@@ -1,8 +1,8 @@
 import logging
 from enum import Enum
 from typing import List, Optional
-from xml.etree import ElementTree
 
+from defusedxml import ElementTree
 from osgeo import gdal
 
 from aws.osml.photogrammetry import ChippedImageSensorModel, CompositeSensorModel, ImageCoordinate, SensorModel
