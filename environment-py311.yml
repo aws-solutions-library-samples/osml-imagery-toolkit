@@ -1,0 +1,7 @@
+name: osml_imagery_toolkit
+channels:
+  - conda-forge
+dependencies:
+  - conda-forge::python=3.11.4
+  - conda-forge::gdal=3.7.0
+  - conda-forge::proj=9.2.1
