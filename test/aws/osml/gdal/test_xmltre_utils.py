@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
-from defusedxml import ElementTree as Et
+from defusedxml import ElementTree
 
 from configuration import TEST_ENV_CONFIG
 
@@ -121,5 +121,5 @@ class TestXMLTREUtils(TestCase):
     @staticmethod
     def build_metadata_ms_rpc00b():
         with open("test/data/sample-metadata-ms-rpc00b.xml", "rb") as xml_file:
-            xml_tres = Et.parse(xml_file)
+            xml_tres = ElementTree.parse(xml_file)
             return xml_tres

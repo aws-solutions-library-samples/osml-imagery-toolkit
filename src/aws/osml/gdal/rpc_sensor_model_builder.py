@@ -1,7 +1,6 @@
 import logging
 from typing import Optional
-
-from defusedxml import ElementTree as Et
+from xml.etree import ElementTree as ET
 
 from aws.osml.photogrammetry import RPCPolynomial, RPCSensorModel
 
@@ -21,7 +20,7 @@ class RPCSensorModelBuilder(SensorModelBuilder):
      See STDI-0002 Volume 1 Appendix E for more detailed information.
     """
 
-    def __init__(self, xml_tres: Et.Element) -> None:
+    def __init__(self, xml_tres: ET.Element) -> None:
         """
         Constructor for the builder accepting the required XML TREs.
 
@@ -64,7 +63,7 @@ class RPCSensorModelBuilder(SensorModelBuilder):
             return None
 
     @staticmethod
-    def build_rpc_sensor_model(rpc_tre: Et.Element) -> RPCSensorModel:
+    def build_rpc_sensor_model(rpc_tre: ET.Element) -> RPCSensorModel:
         """
         This private method constructs an RPC sensor model from an RPC00B TRE.
 
@@ -92,7 +91,7 @@ class RPCSensorModelBuilder(SensorModelBuilder):
         )
 
     @staticmethod
-    def build_rpc_polynomial(rpc_tre: Et.Element, polynomial_name: str) -> RPCPolynomial:
+    def build_rpc_polynomial(rpc_tre: ET.Element, polynomial_name: str) -> RPCPolynomial:
         """
         This private method constructs a RPC polynomial from coefficients found inthe RPC00B TRE. There are 4
         repeating groups of these coefficients for the polynomials associated with line or sample numerators and

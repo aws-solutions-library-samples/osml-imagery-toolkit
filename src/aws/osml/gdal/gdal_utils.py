@@ -2,7 +2,7 @@ import logging
 import re
 from typing import Dict, List, Optional, Tuple
 
-from defusedxml import ElementTree as Et
+from defusedxml import ElementTree
 from osgeo import gdal, gdalconst
 
 from aws.osml.photogrammetry import SensorModel
@@ -38,13 +38,13 @@ def load_gdal_dataset(image_path: str) -> Tuple[gdal.Dataset, Optional[SensorMod
     parsed_tres = None
     xml_tres = ds.GetMetadata("xml:TRE")
     if xml_tres is not None and len(xml_tres) > 0:
-        parsed_tres = Et.fromstring(xml_tres[0])
+        parsed_tres = ElementTree.fromstring(xml_tres[0])
 
     # If this image has SICD Metadata parse it
     parsed_dess = None
     xml_dess = ds.GetMetadata("xml:DES")
     if xml_dess is not None and len(xml_dess) > 0:
-        parsed_dess = Et.fromstring(xml_dess[0])
+        parsed_dess = ElementTree.fromstring(xml_dess[0])
 
     selected_sensor_model_types = [
         SensorModelTypes.AFFINE,

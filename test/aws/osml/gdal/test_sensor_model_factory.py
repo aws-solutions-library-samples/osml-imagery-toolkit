@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
-from defusedxml import ElementTree as Et
+from defusedxml import ElementTree
 from osgeo import gdal
 
 from configuration import TEST_ENV_CONFIG
@@ -28,7 +28,7 @@ class TestSensorModelFactory(TestCase):
         from aws.osml.photogrammetry.rpc_sensor_model import RPCSensorModel
 
         with open("test/data/sample-metadata-ms-rpc00b.xml", "rb") as xml_file:
-            xml_tres = Et.parse(xml_file)
+            xml_tres = ElementTree.parse(xml_file)
             sensor_model_builder = SensorModelFactory(2048, 2048, xml_tres=xml_tres)
             sensor_model = sensor_model_builder.build()
             assert sensor_model is not None
@@ -61,7 +61,7 @@ class TestSensorModelFactory(TestCase):
         from aws.osml.photogrammetry.projective_sensor_model import ProjectiveSensorModel
 
         with open("test/data/sample-metadata-ms-rpc00b.xml", "rb") as xml_file:
-            xml_tres = Et.parse(xml_file)
+            xml_tres = ElementTree.parse(xml_file)
             sensor_model_builder = SensorModelFactory(
                 2048,
                 2048,
@@ -79,7 +79,7 @@ class TestSensorModelFactory(TestCase):
         from aws.osml.photogrammetry.rpc_sensor_model import RPCSensorModel
 
         with open("test/data/sample-metadata-rpc00b-ichipb.xml", "rb") as xml_file:
-            xml_tres = Et.parse(xml_file)
+            xml_tres = ElementTree.parse(xml_file)
             sensor_model_builder = SensorModelFactory(
                 512,
                 512,
@@ -109,7 +109,7 @@ class TestSensorModelFactory(TestCase):
         from aws.osml.photogrammetry.replacement_sensor_model import RSMPolynomialSensorModel
 
         with open("test/data/i_6130a_truncated_tres.xml") as xml_file:
-            xml_tres = Et.parse(xml_file)
+            xml_tres = ElementTree.parse(xml_file)
             sensor_model_builder = SensorModelFactory(
                 2048, 2048, xml_tres=xml_tres, selected_sensor_model_types=[SensorModelTypes.RSM]
             )
@@ -135,7 +135,7 @@ class TestSensorModelFactory(TestCase):
         from aws.osml.photogrammetry.projective_sensor_model import ProjectiveSensorModel
 
         with open("test/data/sample-metadata-cscrna.xml", "rb") as xml_file:
-            xml_tres = Et.parse(xml_file)
+            xml_tres = ElementTree.parse(xml_file)
             sensor_model_builder = SensorModelFactory(2048, 2048, xml_tres=xml_tres)
             sensor_model = sensor_model_builder.build()
             assert isinstance(sensor_model, ProjectiveSensorModel)

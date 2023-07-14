@@ -1,6 +1,6 @@
 import unittest
 from unittest import TestCase
-from xml.etree import ElementTree as Et
+from xml.etree import ElementTree as ET
 
 from osgeo import gdal
 
@@ -13,7 +13,7 @@ class TestNITFDESAccessor(TestCase):
         des_accessor = NITFDESAccessor(ds.GetMetadata("xml:DES"))
         xml_segments = des_accessor.get_segments_by_name("XML_DATA_CONTENT")
         assert len(xml_segments) == 1
-        assert isinstance(xml_segments[0], Et.Element)
+        assert isinstance(xml_segments[0], ET.Element)
 
     def test_extract_des_header(self):
         ds = gdal.Open("./test/data/sicd_example_1_PFA_RE32F_IM32F_HH-0-0.NITF")
