@@ -2,7 +2,7 @@ import logging
 import re
 from typing import Callable, List, TypeVar
 
-from defusedxml import ElementTree
+from defusedxml import ElementTree as Et
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class SICDUpdater:
     This class provides a means to perform common updates to a SICD XML metadata document.
     """
 
-    def __init__(self, sicd_element: ElementTree.Element):
+    def __init__(self, sicd_element: Et.Element):
         """
         Construct a new instance of this class to manage a given set of SICD metadata.
 
@@ -75,7 +75,7 @@ class SICDUpdater:
             if image_data_element is not None:
                 logger.debug("Updated SICD ImageData element for chip:")
                 logger.debug(
-                    ElementTree.tostring(
+                    Et.tostring(
                         image_data_element,
                         encoding="unicode",
                     )
@@ -87,7 +87,7 @@ class SICDUpdater:
 
         :return: xml encoded SICD metadata
         """
-        return ElementTree.tostring(self.sicd_element, encoding="unicode")
+        return Et.tostring(self.sicd_element, encoding="unicode")
 
     def parse_element_text(self, element_xpath: str, type_conversion: Callable[[str], T]) -> T:
         """

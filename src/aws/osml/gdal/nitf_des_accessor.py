@@ -1,7 +1,7 @@
 from io import StringIO
 from typing import Callable, List, TypeVar
 
-from defusedxml import ElementTree
+from defusedxml import ElementTree as Et
 
 # This is a type placeholder needed by the _get_tre_field_value() type hints
 T = TypeVar("T")
@@ -27,10 +27,10 @@ class NITFDESAccessor:
         self.parsed_des_lists = []
         if gdal_xml_des_metadata is not None and len(gdal_xml_des_metadata) > 0:
             for xml_des_list in gdal_xml_des_metadata:
-                des_list = ElementTree.fromstring(xml_des_list)
+                des_list = Et.fromstring(xml_des_list)
                 self.parsed_des_lists.append(des_list)
 
-    def get_segments_by_name(self, des_name: str) -> List[ElementTree.Element]:
+    def get_segments_by_name(self, des_name: str) -> List[Et.Element]:
         """
         This method searches through the GDAL xml:DES metadata and returns the XML structure for any segments
         matching the provided name. This is equivalent to retrieving all segments that have a matching DESID.
@@ -44,7 +44,7 @@ class NITFDESAccessor:
         return result
 
     @staticmethod
-    def extract_des_header(des_element: ElementTree.Element) -> str:
+    def extract_des_header(des_element: Et.Element) -> str:
         """
         This function encodes the existing values from the Data Extension Segment header into a fields appropriately
         sized for including in a NITF image. The DESDATA field is not copied because the assumption is that the data
@@ -88,7 +88,7 @@ class NITFDESAccessor:
         return result_builder.getvalue()
 
     @staticmethod
-    def parse_field_value(des_element: ElementTree.Element, field_name: str, type_conversion: Callable[[str], T]) -> T:
+    def parse_field_value(des_element: Et.Element, field_name: str, type_conversion: Callable[[str], T]) -> T:
         """
         This is method will find a named "field" element in the children of a TRE Element and
         return the "value" attribute of that named field. A type conversion function can be provided to convert the

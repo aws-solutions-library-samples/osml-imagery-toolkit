@@ -3,7 +3,7 @@ import logging
 from secrets import token_hex
 from typing import Any, Dict, List, Optional
 
-from defusedxml import ElementTree
+from defusedxml import ElementTree as Et
 from osgeo import gdal, gdalconst
 
 from aws.osml.gdal import GDALCompressionOptions, GDALImageFormats, NITFDESAccessor, get_type_and_scales
@@ -54,7 +54,7 @@ class GDALTileFactory:
                 sicd_des = xml_data_content_segments[0]
                 sicd_bytes = self.des_accessor.parse_field_value(sicd_des, "DESDATA", base64.b64decode)
                 sicd_xml = sicd_bytes.decode("utf-8")
-                sicd_metadata = ElementTree.fromstring(sicd_xml)
+                sicd_metadata = Et.fromstring(sicd_xml)
                 self.sicd_des_header = self.des_accessor.extract_des_header(sicd_des)
                 self.sicd_updater = SICDUpdater(sicd_metadata)
 

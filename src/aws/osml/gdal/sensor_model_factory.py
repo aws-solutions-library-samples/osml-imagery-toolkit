@@ -2,7 +2,7 @@ import logging
 from enum import Enum
 from typing import List, Optional
 
-from defusedxml import ElementTree
+from defusedxml import ElementTree as Et
 from osgeo import gdal
 
 from aws.osml.photogrammetry import ChippedImageSensorModel, CompositeSensorModel, ImageCoordinate, SensorModel
@@ -20,7 +20,7 @@ class ChippedImageInfoFacade:
     so that they can easily be used to create an ChippedImageSensorModel
     """
 
-    def __init__(self, ichipb_tre: ElementTree.Element) -> None:
+    def __init__(self, ichipb_tre: Et.Element) -> None:
         """
         Constructor initializes the properties from values in the TRE.
 
@@ -73,14 +73,14 @@ class SensorModelFactory:
         self,
         actual_image_width: int,
         actual_image_height: int,
-        xml_tres: Optional[ElementTree.Element] = None,
-        xml_dess: Optional[ElementTree.Element] = None,
+        xml_tres: Optional[Et.Element] = None,
+        xml_dess: Optional[Et.Element] = None,
         geo_transform: Optional[List[float]] = None,
         ground_control_points: Optional[List[gdal.GCP]] = None,
         selected_sensor_model_types: Optional[List[SensorModelTypes]] = None,
     ) -> None:
         """
-        Construct a builder providing whatever metadata is available from the image. All of the parameters are named and
+        Construct a builder providing whatever metadata is available from the image. All the parameters are named and
         optional allowing users to provide whatever they can and trusting that this builder will make use of as much of
         the information as possible.
 
@@ -155,7 +155,7 @@ class SensorModelFactory:
                 )
 
             # Attempt to build an approximate sensor model from information in a corner coordinate TRE. The CSCRNA
-            # TRE is considered more precise than IGEOLO so we will used whenever possible.
+            # TRE is considered more precise than IGEOLO, so we will use whenever possible.
             if SensorModelTypes.PROJECTIVE in self.selected_sensor_model_types:
                 cscrna_tre = self.xml_tres.find("./tre[@name='CSCRNA']")
                 if cscrna_tre is not None:
@@ -173,7 +173,7 @@ class SensorModelFactory:
                 # TODO: Consider using the rough corners from IGEOLO
 
         # If we have both an approximate and a precision sensor model return them as a composite so applications
-        # can choose which model best meets their needs. If we were only able to construct one or the other then
+        # can choose which model best meets their needs. If we were only able to construct one or the other than
         # return what we were able to build.
         if approximate_sensor_model is not None and precision_sensor_model is not None:
             return CompositeSensorModel(

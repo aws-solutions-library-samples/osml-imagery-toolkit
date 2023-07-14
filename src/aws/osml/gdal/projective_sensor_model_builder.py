@@ -2,7 +2,7 @@ import logging
 from math import radians
 from typing import Optional
 
-from defusedxml import ElementTree
+from defusedxml import ElementTree as Et
 
 from aws.osml.photogrammetry import GeodeticWorldCoordinate, ImageCoordinate, ProjectiveSensorModel
 
@@ -19,7 +19,7 @@ class ProjectiveSensorModelBuilder(SensorModelBuilder):
     See STDI-0002 Volume 3 Appendix B for more detailed information.
     """
 
-    def __init__(self, xml_tres: ElementTree.Element, full_image_width: float, full_image_height: float) -> None:
+    def __init__(self, xml_tres: Et.Element, full_image_width: float, full_image_height: float) -> None:
         """
         Constructor for the builder accepting the required XML TREs and image dimensions.
 
@@ -55,7 +55,7 @@ class ProjectiveSensorModelBuilder(SensorModelBuilder):
 
     @staticmethod
     def build_projective_sensor_model(
-        cscrna_tre: ElementTree.Element, full_image_width: float, full_image_height: float
+        cscrna_tre: Et.Element, full_image_width: float, full_image_height: float
     ) -> ProjectiveSensorModel:
         """
         This private method constructs an RPC sensor model from an RPC00B TRE.
