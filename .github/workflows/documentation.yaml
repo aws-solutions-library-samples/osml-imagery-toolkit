@@ -21,4 +21,8 @@ jobs:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: _build/
+<<<<<<< HEAD
           force_orphan: true
+=======
+          force_orphan: true
+>>>>>>> 746cabf2e99539b5614ff83c90ecde682c13abde
