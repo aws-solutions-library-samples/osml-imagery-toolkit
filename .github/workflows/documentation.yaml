@@ -17,7 +17,7 @@ jobs:
         run: |
           sphinx-build doc _build
       - name: Deploy
-        uses: peaceiris/actions-gh-pages@f09b4d7e2f12f433806a6273c6b0025df1f7859d
+        uses: peaceiris/actions-gh-pages@v3.9.3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           publish_branch: gh-pages
