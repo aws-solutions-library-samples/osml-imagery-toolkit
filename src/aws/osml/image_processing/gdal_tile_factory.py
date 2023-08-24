@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 from defusedxml import ElementTree
 from osgeo import gdal, gdalconst
 
-from aws.osml.gdal import GDALCompressionOptions, GDALImageFormats, NITFDESAccessor, get_type_and_scales
+from aws.osml.gdal import GDALCompressionOptions, GDALImageFormats, NITFDESAccessor, RangeAdjustmentType, get_type_and_scales
 from aws.osml.photogrammetry import ImageCoordinate, SensorModel
 
 from .sicd_updater import SICDUpdater
@@ -26,6 +26,8 @@ class GDALTileFactory:
         sensor_model: Optional[SensorModel] = None,
         tile_format: GDALImageFormats = GDALImageFormats.NITF,
         tile_compression: GDALCompressionOptions = GDALCompressionOptions.NONE,
+        output_type: Optional[int] = None,
+        range_adjustment: RangeAdjustmentType = RangeAdjustmentType.NONE,
     ):
         """
         Constructs a new factory capable of producing tiles from a given GDAL raster dataset.
@@ -34,6 +36,8 @@ class GDALTileFactory:
         :param sensor_model: the sensor model providing mensuration support for this image
         :param tile_format: the output tile format
         :param tile_compression: the output tile compression
+        :param output_type: the GDAL pixel type in the output tile
+        :param range_adjustment: the type of scaling used to convert raw pixel values to the output range
         """
         self.tile_format = tile_format
         self.tile_compression = tile_compression
@@ -42,6 +46,8 @@ class GDALTileFactory:
         self.des_accessor = None
         self.sicd_updater = None
         self.sicd_des_header = None
+        self.range_adjustment = range_adjustment
+        self.output_type = output_type
 
         if self.raster_dataset.GetDriver().ShortName == "NITF":
             xml_des = self.raster_dataset.GetMetadata("xml:DES")
@@ -58,6 +64,8 @@ class GDALTileFactory:
                 self.sicd_des_header = self.des_accessor.extract_des_header(sicd_des)
                 self.sicd_updater = SICDUpdater(sicd_metadata)
 
+        self.default_gdal_translate_kwargs = self._create_gdal_translate_kwargs()
+
     def create_encoded_tile(self, src_window: List[int]) -> Optional[bytearray]:
         """
         This method cuts a tile from the full image, updates the metadata as needed, and finally compresses/encodes
@@ -71,10 +79,10 @@ class GDALTileFactory:
         # Use the request and metadata from the raster dataset to create a set of keyword
         # arguments for the gdal.Translate() function. This will configure that function to
         # create image tiles using the format, compression, etc. requested by the client.
-        gdal_translate_kwargs = self._create_gdal_translate_kwargs()
+        gdal_translate_kwargs = self.default_gdal_translate_kwargs.copy()
 
         # Create a new IGEOLO value based on the corner points of this tile
-        if self.sensor_model is not None:
+        if self.sensor_model is not None and self.tile_format == GDALImageFormats.NITF:
             gdal_translate_kwargs["creationOptions"].append("ICORDS=G")
             gdal_translate_kwargs["creationOptions"].append("IGEOLO=" + self.create_new_igeolo(src_window))
 
@@ -148,9 +156,10 @@ class GDALTileFactory:
 
         :return: Dict[str, any] = the dictionary of translate keyword arguments
         """
-        # Figure out what type of image this is and calculate a scale that does not force any range
-        # remapping
-        output_type, scale_params = get_type_and_scales(self.raster_dataset)
+        # Figure out what type of image this is and calculate a scale to map input pixels to the output type
+        output_type, scale_params = get_type_and_scales(
+            self.raster_dataset, desired_output_type=self.output_type, range_adjustment=self.range_adjustment
+        )
 
         gdal_translate_kwargs = {
             "scaleParams": scale_params,

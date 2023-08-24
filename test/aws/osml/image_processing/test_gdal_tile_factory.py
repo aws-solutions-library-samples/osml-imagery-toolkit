@@ -2,9 +2,9 @@ import unittest
 from secrets import token_hex
 from unittest import TestCase
 
-from osgeo import gdal
+from osgeo import gdal, gdalconst
 
-from aws.osml.gdal import GDALCompressionOptions, GDALImageFormats, load_gdal_dataset
+from aws.osml.gdal import GDALCompressionOptions, GDALImageFormats, RangeAdjustmentType, load_gdal_dataset
 from aws.osml.image_processing import GDALTileFactory
 
 
@@ -34,6 +34,31 @@ class TestGDALTileFactory(TestCase):
         assert tile_dataset.RasterXSize == 128
         assert tile_dataset.RasterYSize == 256
         assert tile_dataset.GetDriver().ShortName == GDALImageFormats.PNG
+
+    def test_create_png_with_dra(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.ntf")
+        tile_factory = GDALTileFactory(
+            full_dataset,
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.DRA,
+        )
+
+        full_dataset.GetRasterBand(1).ComputeStatistics(approx_ok=0)
+        assert full_dataset.GetRasterBand(1).GetMinimum() == 0
+        assert full_dataset.GetRasterBand(1).GetMaximum() == 255
+        encoded_tile_data = tile_factory.create_encoded_tile([10, 10, 128, 256])
+        temp_ds_name = "/vsimem/" + token_hex(16) + ".PNG"
+        gdal.FileFromMemBuffer(temp_ds_name, encoded_tile_data)
+        tile_dataset = gdal.Open(temp_ds_name)
+        assert tile_dataset.RasterXSize == 128
+        assert tile_dataset.RasterYSize == 256
+        assert tile_dataset.GetDriver().ShortName == GDALImageFormats.PNG
+        tile_dataset.GetRasterBand(1).ComputeStatistics(approx_ok=0)
+        assert tile_dataset.GetRasterBand(1).GetMinimum() == 0
+        assert tile_dataset.GetRasterBand(1).GetMaximum() == 185
 
     # Test data here could be improved. We're reusing a nitf file for everything and just
     # testing a single raster scale

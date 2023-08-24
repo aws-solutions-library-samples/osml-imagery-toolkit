@@ -10,7 +10,7 @@ from .gdal_dem_tile_factory import GDALDigitalElevationModelTileFactory
 from .gdal_utils import get_image_extension, get_type_and_scales, load_gdal_dataset
 from .nitf_des_accessor import NITFDESAccessor
 from .sensor_model_factory import ChippedImageInfoFacade, SensorModelFactory, SensorModelTypes
-from .typing import GDALCompressionOptions, GDALImageFormats
+from .typing import GDALCompressionOptions, GDALImageFormats, RangeAdjustmentType
 
 __all__ = [
     "set_gdal_default_configuration",
@@ -21,6 +21,7 @@ __all__ = [
     "GDALConfigEnv",
     "GDALDigitalElevationModelTileFactory",
     "GDALImageFormats",
+    "RangeAdjustmentType",
     "NITFDESAccessor",
     "ChippedImageInfoFacade",
     "SensorModelFactory",
