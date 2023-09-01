@@ -40,16 +40,14 @@ def load_gdal_dataset(image_path: str) -> Tuple[gdal.Dataset, Optional[SensorMod
     if xml_tres is not None and len(xml_tres) > 0:
         parsed_tres = ElementTree.fromstring(xml_tres[0])
 
-    # If this image has SICD Metadata parse it
-    parsed_dess = None
+    # If this image has NITF DES segments read them
     xml_dess = ds.GetMetadata("xml:DES")
-    if xml_dess is not None and len(xml_dess) > 0:
-        parsed_dess = ElementTree.fromstring(xml_dess[0])
 
     selected_sensor_model_types = [
         SensorModelTypes.AFFINE,
         SensorModelTypes.PROJECTIVE,
         SensorModelTypes.RPC,
+        SensorModelTypes.SICD,
         # TODO: Enable RSM model once testing complete
         # SensorModelTypes.RSM,
     ]
@@ -58,7 +56,7 @@ def load_gdal_dataset(image_path: str) -> Tuple[gdal.Dataset, Optional[SensorMod
         ds.RasterXSize,
         ds.RasterYSize,
         xml_tres=parsed_tres,
-        xml_dess=parsed_dess,
+        xml_dess=xml_dess,
         geo_transform=geo_transform,
         ground_control_points=ground_control_points,
         selected_sensor_model_types=selected_sensor_model_types,
