@@ -31,6 +31,17 @@ from .replacement_sensor_model import (
 )
 from .rpc_sensor_model import RPCPolynomial, RPCSensorModel
 from .sensor_model import SensorModel, SensorModelOptions
+from .sicd_sensor_model import (
+    COAProjectionSet,
+    INCAProjectionSet,
+    PFAProjectionSet,
+    PlaneProjectionSet,
+    Polynomial2D,
+    PolynomialXYZ,
+    RGAZCOMPProjectionSet,
+    SARImageCoordConverter,
+    SICDSensorModel,
+)
 from .srtm_dem_tile_set import SRTMTileSet
 
 __all__ = [
@@ -47,7 +58,14 @@ __all__ = [
     "ConstantElevationModel",
     "ElevationModel",
     "GDALAffineSensorModel",
+    "SARImageCoordConverter",
+    "INCAProjectionSet",
+    "PlaneProjectionSet",
+    "PFAProjectionSet",
+    "PolynomialXYZ",
+    "Polynomial2D",
     "ProjectiveSensorModel",
+    "RGAZCOMPProjectionSet",
     "RSMContext",
     "RSMGroundDomain",
     "RSMGroundDomainForm",
@@ -60,5 +78,6 @@ __all__ = [
     "RPCSensorModel",
     "SensorModel",
     "SensorModelOptions",
+    "SICDSensorModel",
     "SRTMTileSet",
 ]

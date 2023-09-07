@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Config xmlns="http://pypi.org/project/xsdata" version="23.5">
+  <Output maxLineLength="120" subscriptableTypes="false" unionType="false">
+    <Package>sicd.models</Package>
+    <Format repr="true" eq="true" order="false" unsafeHash="false" frozen="false" slots="false" kwOnly="false">dataclasses</Format>
+    <Structure>filenames</Structure>
+    <DocstringStyle>reStructuredText</DocstringStyle>
+    <FilterStrategy>allGlobals</FilterStrategy>
+    <RelativeImports>true</RelativeImports>
+    <CompoundFields defaultName="choice" forceDefaultName="false">false</CompoundFields>
+    <PostponedAnnotations>false</PostponedAnnotations>
+    <UnnestClasses>false</UnnestClasses>
+    <IgnorePatterns>false</IgnorePatterns>
+    <IncludeHeader>true</IncludeHeader>
+  </Output>
+  <Conventions>
+    <ClassName case="mixedPascalCase" safePrefix="type"/>
+    <FieldName case="snakeCase" safePrefix="value"/>
+    <ConstantName case="screamingSnakeCase" safePrefix="value"/>
+    <ModuleName case="snakeCase" safePrefix="mod"/>
+    <PackageName case="snakeCase" safePrefix="pkg"/>
+  </Conventions>
+  <Substitutions>
+    <Substitution type="module" search="schema_v1_2_1_2018_12_13" replace="v1_2_1"/>
+    <Substitution type="module" search="schema_v1_3_0_2021_11_30_final" replace="v1_3_0"/>
+    <Substitution type="class" search="CollectionInfoTypeCollectType" replace="CollectType"/>
+    <Substitution type="class" search="GeoDataTypeEarthModel" replace="EarthModel" />
+    <Substitution type="class" search="GridTypeImagePlane" replace="ImagePlane" />
+    <Substitution type="class" search="GridTypeType" replace="ImageGridType" />
+    <Substitution type="class" search="ImageDataTypePixelType" replace="ImagePixelType"/>
+    <Substitution type="class" search="ImageFormationTypeAzAutofocus" replace="AzAutofocus"/>
+    <Substitution type="class" search="ImageFormationTypeImageBeamComp" replace="ImageBeamComp"/>
+    <Substitution type="class" search="ImageFormationTypeImageFormAlgo" replace="ImageFormAlgo"/>
+    <Substitution type="class" search="ImageFormationTypeRgAutofocus" replace="RgAutofocus"/>
+    <Substitution type="class" search="ImageFormationTypeSTBeamComp" replace="STBeamComp"/>
+    <Substitution type="class" search="NoiseLevelNoiseLevelType" replace="NoiseLevelType"/>
+    <Substitution type="class" search="RadarModeModeType" replace="RadarModeType"/>
+    <Substitution type="class" search="RMATypeImageType" replace="RMAImageType" />
+    <Substitution type="class" search="RMATypeRMAlgoType" replace="RMAlgorithm" />
+    <Substitution type="class" search="SCPCOATypeSideOfTrack" replace="SideOfTrack" />
+    <Substitution type="field" search="VALUE_1$" replace="PLUS_ONE" />
+    <Substitution type="field" search="VALUE_1_1$" replace="MINUS_ONE" />
+    <Substitution type="field" search="RE32_F_IM32_F" replace="RE32F_IM32F" />
+    <Substitution type="field" search="RE16_I_IM16_I" replace="RE16I_IM16I" />
+    <Substitution type="field" search="AMP8_I_PHS8_I" replace="AMP8I_PHS8I" />
+    <Substitution type="field" search="VALUE_1_FRFC" replace="FRFC_1" />
+    <Substitution type="field" search="VALUE_2_FRLC" replace="FRLC_2" />
+    <Substitution type="field" search="VALUE_3_LRLC" replace="LRLC_3" />
+    <Substitution type="field" search="VALUE_4_LRFC" replace="LRFC_4" />
+  </Substitutions>
+  <Extensions/>
+</Config>

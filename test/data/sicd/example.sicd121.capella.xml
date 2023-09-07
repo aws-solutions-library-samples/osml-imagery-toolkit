@@ -1,0 +1,402 @@
+<SICD xmlns="urn:SICD:1.2.1">
+    <CollectionInfo>
+        <CollectorName>capella-2</CollectorName>
+        <CoreName>15JAN21capella-2173921</CoreName>
+        <CollectType>MONOSTATIC</CollectType>
+        <RadarMode>
+            <ModeType>STRIPMAP</ModeType>
+        </RadarMode>
+        <Classification>UNCLASSIFIED</Classification>
+    </CollectionInfo>
+    <ImageCreation>
+        <Application>Capella SAR Processor (2.5.3, 37a73cc02e5a357756980ce065e2b53adeae4e9d)</Application>
+        <DateTime>2021-09-01T22:48:40.000000Z</DateTime>
+        <Site>Unknown</Site>
+        <Profile>sarpy 1.2.5</Profile>
+    </ImageCreation>
+    <ImageData>
+        <PixelType>RE16I_IM16I</PixelType>
+        <NumRows>5388</NumRows>
+        <NumCols>19083</NumCols>
+        <FirstRow>0</FirstRow>
+        <FirstCol>0</FirstCol>
+        <FullImage>
+            <NumRows>5388</NumRows>
+            <NumCols>19083</NumCols>
+        </FullImage>
+        <SCPPixel>
+            <Row>2694</Row>
+            <Col>9541</Col>
+        </SCPPixel>
+        <ValidData size="5">
+            <Vertex index="1">
+                <Row>0</Row>
+                <Col>0</Col>
+            </Vertex>
+            <Vertex index="2">
+                <Row>0</Row>
+                <Col>19083</Col>
+            </Vertex>
+            <Vertex index="3">
+                <Row>5388</Row>
+                <Col>19083</Col>
+            </Vertex>
+            <Vertex index="4">
+                <Row>5388</Row>
+                <Col>0</Col>
+            </Vertex>
+            <Vertex index="5">
+                <Row>0</Row>
+                <Col>0</Col>
+            </Vertex>
+        </ValidData>
+    </ImageData>
+    <GeoData>
+        <EarthModel>WGS_84</EarthModel>
+        <SCP>
+            <ECF>
+                <X>5271232.528561848</X>
+                <Y>-703918.7036014228</Y>
+                <Z>3509547.755004264</Z>
+            </ECF>
+            <LLH>
+                <Lat>33.59934615859317</Lat>
+                <Lon>-7.606259320191953</Lon>
+                <HAE>54.63396231038757</HAE>
+            </LLH>
+        </SCP>
+        <ImageCorners>
+            <ICP index="1:FRFC">
+                <Lat>33.57557419233318</Lat>
+                <Lon>-7.715737959893586</Lon>
+            </ICP>
+            <ICP index="2:FRLC">
+                <Lat>33.66247968391572</Lat>
+                <Lon>-7.521776845384764</Lon>
+            </ICP>
+            <ICP index="3:LRLC">
+                <Lat>33.62304102343928</Lat>
+                <Lon>-7.496736772717166</Lon>
+            </ICP>
+            <ICP index="4:LRFC">
+                <Lat>33.53576476994573</Lat>
+                <Lon>-7.690344834684546</Lon>
+            </ICP>
+        </ImageCorners>
+        <ValidData size="5">
+            <Vertex index="1">
+                <Lat>33.57557419233318</Lat>
+                <Lon>-7.715737959893586</Lon>
+            </Vertex>
+            <Vertex index="2">
+                <Lat>33.66247968391572</Lat>
+                <Lon>-7.521776845384764</Lon>
+            </Vertex>
+            <Vertex index="3">
+                <Lat>33.62304102343928</Lat>
+                <Lon>-7.496736772717166</Lon>
+            </Vertex>
+            <Vertex index="4">
+                <Lat>33.53576476994573</Lat>
+                <Lon>-7.690344834684546</Lon>
+            </Vertex>
+            <Vertex index="5">
+                <Lat>33.57557419233318</Lat>
+                <Lon>-7.715737959893586</Lon>
+            </Vertex>
+        </ValidData>
+    </GeoData>
+    <Grid>
+        <ImagePlane>SLANT</ImagePlane>
+        <Type>RGZERO</Type>
+        <TimeCOAPoly order1="0" order2="1">
+            <Coef exponent1="0" exponent2="0">2.173685700333333</Coef>
+            <Coef exponent1="0" exponent2="1">0.000150937408161923</Coef>
+        </TimeCOAPoly>
+        <Row>
+            <UVectECF>
+                <X>-0.2313169281599637</X>
+                <Y>0.3556237170721815</Y>
+                <Z>-0.9055519038699015</Z>
+            </UVectECF>
+            <SS>0.6245676208333334</SS>
+            <ImpRespWid>0.9511988838080884</ImpRespWid>
+            <Sgn>-1</Sgn>
+            <ImpRespBW>1.334256380792608</ImpRespBW>
+            <KCtr>64.37786951931926</KCtr>
+            <DeltaK1>-0.667128190396304</DeltaK1>
+            <DeltaK2>0.667128190396304</DeltaK2>
+            <DeltaKCOAPoly order1="0" order2="0">
+                <Coef exponent1="0" exponent2="0">0</Coef>
+            </DeltaKCOAPoly>
+            <WgtType>
+                <WindowName>AVCI-NACAROGLU-CAPELLA</WindowName>
+                <Parameter name="ALPHA">1.25</Parameter>
+            </WgtType>
+            <WgtFunct size="32">
+                <Wgt index="1">0.01970287298661711</Wgt>
+                <Wgt index="2">0.07726950936010718</Wgt>
+                <Wgt index="3">0.1318824131826273</Wgt>
+                <Wgt index="4">0.1944252372795882</Wgt>
+                <Wgt index="5">0.2646014515889159</Wgt>
+                <Wgt index="6">0.3412051275652817</Wgt>
+                <Wgt index="7">0.4225343249454487</Wgt>
+                <Wgt index="8">0.5065331681561823</Wgt>
+                <Wgt index="9">0.590894960579544</Wgt>
+                <Wgt index="10">0.6731625984868158</Wgt>
+                <Wgt index="11">0.7508323427242285</Wgt>
+                <Wgt index="12">0.8214596188067258</Wgt>
+                <Wgt index="13">0.8827631847744818</Wgt>
+                <Wgt index="14">0.9327232538826931</Wgt>
+                <Wgt index="15">0.9696690963016896</Wgt>
+                <Wgt index="16">0.9923519872809892</Wgt>
+                <Wgt index="17">1</Wgt>
+                <Wgt index="18">0.9923519872809892</Wgt>
+                <Wgt index="19">0.9696690963016896</Wgt>
+                <Wgt index="20">0.9327232538826931</Wgt>
+                <Wgt index="21">0.8827631847744818</Wgt>
+                <Wgt index="22">0.8214596188067258</Wgt>
+                <Wgt index="23">0.7508323427242285</Wgt>
+                <Wgt index="24">0.6731625984868158</Wgt>
+                <Wgt index="25">0.590894960579544</Wgt>
+                <Wgt index="26">0.5065331681561823</Wgt>
+                <Wgt index="27">0.4225343249454487</Wgt>
+                <Wgt index="28">0.3412051275652817</Wgt>
+                <Wgt index="29">0.2646014515889159</Wgt>
+                <Wgt index="30">0.1944252372795882</Wgt>
+                <Wgt index="31">0.1318824131826273</Wgt>
+                <Wgt index="32">0.07726950936010718</Wgt>
+            </WgtFunct>
+        </Row>
+        <Col>
+            <UVectECF>
+                <X>-0.1421942494206885</X>
+                <Y>0.9084236131422561</Y>
+                <Z>0.3931250876213012</Z>
+            </UVectECF>
+            <SS>1.069856275523818</SS>
+            <ImpRespWid>1.122553243782685</ImpRespWid>
+            <Sgn>-1</Sgn>
+            <ImpRespBW>0.872855015564871</ImpRespBW>
+            <KCtr>0</KCtr>
+            <DeltaK1>-0.4394266826531045</DeltaK1>
+            <DeltaK2>0.4334283329117665</DeltaK2>
+            <DeltaKCOAPoly order1="0" order2="0">
+                <Coef exponent1="0" exponent2="0">-0.002999174870669003</Coef>
+            </DeltaKCOAPoly>
+            <WgtType>
+                <WindowName>ANTENNA-TAPER-CAPELLA</WindowName>
+                <Parameter name="PROC_BEAMWIDTH">0.01205268875689288</Parameter>
+            </WgtType>
+            <WgtFunct size="32">
+                <Wgt index="1">0.5038276985319642</Wgt>
+                <Wgt index="2">0.5453410700968516</Wgt>
+                <Wgt index="3">0.5893418917596951</Wgt>
+                <Wgt index="4">0.6347317532132404</Wgt>
+                <Wgt index="5">0.6805044117717426</Wgt>
+                <Wgt index="6">0.7257502175755721</Wgt>
+                <Wgt index="7">0.7696333109610092</Wgt>
+                <Wgt index="8">0.8113906511990557</Wgt>
+                <Wgt index="9">0.8503308500159068</Wgt>
+                <Wgt index="10">0.8857978645240657</Wgt>
+                <Wgt index="11">0.9171536249574779</Wgt>
+                <Wgt index="12">0.9440325772587769</Wgt>
+                <Wgt index="13">0.9660381523818794</Wgt>
+                <Wgt index="14">0.9828498329217592</Wgt>
+                <Wgt index="15">0.9942249153188277</Wgt>
+                <Wgt index="16">0.9999999853762968</Wgt>
+                <Wgt index="17">1</Wgt>
+                <Wgt index="18">0.9942249589755801</Wgt>
+                <Wgt index="19">0.9828499049796148</Wgt>
+                <Wgt index="20">0.966038251797382</Wgt>
+                <Wgt index="21">0.9440327025834828</Wgt>
+                <Wgt index="22">0.917153774346285</Wgt>
+                <Wgt index="23">0.8857980357445312</Wgt>
+                <Wgt index="24">0.8503310404079479</Wgt>
+                <Wgt index="25">0.8113908577480362</Wgt>
+                <Wgt index="26">0.7696335302970161</Wgt>
+                <Wgt index="27">0.7257504459595931</Wgt>
+                <Wgt index="28">0.6805046450904531</Wgt>
+                <Wgt index="29">0.6347319869708252</Wgt>
+                <Wgt index="30">0.5893421210698754</Wgt>
+                <Wgt index="31">0.5453412895181906</Wgt>
+                <Wgt index="32">0.5038279024619354</Wgt>
+            </WgtFunct>
+        </Col>
+    </Grid>
+    <Timeline>
+        <CollectStart>2021-01-15T17:39:21.684235Z</CollectStart>
+        <CollectDuration>4.356605759000001</CollectDuration>
+        <IPP size="1">
+            <Set index="1">
+                <TStart>0</TStart>
+                <TEnd>4.356605759000001</TEnd>
+                <IPPStart>0</IPPStart>
+                <IPPEnd>26979</IPPEnd>
+                <IPPPoly order1="1">
+                    <Coef exponent1="0">0.0</Coef>
+                    <Coef exponent1="1">6192.6662318038825</Coef>
+                </IPPPoly>
+            </Set>
+        </IPP>
+    </Timeline>
+    <Position>
+        <ARPPoly>
+            <X order1="6">
+                <Coef exponent1="0">5438120.473202774</Coef>
+                <Coef exponent1="1">-997.4095925011363</Coef>
+                <Coef exponent1="2">-2.788989728553322</Coef>
+                <Coef exponent1="3">0.00023730335867582828</Coef>
+                <Coef exponent1="4">2.3545281075582228e-07</Coef>
+                <Coef exponent1="5">-1.492656957489703e-11</Coef>
+                <Coef exponent1="6">-3.0570170411356174e-14</Coef>
+            </X>
+            <Y order1="6">
+                <Coef exponent1="0">-971609.8647421665</Coef>
+                <Coef exponent1="1">6583.684605741273</Coef>
+                <Coef exponent1="2">0.6568128008751011</Coef>
+                <Coef exponent1="3">-0.0011846374886725296</Coef>
+                <Coef exponent1="4">-7.185209123184431e-08</Coef>
+                <Coef exponent1="5">5.783598485367062e-11</Coef>
+                <Coef exponent1="6">9.744111832411611e-14</Coef>
+            </Y>
+            <Z order1="6">
+                <Coef exponent1="0">4148423.8430116437</Coef>
+                <Coef exponent1="1">2855.80663274287</Coef>
+                <Coef exponent1="2">-2.5117319050417883</Coef>
+                <Coef exponent1="3">-0.0005721514871533472</Coef>
+                <Coef exponent1="4">2.545856535909912e-07</Coef>
+                <Coef exponent1="5">3.20193106149182e-11</Coef>
+                <Coef exponent1="6">-1.1676099341312116e-14</Coef>
+            </Z>
+        </ARPPoly>
+    </Position>
+    <RadarCollection>
+        <TxFrequency>
+            <Min>9549999872</Min>
+            <Max>9749999872</Max>
+        </TxFrequency>
+        <Waveform size="1">
+            <WFParameters index="1">
+                <TxPulseLength>1.96E-05</TxPulseLength>
+                <TxRFBandwidth>200000000</TxRFBandwidth>
+                <TxFreqStart>9549999872</TxFreqStart>
+                <TxFMRate>10204081632653.06</TxFMRate>
+                <RcvDemodType>CHIRP</RcvDemodType>
+                <ADCSampleRate>750000000</ADCSampleRate>
+                <RcvFMRate>0</RcvFMRate>
+            </WFParameters>
+        </Waveform>
+        <TxPolarization>H</TxPolarization>
+        <RcvChannels size="1">
+            <ChanParameters index="1">
+                <TxRcvPolarization>H:H</TxRcvPolarization>
+            </ChanParameters>
+        </RcvChannels>
+    </RadarCollection>
+    <ImageFormation>
+        <RcvChanProc>
+            <NumChanProc>1</NumChanProc>
+            <PRFScaleFactor>1</PRFScaleFactor>
+            <ChanIndex>1</ChanIndex>
+        </RcvChanProc>
+        <TxRcvPolarizationProc>H:H</TxRcvPolarizationProc>
+        <TStartProc>0</TStartProc>
+        <TEndProc>4.356605759000001</TEndProc>
+        <TxFrequencyProc>
+            <MinProc>9549999872</MinProc>
+            <MaxProc>9749999872</MaxProc>
+        </TxFrequencyProc>
+        <ImageFormAlgo>OTHER</ImageFormAlgo>
+        <STBeamComp>NO</STBeamComp>
+        <ImageBeamComp>NO</ImageBeamComp>
+        <AzAutofocus>NO</AzAutofocus>
+        <RgAutofocus>NO</RgAutofocus>
+        <Processing>
+            <Type>Backprojected to DEM</Type>
+            <Applied>true</Applied>
+        </Processing>
+    </ImageFormation>
+    <SCPCOA>
+        <SCPTime>2.173685700333333</SCPTime>
+        <ARPPos>
+            <X>5435939.242952521</X>
+            <Y>-957295.9124464868</Y>
+            <Z>4154619.595475576</Z>
+        </ARPPos>
+        <ARPVel>
+            <X>-1009.530993301936</X>
+            <Y>6586.523220067197</Y>
+            <Z>2844.879101663144</Z>
+        </ARPVel>
+        <ARPAcc>
+            <X>-5.574871172770072</X>
+            <Y>1.298171362344716</Y>
+            <Z>-5.030911433820477</Z>
+        </ARPAcc>
+        <SideOfTrack>R</SideOfTrack>
+        <SlantRange>712352.4346112193</SlantRange>
+        <GroundRange>449850.7034007939</GroundRange>
+        <DopplerConeAng>89.99999995062271</DopplerConeAng>
+        <GrazeAng>46.9889303602956</GrazeAng>
+        <IncidenceAng>43.0110696397044</IncidenceAng>
+        <TwistAng>-0.1700935896001955</TwistAng>
+        <SlopeAng>46.98916589027822</SlopeAng>
+        <AzimAng>331.8370896248286</AzimAng>
+        <LayoverAng>332.0697045793157</LayoverAng>
+    </SCPCOA>
+    <Radiometric>
+        <NoiseLevel>
+            <NoiseLevelType>ABSOLUTE</NoiseLevelType>
+            <NoisePoly order1="3" order2="0">
+                <Coef exponent1="0" exponent2="0">39.24201011267091</Coef>
+                <Coef exponent1="1" exponent2="0">2.27866933042562E-05</Coef>
+                <Coef exponent1="2" exponent2="0">3.471658456505701E-07</Coef>
+                <Coef exponent1="3" exponent2="0">-6.629346283575849E-17</Coef>
+            </NoisePoly>
+        </NoiseLevel>
+        <RCSSFPoly order1="0" order2="3">
+            <Coef exponent1="0" exponent2="0">2.598451147663572E-06</Coef>
+            <Coef exponent1="0" exponent2="1">-1.942915018981167E-24</Coef>
+            <Coef exponent1="0" exponent2="2">1.368407884430401E-27</Coef>
+            <Coef exponent1="0" exponent2="3">1.378877395375437E-30</Coef>
+        </RCSSFPoly>
+        <SigmaZeroSFPoly order1="0" order2="3">
+            <Coef exponent1="0" exponent2="0">1.499571638005783E-06</Coef>
+            <Coef exponent1="0" exponent2="1">9.009699530034262E-13</Coef>
+            <Coef exponent1="0" exponent2="2">-8.811557887570633E-19</Coef>
+            <Coef exponent1="0" exponent2="3">2.225021054564836E-23</Coef>
+        </SigmaZeroSFPoly>
+        <BetaZeroSFPoly order1="0" order2="3">
+            <Coef exponent1="0" exponent2="0">2.203222548581317E-06</Coef>
+            <Coef exponent1="0" exponent2="1">-2.320064743720347E-26</Coef>
+            <Coef exponent1="0" exponent2="2">9.951539490477308E-28</Coef>
+            <Coef exponent1="0" exponent2="3">1.305902461190002E-32</Coef>
+        </BetaZeroSFPoly>
+        <GammaZeroSFPoly order1="0" order2="3">
+            <Coef exponent1="0" exponent2="0">2.046831876543034E-06</Coef>
+            <Coef exponent1="0" exponent2="1">2.291158712901786E-12</Coef>
+            <Coef exponent1="0" exponent2="2">-4.58441401396291E-19</Coef>
+            <Coef exponent1="0" exponent2="3">5.497848200436365E-23</Coef>
+        </GammaZeroSFPoly>
+    </Radiometric>
+    <RMA>
+        <RMAlgoType>RG_DOP</RMAlgoType>
+        <ImageType>INCA</ImageType>
+        <INCA>
+            <TimeCAPoly order1="1">
+                <Coef exponent1="0">2.1736857003333334</Coef>
+                <Coef exponent1="1">0.000150937408161923</Coef>
+            </TimeCAPoly>
+            <R_CA_SCP>712352.4341635579</R_CA_SCP>
+            <FreqZero>9649999872</FreqZero>
+            <DRateSFPoly order1="0" order2="0">
+                <Coef exponent1="0" exponent2="0">0.9144184293995976</Coef>
+            </DRateSFPoly>
+            <DopCentroidPoly order1="0" order2="0">
+                <Coef exponent1="0" exponent2="0">-19.8703217922726</Coef>
+            </DopCentroidPoly>
+            <DopCentroidCOA>true</DopCentroidCOA>
+        </INCA>
+    </RMA>
+</SICD>
