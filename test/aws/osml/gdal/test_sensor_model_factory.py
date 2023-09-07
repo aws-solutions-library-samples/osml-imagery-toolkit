@@ -166,6 +166,35 @@ class TestSensorModelFactory(TestCase):
             np.array([radians(121.7518378), radians(13.89145147), 0.0]),
         )
 
+    def test_sicd_sensor_models(self):
+        from aws.osml.gdal.sensor_model_factory import SensorModelFactory
+        from aws.osml.photogrammetry import ImageCoordinate, SICDSensorModel, geocentric_to_geodetic
+
+        test_examples = [
+            "./test/data/sicd/capella-sicd121-chip1.ntf",
+            "./test/data/sicd/capella-sicd121-chip2.ntf",
+            "./test/data/sicd/umbra-sicd121-chip1.ntf",
+        ]
+        for image_path in test_examples:
+            ds = gdal.Open(image_path)
+            xml_dess = ds.GetMetadata("xml:DES")
+            factory = SensorModelFactory(ds.RasterXSize, ds.RasterYSize, xml_dess=xml_dess)
+            sm = factory.build()
+            assert sm is not None
+            assert isinstance(sm, SICDSensorModel)
+
+            scp_image_coord = ImageCoordinate(
+                [
+                    sm.image_plane.scp_pixel.x - sm.image_plane.first_pixel.x,
+                    sm.image_plane.scp_pixel.y - sm.image_plane.first_pixel.y,
+                ]
+            )
+            scp_world_coord = geocentric_to_geodetic(sm.image_plane.scp_ecf)
+
+            assert np.allclose(scp_image_coord.coordinate, sm.world_to_image(scp_world_coord).coordinate, atol=1.0)
+
+            assert np.allclose(scp_world_coord.coordinate, sm.image_to_world(scp_image_coord).coordinate)
+
 
 if __name__ == "__main__":
     unittest.main()
