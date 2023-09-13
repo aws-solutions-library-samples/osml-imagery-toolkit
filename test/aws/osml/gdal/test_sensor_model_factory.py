@@ -185,11 +185,11 @@ class TestSensorModelFactory(TestCase):
 
             scp_image_coord = ImageCoordinate(
                 [
-                    sm.image_plane.scp_pixel.x - sm.image_plane.first_pixel.x,
-                    sm.image_plane.scp_pixel.y - sm.image_plane.first_pixel.y,
+                    sm.coord_converter.scp_pixel.x - sm.coord_converter.first_pixel.x,
+                    sm.coord_converter.scp_pixel.y - sm.coord_converter.first_pixel.y,
                 ]
             )
-            scp_world_coord = geocentric_to_geodetic(sm.image_plane.scp_ecf)
+            scp_world_coord = geocentric_to_geodetic(sm.coord_converter.scp_ecf)
 
             assert np.allclose(scp_image_coord.coordinate, sm.world_to_image(scp_world_coord).coordinate, atol=1.0)
 

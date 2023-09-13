@@ -16,7 +16,7 @@ from .coordinates import (
     geodetic_to_geocentric,
 )
 from .digital_elevation_model import DigitalElevationModel, DigitalElevationModelTileFactory, DigitalElevationModelTileSet
-from .elevation_model import ConstantElevationModel, ElevationModel
+from .elevation_model import ConstantElevationModel, ElevationModel, ElevationRegionSummary
 from .gdal_sensor_model import GDALAffineSensorModel
 from .projective_sensor_model import ProjectiveSensorModel
 from .replacement_sensor_model import (
@@ -57,6 +57,7 @@ __all__ = [
     "DigitalElevationModelTileSet",
     "ConstantElevationModel",
     "ElevationModel",
+    "ElevationRegionSummary",
     "GDALAffineSensorModel",
     "SARImageCoordConverter",
     "INCAProjectionSet",

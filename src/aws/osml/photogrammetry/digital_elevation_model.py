@@ -9,7 +9,7 @@ from cachetools import LRUCache, cachedmethod
 from scipy.interpolate import RectBivariateSpline
 
 from .coordinates import GeodeticWorldCoordinate
-from .elevation_model import ElevationModel
+from .elevation_model import ElevationModel, ElevationRegionSummary
 from .sensor_model import SensorModel
 
 
@@ -52,7 +52,7 @@ class DigitalElevationModelTileFactory(ABC):
         pass
 
     @abstractmethod
-    def get_tile(self, tile_path: str) -> Tuple[Optional[Any], Optional[SensorModel]]:
+    def get_tile(self, tile_path: str) -> Tuple[Optional[Any], Optional[SensorModel], Optional[ElevationRegionSummary]]:
         """
         Retrieve a numpy array of elevation values and a sensor model.
 
@@ -60,7 +60,7 @@ class DigitalElevationModelTileFactory(ABC):
 
         :param tile_path: the location of the tile to load
 
-        :return: an array of elevation values and a sensor model
+        :return: an array of elevation values, a sensor model, and a summary
         """
 
 
@@ -115,14 +115,31 @@ class DigitalElevationModel(ElevationModel):
         if not tile_id:
             return
 
-        interpolation_grid, sensor_model = self.get_interpolation_grid(tile_id)
+        interpolation_grid, sensor_model, summary = self.get_interpolation_grid(tile_id)
 
         if interpolation_grid is not None and sensor_model is not None:
             image_coordinate = sensor_model.world_to_image(geodetic_world_coordinate)
             geodetic_world_coordinate.elevation = interpolation_grid(image_coordinate.x, image_coordinate.y)[0][0]
 
+    def describe_region(self, geodetic_world_coordinate: GeodeticWorldCoordinate) -> Optional[ElevationRegionSummary]:
+        """
+        Get a summary of the region near the provided world coordinate
+
+        :param geodetic_world_coordinate: the coordinate at the center of the region of interest
+        :return: a summary of the elevation data in this tile
+        """
+
+        tile_id = self.tile_set.find_tile_id(geodetic_world_coordinate)
+        if not tile_id:
+            return
+
+        interpolation_grid, sensor_model, summary = self.get_interpolation_grid(tile_id)
+        return summary
+
     @cachedmethod(operator.attrgetter("raster_cache"))
-    def get_interpolation_grid(self, tile_path: str) -> Tuple[Optional[RectBivariateSpline], Optional[SensorModel]]:
+    def get_interpolation_grid(
+        self, tile_path: str
+    ) -> Tuple[Optional[RectBivariateSpline], Optional[SensorModel], Optional[ElevationRegionSummary]]:
         """
         This method loads and converts an array of elevation values into a class that can
         interpolate values that lie between measured elevations. The sensor model is also
@@ -135,13 +152,13 @@ class DigitalElevationModel(ElevationModel):
 
         :param tile_path: the location of the tile to load
 
-        :return: the cached interpolation object and sensor model
+        :return: the cached interpolation object, sensor model, and summary
         """
-        elevations_array, sensor_model = self.tile_factory.get_tile(tile_path)
+        elevations_array, sensor_model, summary = self.tile_factory.get_tile(tile_path)
         if elevations_array is not None and sensor_model is not None:
             height, width = elevations_array.shape
             x = range(0, width)
             y = range(0, height)
-            return RectBivariateSpline(x, y, elevations_array.T, kx=1, ky=1), sensor_model
+            return RectBivariateSpline(x, y, elevations_array.T, kx=1, ky=1), sensor_model, summary
         else:
-            return None, None
+            return None, None, None

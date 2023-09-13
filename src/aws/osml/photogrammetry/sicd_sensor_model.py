@@ -677,6 +677,294 @@ class GroundPlaneRRDotSurfaceProjection(RRDotSurfaceProjection):
         return agpn + uvect_x * (gp_distance * cos_az) + uvect_y * (gp_distance * sin_az)
 
 
+class HAERRDotSurfaceProjection(RRDotSurfaceProjection):
+    """
+    This class implements the Precise R/RDot Height Above Ellipsioid (HAE) Projection described in Section 9 of the
+    SICD Specification Volume 3 (v1.3.0).
+    """
+
+    def __init__(
+        self,
+        scp_ecf: WorldCoordinate,
+        side_of_track: str,
+        hae: float,
+        height_threshold: float = 1.0,
+        max_number_iterations: int = 3,
+    ):
+        """
+        Constructor for the projection that takes the image parameters and a height above theWGS-84 ellipsoid.
+        The parameter defaults are the recommended values for the user selectable parameters in section 9.2.
+
+        :param scp_ecf: Scene Center Point position in ECF coordinates
+        :param side_of_track: side of track imaged
+        :param hae: the surface height (m) above the WGS-84 reference ellipsoid
+        :param height_threshold: the height threshold for convergence of iterative projection sequence
+        :param max_number_iterations: maximum number of iterations allowed
+        """
+        self.scp_ecf = scp_ecf
+        self.scp_lle = geocentric_to_geodetic(scp_ecf)
+        self.side_of_track = side_of_track
+        self.hae = hae
+
+        # Integer based on side of track parameter
+        self.look = 1.0
+        if side_of_track == "R":
+            self.look = -1.0
+
+        self.delta_hae_max = height_threshold
+        self.nlim = max_number_iterations
+
+    def rrdot_to_ground(self, r_tgt_coa, r_dot_tgt_coa, arp_position, arp_velocity) -> np.ndarray:
+        """
+        This method implements the R/RDot Contour Ground Plane Intersection described in section 9.2.
+
+        The precise projection to a surface of constant height above the WGS-84 reference ellipsoid along an
+        R/Rdot contour. The R/Rdot contour is relative to an ARP Center Of Aperture position and velocity. The
+        algorithm computes the R/Rdot projection to one or more ground planes that are tangent to the constant
+        height surface. Each ground plane projection point computed is slightly above the constant HAE surface.
+        The final surface position is computed by projecting from the final ground plane projection point down
+        to the HAE surface.
+
+        :param r_tgt_coa: target COA range
+        :param r_dot_tgt_coa: target COA range rate
+        :param arp_position: ARP position
+        :param arp_velocity: ARP velocity
+        :return: the intersection between the R/Rdot Contour and the ground plane
+        """
+        # (1) Compute the geodetic ground plane normal at the SCP. Compute the parameters for the initial ground plane.
+        # The reference point position is gref and the unit normal is u_gpn.
+        u_gpn = np.array(
+            [
+                np.cos(self.scp_lle.latitude) * np.cos(self.scp_lle.longitude),
+                np.cos(self.scp_lle.latitude) * np.sin(self.scp_lle.longitude),
+                np.sin(self.scp_lle.latitude),
+            ]
+        )
+        gref = self.scp_ecf.coordinate + (self.hae - self.scp_ecf.z) * u_gpn
+
+        cont = True
+        n = 1
+        while cont:
+            # (2) Compute the precise projection along the R/Rdot contour to Ground Plane. The result is ground plane
+            # point position gpp_ecf. Convert from ECF coordinates to geodetic coordinates (gpp_lle).
+            gp_surface_projection = GroundPlaneRRDotSurfaceProjection(ref_ecf=WorldCoordinate(gref), gpn=u_gpn)
+            gpp_ecf = gp_surface_projection.rrdot_to_ground(r_tgt_coa, r_dot_tgt_coa, arp_position, arp_velocity)[0]
+            gpp_lle = geocentric_to_geodetic(WorldCoordinate(coordinate=gpp_ecf))
+
+            # (3) Compute the unit vector in the increasing height direction at point gpp_lle, (u_up). Also
+            # compute the height difference at point gpp_lle relative to the desired surface height (delta_hae).
+            u_up = np.array(
+                [
+                    np.cos(gpp_lle.latitude) * np.cos(gpp_lle.longitude),
+                    np.cos(gpp_lle.latitude) * np.sin(gpp_lle.longitude),
+                    np.sin(gpp_lle.latitude),
+                ]
+            )
+            delta_hae = gpp_lle.elevation - self.hae
+
+            # (4) Test to see if the point is sufficiently close the surface or if the maximum number of iterations
+            # has been reached.  Otherwise, compute a new ground reference point (gref) and unit normal (u_up); repeat
+            # Steps 2, 3 and 4.
+            if delta_hae <= self.delta_hae_max or n >= self.nlim:
+                cont = False
+            else:
+                gref = gpp_ecf - delta_hae * u_up
+                u_gpn = u_up
+                n += 1
+
+        # (5) Compute the unit slant plane normal vector, u_spn, that is tangent to the R/Rdot contour at point gpp.
+        # Unit vector u_spn points away from the center of the earth and in a direction of increasing HAE at gpp.
+        spn = np.cross(self.look * arp_velocity, gpp_ecf - arp_position)
+        u_spn = spn / np.linalg.norm(spn)
+
+        # (6) Compute the straight line projection from point gpp_ecf along the slant plane normal to point slp.
+        # Point slp is very close to the precise R/Rdot contour intersection with the constant height surface.
+        # Convert the position of point slp from ECF coordinates to geodetic coordinates (slp_lle).
+        sf = np.dot(u_up, u_spn)
+        slp = gpp_ecf - (delta_hae / sf) * u_spn
+        slp_lle = geocentric_to_geodetic(WorldCoordinate(slp))
+
+        # (7) Assign surface point spp position by adjusting the HAE to be on the desired surface. Convert from
+        # geodetic coordinates to ECF coordinates.
+        spp_lle = GeodeticWorldCoordinate([slp_lle.longitude, slp_lle.latitude, self.hae])
+        spp_ecf = geodetic_to_geocentric(spp_lle)
+
+        return np.array([spp_ecf.coordinate])
+
+
+class DEMRRDotSurfaceProjection(RRDotSurfaceProjection):
+    """
+    This class implements the Precise R/RDot Height Above a Digital Elevation Model (DEM) Projection described in
+    Section 10 of the SICD Specification Volume 3 (v1.3.0).
+    """
+
+    def __init__(
+        self,
+        scp_ecf: WorldCoordinate,
+        side_of_track: str,
+        elevation_model: ElevationModel,
+        max_adjacent_point_distance: float = 10.0,
+        height_threshold: float = 0.001,
+    ):
+        """
+        Constructor for the projection that takes the image parameters and a digital elevation model (DEM).
+        The parameter defaults are the recommended values for the user selectable parameters in section 10.3.
+
+        :param scp_ecf: Scene Center Point position in ECF coordinates
+        :param side_of_track: side of track imaged
+        :param elevation_model: the digital elevation model
+        :param max_adjacent_point_distance: Maximum distance between adjacent points along the R/Rdot contour
+        :param height_threshold: threshold for determining if a R/Rdot contour point is on the DEM surface (m)
+        """
+        self.scp_ecf = scp_ecf
+        self.scp_lle = geocentric_to_geodetic(scp_ecf)
+        self.side_of_track = side_of_track
+        self.elevation_model = elevation_model
+
+        # Integer based on Side of Track parameter.
+        self.look = 1.0
+        if side_of_track == "R":
+            self.look = -1.0
+
+        elevation_summary = elevation_model.describe_region(self.scp_lle)
+        self.hae_min = elevation_summary.min_elevation
+        self.hae_max = elevation_summary.max_elevation
+        self.hae_max_surface_projection = HAERRDotSurfaceProjection(
+            scp_ecf=scp_ecf, side_of_track=side_of_track, hae=self.hae_max
+        )
+        self.hae_min_surface_projection = HAERRDotSurfaceProjection(
+            scp_ecf=scp_ecf, side_of_track=side_of_track, hae=self.hae_min
+        )
+        self.delta_dist_dem = 0.5 * elevation_summary.post_spacing
+
+        self.delta_dist_rrc = max_adjacent_point_distance
+        self.delta_hd_lim = height_threshold
+
+    def rrdot_to_ground(self, r_tgt_coa, r_dot_tgt_coa, arp_position, arp_velocity) -> np.ndarray:
+        """
+        This method implements the R/RDot Contour Ground Plane Intersection described in section 10.3
+
+        The R/Rdot contour is relative to an ARP Center Of Aperture position and velocity. The earth surface is
+        described by a Digital Elevation Model (DEM) that defines a unique surface height as a function of two
+        horizontal coordinates. The projection computation may yield one or more surface points that lie along
+        the R/Rdot contour.
+
+        :param r_tgt_coa: target COA range
+        :param r_dot_tgt_coa: target COA range rate
+        :param arp_position: ARP position
+        :param arp_velocity: ARP velocity
+        :return: the intersection between the R/Rdot Contour and the DEM, if multiple intersections occur they will
+                 be returned in order of increasing height above the WGS-84 ellipsoid.
+        """
+
+        # (1) Compute the center point (ctr) and the radius of the R/Rdot projection contour (rrrc).
+        v_mag = np.linalg.norm(arp_velocity)
+        u_vel = arp_velocity / v_mag
+        cos_dca = -1.0 * r_dot_tgt_coa / v_mag
+        sin_dca = np.sqrt(1 - cos_dca * cos_dca)
+        ctr = arp_position + r_tgt_coa * cos_dca * u_vel
+        rrrc = r_tgt_coa * sin_dca
+
+        # (2) Compute the unit vectors u_rrx and u_rry to be used to compute points located on the R/Rdot contour.
+        dec_arp = np.linalg.norm(arp_position)
+        u_up = arp_position / dec_arp
+        rry = np.cross(u_up, u_vel)
+        u_rry = rry / np.linalg.norm(rry)
+        u_rrx = np.cross(u_rry, u_vel)
+
+        # (3) Compute the projection along the R/Rdot contour to the surface of constant HAE at height hae_max.
+        # The projection point at height hae_max is point_a. Also compute the cosine and sine of the contour angle
+        # to point_a, cos_caa and sin_caa.
+        point_a = self.hae_max_surface_projection.rrdot_to_ground(r_tgt_coa, r_dot_tgt_coa, arp_position, arp_velocity)[0]
+        cos_caa = np.dot(point_a - ctr, u_rrx) / rrrc
+        # This variable is defined in the specification but it does not appear to be used anywhere
+        # sin_caa = self.look * np.sqrt(1 - cos_caa * cos_caa)
+
+        # (4) Compute the projection along the R/Rdot contour to the surface of constant HAE at height hae_min.
+        # The projection point at height hae_min is point_b. Also compute the cosine and sine of the contour angle
+        # to point_b, cos_cab and sin_cab.
+        point_b = self.hae_min_surface_projection.rrdot_to_ground(r_tgt_coa, r_dot_tgt_coa, arp_position, arp_velocity)[0]
+        cos_cab = np.dot(point_b - ctr, u_rrx) / rrrc
+        sin_cab = self.look * np.sqrt(1 - cos_cab * cos_cab)
+
+        # (5) A set of points along the R/Rdot contour are to be computed. The points will be spaced in equal
+        # increments of the cosine of the contour angle. Compute the step size, delta_cos_ca.
+
+        # (5.1) Step size delta_cos_rrc is computed such that the distance between adjacent points on the R/Rdot
+        # contour is approximately equal to delta_dist_rrc.
+        delta_cos_rrc = self.delta_dist_rrc * np.abs(sin_cab) / rrrc
+
+        # (5.2) Step size delta_cos_dem is computed such that the horizontal distance between adjacent points on
+        # the R/Rdot contour is approximately equal to delta_dist_dem.
+        delta_cos_dem = self.delta_dist_dem * (np.abs(sin_cab) / cos_cab) / rrrc
+
+        # (5.3) Set delta_cos_ca (Note the value of delta_cos_ca is < 0)
+        delta_cos_ca = -1.0 * min(delta_cos_rrc, delta_cos_dem)
+
+        # (6) Determine the number of points along the R/Rdot contour to be computed, npts.
+        npts = int(np.floor((cos_caa - cos_cab) / delta_cos_ca)) + 2
+
+        # (7) Compute the set of points along the R/Rdot contour, {Pn} for n =0, 2, ..., npts-1. Initial point P1 is
+        # located on the hae_min surface. The final point is located above the hae_max surface. Point Pn is computed
+        # in ECF coordinates. Note that here n ranges from [0, npts-1] while in the specification n is [1, npts].
+        # Equations have been modified accordingly.
+        points_ecf = []
+        for n in range(0, npts):
+            cos_can = cos_cab + n * delta_cos_ca  # n-1 is unnecessary since n is zero based here
+            sin_can = self.look * np.sqrt(1 - cos_can * cos_can)
+            pn = ctr + rrrc * (cos_can * u_rrx + sin_can * u_rry)
+            points_ecf.append(pn)
+
+        # (8 - 10) For each of the NPTS points, convert from ECF coordinates to DEM coordinates (lon, lat, ele). Also
+        # compute the DEM surface height for the point with DEM horizontal coordinates (lon, lat). Compute the
+        # difference in height (delta_height) between the point on the contour and DEM surface point. Also,
+        # set an indicator to track if that point is ABOVE, ON, or BELOW the DEM surface.
+        #
+        # Contour points that are within delta_hd_lim of the surface point are considered to be “on” the surface and
+        # will be added to the result set. Also compute a result point when points n and n+1 when both are “off”
+        # the surface and the R/Rdot contour intersects the surface between them (i.e. indicator n-1 x indicator n = -1)
+        #
+        # All height coordinates are in meters.
+        intersection_points = []
+        prev_indicator = None
+        prev_delta_height = None
+        for n in range(0, npts):
+            point_lle = geocentric_to_geodetic(WorldCoordinate(points_ecf[n]))
+            point_dem = GeodeticWorldCoordinate(point_lle.coordinate.copy())
+            self.elevation_model.set_elevation(point_dem)
+            delta_height = point_lle.elevation - point_dem.elevation
+
+            # Determine if the contour point is ABOVE (indicator = 1), ON (indicator = 0), or BELOW (indicator = -1)
+            if np.abs(delta_height) < self.delta_hd_lim:
+                # Contour point is on the DEM surface, add it to the result set
+                indicator = 0
+                intersection_points.append(points_ecf[n])
+            elif delta_height > self.delta_hd_lim:
+                # Contour point is above the DEM surface
+                indicator = 1
+            else:
+                # Contour point is below the DEM surface
+                indicator = -1
+
+            # If in two adjacent points one is ABOVE and the other BELOW then the contour intersected the DEM
+            # surface between the two points. Interpolate an intersection point and add it to the result.
+            if prev_indicator and prev_indicator * indicator == -1:
+                # contour crossed between two points; compute the surface point between
+                frac = prev_delta_height / (prev_delta_height - delta_height)
+                cos_cas = cos_cab + (n - 1 + frac) * delta_cos_ca  # here the -1 is necessary for previous point
+                sin_cas = self.look * np.sqrt(1 - cos_cas * cos_cas)
+                sm = ctr + rrrc * (cos_cas * u_rrx + sin_cas * u_rry)
+                intersection_points.append(sm)
+
+            # Keep track of the current indicator and delta height for comparison to the next point
+            prev_indicator = indicator
+            prev_delta_height = delta_height
+
+        # Return the set of surface points found. Points will be ordered of increasing height above the WGS-84
+        # ellipsoid.
+        return np.array(intersection_points)
+
+
 class SICDSensorModel(SensorModel):
     """
     This is an implementation of the SICD sensor model as described by SICD Volume 3 Image Projections Description
@@ -704,7 +992,7 @@ class SICDSensorModel(SensorModel):
         """
         super().__init__()
         self.coa_projection_set = coa_projection_set
-        self.image_plane = coord_converter
+        self.coord_converter = coord_converter
         self.uvect_gpn = u_gpn
         self.scp_arp = scp_arp
         self.scp_varp = scp_varp
@@ -715,8 +1003,7 @@ class SICDSensorModel(SensorModel):
             self.uvect_spn *= -1.0
         self.uvect_spn /= np.linalg.norm(self.uvect_spn)
 
-        # TODO: Add option for HAE ground assumption, does world_to_image always need a GroundPlaneProjection?
-        self.default_surface_projection = GroundPlaneRRDotSurfaceProjection(self.image_plane.scp_ecf, self.uvect_gpn)
+        self.default_surface_projection = GroundPlaneRRDotSurfaceProjection(self.coord_converter.scp_ecf, self.uvect_gpn)
 
     def image_to_world(
         self,
@@ -726,7 +1013,9 @@ class SICDSensorModel(SensorModel):
     ) -> GeodeticWorldCoordinate:
         """
         This is an implementation of an Image Grid to Scene point projection that first projects the image
-        location to the R/RDot contour and then intersects the R/RDot contour with the elevation model.
+        location to the R/RDot contour and then intersects the R/RDot contour with the elevation model. If
+        an elevation model is provided then this routine intersects the R/Rdot contour with the DEM surface which
+        may result in multiple solutions. In that case the solution with the lowest HAE is returned.
 
         :param image_coordinate: the x,y image coordinate
         :param elevation_model: the optional elevation model, if none supplied a plane tangent to SCP is assumed
@@ -734,13 +1023,18 @@ class SICDSensorModel(SensorModel):
         :return: the lon, lat, elev geodetic coordinate of the surface matching the image coordinate
         """
         row_col = np.array(
-            [image_coordinate.r + self.image_plane.first_pixel.r, image_coordinate.c + self.image_plane.first_pixel.c]
+            [
+                image_coordinate.r + self.coord_converter.first_pixel.r,
+                image_coordinate.c + self.coord_converter.first_pixel.c,
+            ]
         )
-        xrow_ycol = self.image_plane.rowcol_to_xrowycol(row_col=row_col)
+        xrow_ycol = self.coord_converter.rowcol_to_xrowycol(row_col=row_col)
         r_tgt_coa, r_dot_tgt_coa, time_coa, arp_coa, varp_coa = self.coa_projection_set.precise_rrdot_computation(xrow_ycol)
 
         if elevation_model is not None:
-            raise NotImplementedError("SICD sensor model with DEM not yet implemented")
+            surface_projection = DEMRRDotSurfaceProjection(
+                self.coord_converter.scp_ecf, self.side_of_track, elevation_model=elevation_model
+            )
         else:
             surface_projection = self.default_surface_projection
 
@@ -768,7 +1062,7 @@ class SICDSensorModel(SensorModel):
         # The GP to IP projection direction is along the SCP COA slant plane normal. Also, compute the image
         # plane unit normal, uIPN. Compute projection scale factor SF as shown.
         uvect_proj = self.uvect_spn
-        scale_factor = float(np.dot(uvect_proj, self.image_plane.uvect_ipn))
+        scale_factor = float(np.dot(uvect_proj, self.coord_converter.uvect_ipn))
 
         # (3) Set initial ground plane position G1 to the scene point position S.
         scene_point = np.array([ecf_world_coordinate.x, ecf_world_coordinate.y, ecf_world_coordinate.z])
@@ -782,9 +1076,9 @@ class SICDSensorModel(SensorModel):
 
             # (4) Project ground plane point g_n to image plane point i_n. The projection distance is dist_n. Compute
             # image coordinates xrown and ycoln.
-            dist_n = np.dot(self.image_plane.scp_ecf.coordinate - g_n, self.image_plane.uvect_ipn) / scale_factor
+            dist_n = np.dot(self.coord_converter.scp_ecf.coordinate - g_n, self.coord_converter.uvect_ipn) / scale_factor
             i_n = g_n + dist_n * uvect_proj
-            xrow_ycol_n = self.image_plane.ipp_to_xrowycol(i_n)
+            xrow_ycol_n = self.coord_converter.ipp_to_xrowycol(i_n)
 
             # (5) Compute the precise projection for image grid location (xrown, ycoln) to the ground plane containing
             # the scene point S. The result is point p_n. For image grid location (xrown, ycoln), compute COA
@@ -805,9 +1099,11 @@ class SICDSensorModel(SensorModel):
             # grid location (xrown, ycoln) as the precise image grid location for scene point S.
             cont = delta_gpn > tolerance and (iteration < max_iterations)
 
-        row_col = self.image_plane.xrowycol_to_rowcol(xrow_ycol_n)
+        row_col = self.coord_converter.xrowycol_to_rowcol(xrow_ycol_n)
 
         # Convert the row_col image grid location to an x,y image coordinate. Note that row_col is in reference
         # to the full image, so we subtract off the first_pixel offset to make the image coordinate correct if this
         # is a chip.
-        return ImageCoordinate([row_col[1] - self.image_plane.first_pixel.x, row_col[0] - self.image_plane.first_pixel.y])
+        return ImageCoordinate(
+            [row_col[1] - self.coord_converter.first_pixel.x, row_col[0] - self.coord_converter.first_pixel.y]
+        )
