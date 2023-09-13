@@ -1,6 +1,20 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import Optional
 
 from .coordinates import GeodeticWorldCoordinate
+
+
+@dataclass
+class ElevationRegionSummary:
+    """
+    This class contains a general summary of an elevation tile.
+    """
+
+    min_elevation: float
+    max_elevation: float
+    no_data_value: int
+    post_spacing: float
 
 
 class ElevationModel(ABC):
@@ -22,6 +36,15 @@ class ElevationModel(ABC):
         :param world_coordinate: the coordinate to update
 
         :return: None
+        """
+
+    @abstractmethod
+    def describe_region(self, world_coordinate: GeodeticWorldCoordinate) -> Optional[ElevationRegionSummary]:
+        """
+        Get a summary of the region near the provided world coordinate
+
+        :param world_coordinate: the coordinate at the center of the region of interest
+        :return: the summary information
         """
 
 
@@ -50,3 +73,17 @@ class ConstantElevationModel(ElevationModel):
         :return: None
         """
         world_coordinate.elevation = self.constant_elevation
+
+    def describe_region(self, world_coordinate: GeodeticWorldCoordinate) -> Optional[ElevationRegionSummary]:
+        """
+        Get a summary of the region near the provided world coordinate
+
+        :param world_coordinate: the coordinate at the center of the region of interest
+        :return: [min elevation value, max elevation value, no elevation data value, post spacing]
+        """
+        return ElevationRegionSummary(
+            min_elevation=self.constant_elevation,
+            max_elevation=self.constant_elevation,
+            no_data_value=-32767,
+            post_spacing=30.0,
+        )

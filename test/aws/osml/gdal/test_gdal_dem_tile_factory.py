@@ -21,7 +21,7 @@ class TestGDALDemTileFactory(TestCase):
         from aws.osml.photogrammetry import GeodeticWorldCoordinate
 
         tile_factory = GDALDigitalElevationModelTileFactory("./test/data")
-        elevation_array, sensor_model = tile_factory.get_tile("n47_e034_3arc_v2.tif")
+        elevation_array, sensor_model, summary = tile_factory.get_tile("n47_e034_3arc_v2.tif")
 
         assert elevation_array is not None
         assert elevation_array.shape == (1201, 1201)
@@ -31,6 +31,12 @@ class TestGDALDemTileFactory(TestCase):
 
         assert center_image.x == pytest.approx(600.5, abs=1.0)
         assert center_image.y == pytest.approx(600.5, abs=1.0)
+
+        assert summary.min_elevation == -1.0
+        assert summary.max_elevation == 152.0
+        assert summary.no_data_value == -32767
+        # The 3-arc second test file used here is somewhere around 90 meter resolution
+        assert abs(90.0 - summary.post_spacing) < 20.0
 
 
 if __name__ == "__main__":

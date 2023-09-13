@@ -13,6 +13,7 @@ class TestDigitalElevationModel(unittest.TestCase):
             DigitalElevationModelTileFactory,
             DigitalElevationModelTileSet,
         )
+        from aws.osml.photogrammetry.elevation_model import ElevationRegionSummary
         from aws.osml.photogrammetry.sensor_model import SensorModel
 
         mock_tile_set = mock.Mock(DigitalElevationModelTileSet)
@@ -20,6 +21,7 @@ class TestDigitalElevationModel(unittest.TestCase):
 
         # This is a sample 3x3 grid of elevation data
         test_elevation_data = np.array([[0.0, 1.0, 4.0], [1.0, 2.0, 3.0], [2.0, 3.0, 4.0]])
+        test_elevation_summary = ElevationRegionSummary(0.0, 4.0, -1, 30.0)
 
         # These are the points we will test for interpolation
         test_grid_coordinates = [
@@ -44,7 +46,7 @@ class TestDigitalElevationModel(unittest.TestCase):
 
         # This mock tile factory will always return the 3x3 elevation grid and the sensor model
         mock_tile_factory = mock.Mock(DigitalElevationModelTileFactory)
-        mock_tile_factory.get_tile.return_value = test_elevation_data, mock_sensor_model
+        mock_tile_factory.get_tile.return_value = test_elevation_data, mock_sensor_model, test_elevation_summary
 
         dem = DigitalElevationModel(mock_tile_set, mock_tile_factory)
 
@@ -96,7 +98,7 @@ class TestDigitalElevationModel(unittest.TestCase):
         mock_tile_set = mock.Mock(DigitalElevationModelTileSet)
         mock_tile_set.find_tile_id.return_value = "MockN00E000V0.tif"
         mock_tile_factory = mock.Mock(DigitalElevationModelTileFactory)
-        mock_tile_factory.get_tile.return_value = None, None
+        mock_tile_factory.get_tile.return_value = None, None, None
 
         dem = DigitalElevationModel(mock_tile_set, mock_tile_factory)
 

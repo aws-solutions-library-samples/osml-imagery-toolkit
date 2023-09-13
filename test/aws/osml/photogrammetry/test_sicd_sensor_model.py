@@ -1,6 +1,7 @@
 import unittest
 from math import radians
 from pathlib import Path
+from typing import Optional, Tuple
 
 import numpy as np
 from xsdata.formats.dataclass.parsers import XmlParser
@@ -8,6 +9,8 @@ from xsdata.formats.dataclass.parsers import XmlParser
 import aws.osml.formats.sicd.models.sicd_v1_2_1 as sicd121
 from aws.osml.gdal.sicd_sensor_model_builder import poly1d_to_native, poly2d_to_native, xyzpoly_to_native, xyztype_to_ndarray
 from aws.osml.photogrammetry import (
+    ConstantElevationModel,
+    ElevationRegionSummary,
     GeodeticWorldCoordinate,
     ImageCoordinate,
     INCAProjectionSet,
@@ -16,6 +19,7 @@ from aws.osml.photogrammetry import (
     SARImageCoordConverter,
     SICDSensorModel,
     WorldCoordinate,
+    geocentric_to_geodetic,
     geodetic_to_geocentric,
 )
 
@@ -64,18 +68,38 @@ class TestSICDSensorModel(unittest.TestCase):
             side_of_track=str(sicd.scpcoa.side_of_track.value),
         )
 
+        # This is a test class that forces a constant elevation model to have a min/max height range of 100
+        # meters. It's necessary to force the DEM intersection code with the SICD sensor model to iterate through
+        # several points searching for an intersection.
+        class TestElevationModel(ConstantElevationModel):
+            def __init__(self, hae: float):
+                super().__init__(constant_elevation=hae)
+
+            def describe_region(
+                self, world_coordinate: GeodeticWorldCoordinate
+            ) -> Optional[Tuple[float, float, float, float]]:
+                summary = super().describe_region(world_coordinate)
+                return ElevationRegionSummary(
+                    min_elevation=summary.min_elevation - 100,
+                    max_elevation=summary.max_elevation + 100,
+                    no_data_value=summary.no_data_value,
+                    post_spacing=summary.post_spacing,
+                )
+
+        scp_lle = geocentric_to_geodetic(scp_ecf)
+        elevation_model = TestElevationModel(scp_lle.elevation)
         geodetic_world_coordinate = sicd_sensor_model.image_to_world(
-            ImageCoordinate([sicd.image_data.scppixel.col, sicd.image_data.scppixel.row])
+            ImageCoordinate([sicd.image_data.scppixel.col, sicd.image_data.scppixel.row]), elevation_model=elevation_model
         )
         ecf_world_coordinate = geodetic_to_geocentric(geodetic_world_coordinate)
 
-        assert np.allclose(ecf_world_coordinate.coordinate, scp_ecf.coordinate)
+        assert np.allclose(ecf_world_coordinate.coordinate, scp_ecf.coordinate, atol=0.001)
 
         geo_scp_world_coordinate = GeodeticWorldCoordinate(
             [radians(sicd.geo_data.scp.llh.lon), radians(sicd.geo_data.scp.llh.lat), sicd.geo_data.scp.llh.hae]
         )
 
-        assert np.allclose(geo_scp_world_coordinate.coordinate, geodetic_world_coordinate.coordinate)
+        assert np.allclose(geo_scp_world_coordinate.coordinate, geodetic_world_coordinate.coordinate, atol=1.0e-5)
 
         calculated_image_scp = sicd_sensor_model.world_to_image(geo_scp_world_coordinate)
 
