@@ -7,7 +7,8 @@ submit your pull requests effectively.
 ## Table of Contents
 
 - [Release-based GitFlow](#release-based-gitflow)
-- [Branches Overview](#branches-overview)
+- [Branches](#branches)
+- [Linting](#linting)
 - [Use Cases](#use-cases)
    - [Develop a new feature](#develop-a-new-feature)
    - [Develop multiple features in parallel](#develop-multiple-features-in-parallel)
@@ -24,8 +25,10 @@ ensure proper version control and collaboration. The primary branches in this wo
 
 note- `main`: This branch represents the latest production-ready state of the project code.
 - `dev`: This branch is used as the integration branch, combining all feature branches for a specific release.
-- `release-x.x`: Branches in the format of `release-x.x` are used to prepare a specific release.
-- `feature/x`: Feature branches are created for the development of new features or significant enhancements.
+- `release/vX.Y.Z`: Branches in the format of `release/vX.Y.Z` are used to prepare a specific release.
+- `feature/*`: Feature branches are created for the development of new features or significant enhancements.
+- `hotfix/*`: Hotfix branches are created for bug fixes against production code.
+
 
 ## Branches
 
@@ -33,35 +36,58 @@ Here's a brief description of the supported branches in our repository:
 
 ![Release Deployment workflow](images/release-deployment.png)
 
-| Branch           | Protected? | Base Branch        | Description                                                                                                                                                                                                   |
-|:-----------------|:-----------|:-------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `main`           | YES        | N/A                | What is live in production (**stable**).<br/>A pull request is required to merge code into `main`.                                                                                                            |
-| `dev`            | YES        | `main`             | The latest state of development (**unstable**).                                                                                                                                                               |
-| `feature/*`      | NO         | `dev`              | Cutting-edge features (**unstable**). These branches are used for any maintenance features / active development.                                                                                              |
-| `release-vX.Y.Z` | NO         | `dev`              | A temporary release branch that follows the [semver](http://semver.org/) versioning. This is what is sent to UAT.<br/>A pull request is required to merge code into any `release-vX.Y.Z` branch.              |
-| `hotfix/*`       | NO         | `main`             | These are bug fixes against production.<br/>This is used because develop might have moved on from the last published state.<br/>Remember to merge this back into develop and any release branches.            |
+| Branch           | Protected? | Base Branch        | Description                                                                                                                                                                                        |
+|:-----------------|:-----------|:-------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `main`           | YES        | N/A                | What is live in production (**stable**).<br/>A pull request is required to merge code into `main`.                                                                                                 |
+| `dev`            | YES        | `main`             | The latest state of development (**unstable**).<br/>A pull request is required to merge code into `dev`                                                                                            |
+| `feature/*`      | NO         | `dev`              | Cutting-edge features (**unstable**). These branches are used for any maintenance features / active development.                                                                                   |
+| `release/vX.Y.Z` | NO         | `dev`              | A temporary release branch that follows the [semver](http://semver.org/) versioning. This is what is sent to UAT.<br/>A pull request is required to merge code into any `release/vX.Y.Z` branch.   |
+| `hotfix/*`       | NO         | `main`             | These are bug fixes against production.<br/>This is used because develop might have moved on from the last published state.<br/>Remember to merge this back into develop and any release branches. |
+
+
+## Linting
+
+This package uses a number of tools to enforce formatting, linting, and general best practices:
+* [eslint](https://github.com/pre-commit/mirrors-eslint) to check pep8 compliance and logical errors in code
+* [prettier](https://github.com/pre-commit/mirrors-prettier) to check pep8 compliance and logical errors in code
+* [pre-commit](https://github.com/pre-commit/pre-commit-hooks) to install and control linters in githooks
+
+After pulling the repository, you should enable auto linting git commit hooks by running:
+
+```bash
+python3 -m pip install pre-commit
+pre-commit install
+```
+
+In addition to running the linters against files included in a commit, you can perform linting on all the files
+in the package by running:
+```bash
+pre-commit run --all-files --show-diff-on-failure
+```
+or if using tox
+```bash
+tox -e lint
+````
 
 ## Use Cases
 
 ### Develop a new feature
 
-![Feature branch](images/feature-branch.png)
-
 1. Make sure your `dev` branch is up-to-date
 
 2. Create a feature branch based off of `dev`
 
-   ```
+   ```bash
    $ git checkout dev
-   $ git checkout -b feature-new-documentation
-   $ git push --set-upstream feature-new-documentation
+   $ git checkout -b feature/new-documentation
+   $ git push --set-upstream feature/new-documentation
    ```
 
 3. Develop the code for the new feature and commit. Push your changes often. This
    allows others to see your changes and suggest improvements/changes as well as
    provides a safety net should your hard drive crash.
 
-    ```
+    ```bash
     $ ... make changes
     $ git add -A .
     $ git commit -m "Add new documentation files"
@@ -71,58 +97,54 @@ Here's a brief description of the supported branches in our repository:
     $ git push
     ```
 
-4. Navigate to the project on [GitHub](www.github.com) and open a pull request with
+4. Navigate to the project on [GitHub](https://github.com) and open a pull request with
    the following branch settings:
     * Base: `dev`
-    * Compare: `feature-new-documentation`
+    * Compare: `feature/new-documentation`
 
 5. When the pull request was reviewed, merge and close it and delete the
-   `feature-new-documentation` branch.
+   `feature/new-documentation` branch.
 
 ### Develop multiple features in parallel
 
 There's nothing special about that. Each developer follows the above [Develop a new feature](#develop-a-new-feature) process.
 
 ### Create and deploy a release
-
-![Create and deploy a release](images/release-release.png)
-
 1. Merge `main` into `dev` to ensure the new release will contain the
    latest production code. This reduces the chance of a merge conflict during
    the release.
 
-   ```
+   ```bash
    $ git checkout dev
    $ git merge main
    ```
 
-2. Create a new `release-vX.Y.Z` release branch off of `dev`.
+2. Create a new `release/vX.Y.Z` release branch off of `dev`.
 
-   ```
-   $ git checkout -b release-vX.Y.Z
-   $ git push --set-upstream release-vX.Y.Z
+   ```bash
+   $ git checkout -b release/vX.Y.Z
+   $ git push --set-upstream release/vX.Y.Z
    ```
 
-3. Stabilize the release by using bugfix branches off of the `release-vX.Y.Z` branch
+3. Stabilize the release by using bugfix branches off of the `release/vX.Y.Z` branch
    (the same way you would do a feature branch off of `dev`).
 
-   ```
-   $ git checkout release-vX.Y.Z
-   $ git checkout -b fix-label-alignment
-   $ git push --set-upstream fix-label-alignment
+   ```bash
+   $ git checkout release/vX.Y.Z
+   $ git checkout -b hotfix/fix-label-alignment
+   $ git push --set-upstream hotfix/fix-label-alignment
    ... do work
    $ git commit -m "Adjust label to align with button"
    $ git push
    ```
 
 4. When the code is ready to release, navigate to the project on
-   [GitHub](www.github.com) and open a pull request with the following branch
+   [GitHub](https://github.com) and open a pull request with the following branch
    settings:
     * Base: `main`
-    * Compare: `release-vX.Y.Z`
+    * Compare: `release/vX.Y.Z`
       Paste the Release Checklist into the PR body. Each project should define a release
-      checklist. It will vary across projects, but you can refer to the Astro
-      [Release](https://github.com/mobify/astro/blob/develop/RELEASE.md) document for an example.
+      checklist. TBD - will link release checklist here.
 
 5. At some point in the checklist you will merge the release branch into `main`.
    You can do this by using the "Merge pull request" button on the release PR.
@@ -135,11 +157,11 @@ There's nothing special about that. Each developer follows the above [Develop a 
     * Description: Includes a high-level list of things changed in this release.
       Click `Publish release`.
 
-7. Merge the `release-vX.Y.Z` into `dev`.
+7. Merge the `release/vX.Y.Z` into `dev`.
 
-    ```
+    ```bash
     $ git checkout dev
-    $ git merge release-vX.Y.Z
+    $ git merge release/vX.Y.Z
     $ git push
     ```
 
@@ -159,25 +181,25 @@ code in it already.
 
 1. Create a hot fix branch based off of `main`.
 
-   ```
+   ```bash
    $ git checkout main
-   $ git checkout -b hotfix-documentation-broken-links
-   $ git push --set-upstream origin hotfix-documentation-broken-links
+   $ git checkout -b hotfix/documentation-broken-links
+   $ git push --set-upstream origin hotfix/documentation-broken-links
    ```
 
 2. Add a test case to validate the bug, fix the bug, and commit.
 
-   ```
+   ```bash
    ... add test, fix bug, verify
    $ git add -A .
    $ git commit -m "Fix broken links"
    $ git push
    ```
 
-3. Navigate to the project on [GitHub](www.github.com) and open a pull request
+3. Navigate to the project on [GitHub](https://github.com) and open a pull request
    with the following branch settings:
    * Base: `main`
-   * Compare: `hotfix-documentation-broken-links`
+   * Compare: `hotfix/documentation-broken-links`
      Paste your release checklist into the PR and work through the PR to get the
      hotfix into production.
 
@@ -198,11 +220,11 @@ Click `Publish release`.
 patch part of the version when releasing a hotfix, and so even hotfixes go
 through the process of creating a release like this.*
 
-1. Merge the `hotfix-documentation-broken-links` into `dev`.
+1. Merge the `hotfix/documentation-broken-links` into `dev`.
 
-   ```
+   ```bash
    $ git checkout dev
-   $ git merge hotfix-documentation-broken-links
+   $ git merge hotfix/documentation-broken-links
    $ git push
    ```
 
@@ -216,15 +238,18 @@ Take a look at the existing codebase to understand the patterns and conventions 
 
 ## Commit Messages
 
-Clear and concise commit messages are important for keeping the project history readable. Please follow these rules when
-writing commit messages:
+The [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary) specification is a
+lightweight convention on top of commit messages. It provides an easy set of rules for creating an explicit
+commit history, which makes it easier to write automated tools on top of. This convention dovetails with SemVer
+by describing the features, fixes, and breaking changes made in commit messages. Please refer to the linked
+documentation for examples and additional context.
 
-- Start with a capitalized summary line (50 characters or fewer) describing the change.
-- Provide additional details in the body of the commit message (if required).
-- Use present tense and imperative mood in commit messages ("Fix bug" instead of "Fixed bug").
-- Reference any relevant issues or pull requests using the appropriate syntax (`#123`, `GH-456`, etc.).
+<code>&lt;type&gt;[optional scope]: &lt;description&gt;
 
-For additional rules relating to commit messages, see [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)
+[optional body]
+
+[optional footer(s)]
+</code>
 
 ## Issue Tracking
 
