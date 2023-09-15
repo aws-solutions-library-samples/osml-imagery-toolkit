@@ -13,14 +13,15 @@ jobs:
           pip install sphinx
           python -m pip install sphinx-autoapi
           python -m pip install sphinx_rtd_theme
+          python -m pip install tox tox-gh-actions
       - name: Sphinx build
         run: |
-          sphinx-build doc _build
+          tox -e docs
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3.9.3
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           publish_branch: gh-pages
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: _build/
+          publish_dir: .tox/docs/tmp/html/
           force_orphan: true
