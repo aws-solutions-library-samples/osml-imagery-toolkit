@@ -484,7 +484,7 @@ class INCAProjectionSet(COAProjectionSet):
         # (2 repeated in v1.3.0 of the spec) Compute the ARP velocity at the time of closest approach
         # and the magnitude of the vector.
         arp_velocity_ca_tgt = self.varp_poly(time_ca_tgt)
-        mag_arp_velocity_ca_tgt = np.sum(arp_velocity_ca_tgt, axis=-1)
+        mag_arp_velocity_ca_tgt = np.linalg.norm(arp_velocity_ca_tgt)
 
         # (3) Compute the Doppler Rate Scale Factor (drsf_tgt) for image grid location (rg, az).
         drsf_tgt = self.drate_sf_poly(rg, az)
