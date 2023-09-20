@@ -159,6 +159,33 @@ class TestSICDSensorModel(unittest.TestCase):
 
         assert np.allclose(calculated_image_scp.coordinate, scp_pixel.coordinate)
 
+        for icp in sicd.geo_data.image_corners.icp:
+            geo_point = GeodeticWorldCoordinate([radians(icp.lon), radians(icp.lat), sicd.geo_data.scp.llh.hae])
+
+            if icp.index == sicd121.CornerStringType.FRFC_1:
+                image_point = ImageCoordinate([sicd.image_data.first_col, sicd.image_data.first_row])
+            elif icp.index == sicd121.CornerStringType.FRLC_2:
+                image_point = ImageCoordinate(
+                    [sicd.image_data.first_col + sicd.image_data.num_cols, sicd.image_data.first_row]
+                )
+            elif icp.index == sicd121.CornerStringType.LRLC_3:
+                image_point = ImageCoordinate(
+                    [
+                        sicd.image_data.first_col + sicd.image_data.num_cols,
+                        sicd.image_data.first_row + sicd.image_data.num_rows,
+                    ]
+                )
+            elif icp.index == sicd121.CornerStringType.LRFC_4:
+                image_point = ImageCoordinate(
+                    [sicd.image_data.first_col, sicd.image_data.first_row + sicd.image_data.num_rows]
+                )
+            else:
+                # Unknown image corner
+                assert False
+
+            new_geo_point = sicd_sensor_model.image_to_world(image_point)
+            assert np.allclose(new_geo_point.coordinate[0:2], geo_point.coordinate[0:2], atol=0.00001)
+
     def test_rgazim_pfa(self):
         sicd: sicd121.SICD = XmlParser().from_path(Path("./test/data/sicd/example.sicd121.pfa.xml"))
 
