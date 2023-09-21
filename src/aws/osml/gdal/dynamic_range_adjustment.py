@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 
 class DRAParameters:
@@ -25,12 +25,20 @@ class DRAParameters:
 
     @staticmethod
     def from_counts(
-        counts: List[float], min_percentage: float = 0.02, max_percentage: float = 0.98, a: float = 0.2, b: float = 0.4
+        counts: List[float],
+        first_bucket_value: Optional[float] = None,
+        last_bucket_value: Optional[float] = None,
+        min_percentage: float = 0.02,
+        max_percentage: float = 0.98,
+        a: float = 0.2,
+        b: float = 0.4,
     ) -> "DRAParameters":
         """
         This static factory method computes a new set of DRA parameters given a histogram of pixel values.
 
         :param counts: histogram of the pixel values
+        :param first_bucket_value: pixel value of the first bucket, defaults to 0
+        :param last_bucket_value: pixel value of the last bucket, defaults to bucket index
         :param min_percentage: set point for low intensity pixels that may be outliers
         :param max_percentage: set point for high intensity pixels that may be outliers
         :param a: weighting factor for the low intensity range
@@ -38,6 +46,10 @@ class DRAParameters:
         :return: a set of DRA parameters containing recommended and actual ranges of values
         """
         num_histogram_bins = len(counts)
+        if not first_bucket_value:
+            first_bucket_value = 0
+        if not last_bucket_value:
+            last_bucket_value = num_histogram_bins
 
         # Find the first and last non-zero counts
         actual_min_value = 0
@@ -69,11 +81,12 @@ class DRAParameters:
         min_value = max([actual_min_value, e_min - a * (e_max - e_min)])
         max_value = min([actual_max_value, e_max + b * (e_max - e_min)])
 
+        value_step = (last_bucket_value - first_bucket_value) / num_histogram_bins
         return DRAParameters(
-            suggested_min_value=min_value,
-            suggested_max_value=max_value,
-            actual_min_value=actual_min_value,
-            actual_max_value=actual_max_value,
+            suggested_min_value=min_value * value_step + first_bucket_value,
+            suggested_max_value=max_value * value_step + first_bucket_value,
+            actual_min_value=actual_min_value * value_step + first_bucket_value,
+            actual_max_value=actual_max_value * value_step + first_bucket_value,
         )
 
     def __repr__(self):

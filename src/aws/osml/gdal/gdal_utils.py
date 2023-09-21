@@ -144,12 +144,23 @@ def get_type_and_scales(
         selected_min = min_value
         selected_max = max_value
         if range_adjustment is not RangeAdjustmentType.NONE:
+            # GetStatistics(1,1) means it is ok to approximate but force computation is stats not already available
+            stats = band.GetStatistics(1, 1)
+            min_value = stats[0]
+            max_value = stats[1]
+
             num_buckets = int(max_value - min_value)
             if band_type == gdalconst.GDT_Float32 or band_type == gdalconst.GDT_Float64:
                 num_buckets = 255
+
             dra = DRAParameters.from_counts(
-                band.GetHistogram(buckets=num_buckets, max=max_value, min=min_value, include_out_of_range=1, approx_ok=1)
+                counts=band.GetHistogram(
+                    buckets=num_buckets, max=max_value, min=min_value, include_out_of_range=1, approx_ok=1
+                ),
+                first_bucket_value=min_value,
+                last_bucket_value=max_value,
             )
+
             if range_adjustment == RangeAdjustmentType.DRA:
                 selected_min = dra.suggested_min_value
                 selected_max = dra.suggested_max_value
