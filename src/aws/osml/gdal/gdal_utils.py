@@ -35,6 +35,7 @@ def load_gdal_dataset(image_path: str) -> Tuple[gdal.Dataset, Optional[SensorMod
     # Get a GDAL Geo Transform and any available GCPs
     geo_transform = ds.GetGeoTransform(can_return_null=True)
     ground_control_points = ds.GetGCPs()
+    proj_wkt = ds.GetProjection()
 
     # If this image has NITF TREs defined parse them
     parsed_tres = None
@@ -59,6 +60,7 @@ def load_gdal_dataset(image_path: str) -> Tuple[gdal.Dataset, Optional[SensorMod
         xml_tres=parsed_tres,
         xml_dess=xml_dess,
         geo_transform=geo_transform,
+        proj_wkt=proj_wkt,
         ground_control_points=ground_control_points,
         selected_sensor_model_types=selected_sensor_model_types,
     ).build()

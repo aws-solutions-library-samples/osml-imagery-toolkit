@@ -2,8 +2,10 @@ from math import degrees, radians
 from typing import Any, Dict, List, Optional
 
 import numpy as np
+import pyproj
+from pyproj.enums import TransformDirection
 
-from .coordinates import GeodeticWorldCoordinate, ImageCoordinate
+from .coordinates import LLA_PROJ, GeodeticWorldCoordinate, ImageCoordinate
 from .elevation_model import ElevationModel
 from .sensor_model import SensorModel
 
@@ -23,11 +25,12 @@ class GDALAffineSensorModel(SensorModel):
     The necessary transform matrix can be obtained from a dataset using the GetGeoTransform() operation.
     """
 
-    def __init__(self, geo_transform: List) -> None:
+    def __init__(self, geo_transform: List, proj_wkt: Optional[str] = None) -> None:
         """
         Construct the sensor model from the affine transform provided by transform
 
         :param geo_transform: the 6 coefficients of the affine transform
+        :param proj_wkt: the well known text string of the CRS used by the image
 
         :return: None
         """
@@ -46,6 +49,11 @@ class GDALAffineSensorModel(SensorModel):
             )
             # Use NumPy to calculate an inverse transform
             self.inv_transform = np.linalg.inv(self.transform)
+
+            self.image_to_wgs84 = None
+            if proj_wkt:
+                self.image_to_wgs84 = pyproj.Transformer.from_crs(pyproj.CRS.from_string(proj_wkt), LLA_PROJ.crs)
+
         except np.linalg.LinAlgError:
             raise ValueError("GeoTransform can not be inverted. Not a valid matrix for a sensor model.")
 
@@ -67,7 +75,17 @@ class GDALAffineSensorModel(SensorModel):
         """
         # The transform is expecting coordinates [x, y, 1.0] as an input.
         augmented_image_coord = np.append(image_coordinate.coordinate, [1.0])
-        lonlat_coordinate = np.matmul(self.transform, augmented_image_coord)
+        image_crs_coordinate = np.matmul(self.transform, augmented_image_coord)
+        if self.image_to_wgs84 is not None:
+            lonlat_coordinate = self.image_to_wgs84.transform(
+                image_crs_coordinate[0],
+                image_crs_coordinate[1],
+                image_crs_coordinate[2],
+                radians=False,
+                direction=TransformDirection.FORWARD,
+            )
+        else:
+            lonlat_coordinate = image_crs_coordinate
         world_coordinate = GeodeticWorldCoordinate([radians(lonlat_coordinate[0]), radians(lonlat_coordinate[1]), 0.0])
         if elevation_model:
             elevation_model.set_elevation(world_coordinate)
@@ -85,6 +103,17 @@ class GDALAffineSensorModel(SensorModel):
         """
         # The GDAL geo transform does not support elevation data. The inverse transform was created assuming the input
         # coordinate is a 2D geo + 1.0 (i.e. [longitude, latitude, 1.0]
-        lonlat_degrees_coordinate = np.array([degrees(world_coordinate.longitude), degrees(world_coordinate.latitude), 1.0])
-        xy_coordinate = np.matmul(self.inv_transform, lonlat_degrees_coordinate)
+        if self.image_to_wgs84 is not None:
+            image_crs_coordinate = np.array(
+                self.image_to_wgs84.transform(
+                    degrees(world_coordinate.longitude),
+                    degrees(world_coordinate.latitude),
+                    1.0,
+                    radians=False,
+                    direction=TransformDirection.INVERSE,
+                )
+            )
+        else:
+            image_crs_coordinate = np.array((degrees(world_coordinate.longitude), degrees(world_coordinate.latitude), 1.0))
+        xy_coordinate = np.matmul(self.inv_transform, image_crs_coordinate)
         return ImageCoordinate([xy_coordinate[0], xy_coordinate[1]])

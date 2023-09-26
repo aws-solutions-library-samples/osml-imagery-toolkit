@@ -80,6 +80,7 @@ class SensorModelFactory:
         xml_tres: Optional[ET.Element] = None,
         xml_dess: Optional[List[str]] = None,
         geo_transform: Optional[List[float]] = None,
+        proj_wkt: Optional[str] = None,
         ground_control_points: Optional[List[gdal.GCP]] = None,
         selected_sensor_model_types: Optional[List[SensorModelTypes]] = None,
     ) -> None:
@@ -93,6 +94,7 @@ class SensorModelFactory:
         :param xml_tres: XML representing metadata in the tagged record extensions(TRE)
         :param xml_dess: XML representing data contained in the data extension segments (DES)
         :param geo_transform: a GDAL affine transform
+        :param proj_wkt: the well known text string of the CRS used by the image
         :param ground_control_points: a list of GDAL GCPs that identify correspondences in the image
         :param selected_sensor_model_types: a list of sensor models that should be attempted by this factory
 
@@ -105,6 +107,7 @@ class SensorModelFactory:
         self.xml_tres = xml_tres
         self.xml_dess = xml_dess
         self.geo_transform = geo_transform
+        self.proj_wkt = proj_wkt
         self.ground_control_points = ground_control_points
         self.selected_sensor_model_types = selected_sensor_model_types
 
@@ -121,7 +124,7 @@ class SensorModelFactory:
 
         if SensorModelTypes.AFFINE in self.selected_sensor_model_types:
             if self.geo_transform is not None:
-                approximate_sensor_model = GDALAffineSensorModelBuilder(self.geo_transform).build()
+                approximate_sensor_model = GDALAffineSensorModelBuilder(self.geo_transform, self.proj_wkt).build()
 
         if SensorModelTypes.PROJECTIVE in self.selected_sensor_model_types:
             if self.ground_control_points is not None and len(self.ground_control_points) > 3:
