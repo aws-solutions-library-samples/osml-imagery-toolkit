@@ -2,7 +2,7 @@
 
 The OversightML Imagery Toolkit is a Python package that contains image processing and photogrammetry routines commonly
 used during the analysis of imagery collected by satellites and unmanned aerial vehicles (UAVs). It builds upon GDAL
-by providing additional support for images compliant with the National Imagery Transmission Format (NITF) and Sensor 
+by providing additional support for images compliant with the National Imagery Transmission Format (NITF) and Sensor
 Independent Complex Data (SICD) standards.
 
 ## Installation
@@ -70,14 +70,14 @@ nitf_encoded_tile_bytes = tile_factory.create_encoded_tile([0, 0, 1024, 1024])
 
 ### Tiling for Display
 
-Some images, for example 11-bit panchromatic images or SAR imagery with floating point complex data, can not be 
+Some images, for example 11-bit panchromatic images or SAR imagery with floating point complex data, can not be
 displayed directly without remapping the pixels into an 8-bit per pixel grayscale or RGB color model. The TileFactory
 supports creation of tiles suitable for human review by setting both the output_type and range_adjustment options.
 
 ```python
-viz_tile_factory = GDALTileFactory(ds, 
-                                   sensor_model, 
-                                   GDALImageFormats.PNG, 
+viz_tile_factory = GDALTileFactory(ds,
+                                   sensor_model,
+                                   GDALImageFormats.PNG,
                                    GDALCompressionOptions.NONE,
                                    output_type=gdalconst.GDT_Byte,
                                    range_adjustment=RangeAdjustmentType.DRA)
@@ -87,10 +87,10 @@ viz_tile = viz_tile_factory.create_encoded_tile([0, 0, 1024, 1024])
 
 ### More Precise Sensor Models
 
-OversightML provides implementations of the Replacement Sensor Model (RSM), Rational Polynomial 
+OversightML provides implementations of the Replacement Sensor Model (RSM), Rational Polynomial
 Camera (RPC), and Sensor Independent Complex Data (SICD) sensor models to assist in geo positioning.
 When loading a dataset, the toolkit will construct the most accurate sensor model
-from the available image metadata. That sensor model can be used in conjunction with an optional 
+from the available image metadata. That sensor model can be used in conjunction with an optional
 elevation model to convert between image and geodetic coordinates.
 
 ```python
@@ -101,7 +101,7 @@ elevation_model = DigitalElevationModel(
 
 # Note the order of ImageCoordinate is (x, y)
 geodetic_location_of_ul_corner = sensor_model.image_to_world(
-    ImageCoordinate([0, 0]), 
+    ImageCoordinate([0, 0]),
     elevation_model=elevation_model)
 
 lon_degrees = -77.404453
