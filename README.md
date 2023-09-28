@@ -1,19 +1,20 @@
 # OversightML Imagery Toolkit
 
-The OversightML Imagery Core is a Python package that contains image processing and photogrammetry routines commonly
+The OversightML Imagery Toolkit is a Python package that contains image processing and photogrammetry routines commonly
 used during the analysis of imagery collected by satellites and unmanned aerial vehicles (UAVs). It builds upon GDAL
-by providing additional support for images compliant with the Sensor Independent Complex Data (SICD) and National
-Imagery Transmission Format (NITF) standards.
+by providing additional support for images compliant with the National Imagery Transmission Format (NITF) and Sensor
+Independent Complex Data (SICD) standards.
 
 ## Installation
 
-The intent is to vend / distribute this software through a Python Package Index. If your environment has a distribution
+The intent is to vend / distribute this software through a Python Package Index.
+If your environment has a distribution,
 you should be able to install it using pip:
 ```shell
 pip install osml-imagery-toolkit[gdal]
 ```
 
-If you are working from a source code you can build and install the package from the root directory of the
+If you are working from a source code, you can build and install the package from the root directory of the
 distribution.
 ```shell
 pip install .[gdal]
@@ -22,32 +23,6 @@ Note that GDAL is listed as an extra dependency for this package. This is done t
 don't want to use GDAL or those that have their own custom installation steps for that library. Future versions of
 this package will include image IO backbones that have fewer dependencies.
 
-## Linting/Formatting
-
-This package uses a number of tools to enforce formatting, linting, and general best practices:
-
-- [black](https://github.com/psf/black)
-- [isort](https://github.com/PyCQA/isort) for formatting with a max line length of 100
-- [mypy](https://github.com/pre-commit/mirrors-mypy) to enforce static type checking
-- [flake8](https://github.com/PyCQA/flake8) to check pep8 compliance and logical errors in code
-- [autopep](https://github.com/pre-commit/mirrors-autopep8) to check pep8 compliance and logical errors in code
-- [eslint](https://github.com/pre-commit/mirrors-eslint) to check pep8 compliance and logical errors in code
-- [prettier](https://github.com/pre-commit/mirrors-prettier) to check pep8 compliance and logical errors in code
-- [pre-commit](https://github.com/pre-commit/pre-commit-hooks) to install and control linters in githooks
-
-```bash
-python3 -m pip install pre-commit
-pre-commit install
-```
-
-Additionally, you can perform linting on all the files in the package by running:
-```bash
-pre-commit run --all-files --show-diff-on-failure
-```
-or if using tox
-```bash
-tox -e lint
-```
 
 ## Documentation
 
@@ -60,10 +35,11 @@ tox -e docs
 
 ## Example Usage
 
-This library contains three core packages under the `aws.osml` namespace.
+This library contains four core packages under the `aws.osml` namespace.
 * photogrammetry: convert locations between the image (x, y) and geodetic (lon, lat, elev) coordinate systems
 * gdal: help load and manage datasets loaded by GDAL
 * image_processing: common image manipulation routines
+* formats: utilities for handling format specific information; normally not accessed directly
 
 ```python
 from aws.osml.gdal import GDALImageFormats, GDALCompressionOptions, load_gdal_dataset
@@ -74,9 +50,10 @@ from aws.osml.photogrammetry import ImageCoordinate, GeodeticWorldCoordinate, Se
 ### Tiling with Updated Image Metadata
 
 Many applications break large remote sensing images into smaller chips or tiles for distributed processing or
-dissemination. GDAL's Translate function provides basic capabilities but it does not correctly update geospatial
+dissemination. GDAL's Translate function provides basic capabilities, but it does not correctly update geospatial
 metadata to reflect the new image extent. These utilities provide those functions so tile consumers can correctly
-interpret the pixel information they have been provided.
+interpret the pixel information they have been provided. For NITF imagery that includes the addition of a new ICHIPB
+TRE. With SICD the XML ImageData elements are adjusted to identify the sub-image bounds.
 
 ```python
 # Load the image and create a sensor model
@@ -91,27 +68,50 @@ tile_factory = GDALTileFactory(ds,
 nitf_encoded_tile_bytes = tile_factory.create_encoded_tile([0, 0, 1024, 1024])
 ```
 
+### Tiling for Display
+
+Some images, for example 11-bit panchromatic images or SAR imagery with floating point complex data, can not be
+displayed directly without remapping the pixels into an 8-bit per pixel grayscale or RGB color model. The TileFactory
+supports creation of tiles suitable for human review by setting both the output_type and range_adjustment options.
+
+```python
+viz_tile_factory = GDALTileFactory(ds,
+                                   sensor_model,
+                                   GDALImageFormats.PNG,
+                                   GDALCompressionOptions.NONE,
+                                   output_type=gdalconst.GDT_Byte,
+                                   range_adjustment=RangeAdjustmentType.DRA)
+
+viz_tile = viz_tile_factory.create_encoded_tile([0, 0, 1024, 1024])
+```
+
 ### More Precise Sensor Models
 
-OversightML provides implementations of the Replacement Sensor Model (RSM) and Rational Polynomial Camera (RPC) sensor
-models to assist in geo positioning. When loading a dataset you will automatically get the most accurate sensor model
-from the available image metadata. That sensor model can be used in conjunction with an optional elevation model to
-convert between image and geodetic coordinates.
+OversightML provides implementations of the Replacement Sensor Model (RSM), Rational Polynomial
+Camera (RPC), and Sensor Independent Complex Data (SICD) sensor models to assist in geo positioning.
+When loading a dataset, the toolkit will construct the most accurate sensor model
+from the available image metadata. That sensor model can be used in conjunction with an optional
+elevation model to convert between image and geodetic coordinates.
 
 ```python
 ds, sensor_model = load_gdal_dataset("./imagery/sample.nitf")
-elevation_model = DigitalElevationModel(SRTMTileSet(version="1arc_v3"),
-                                        GDALDigitalElevationModelTileFactory("./local-SRTM-tiles")
-                                        )
+elevation_model = DigitalElevationModel(
+    SRTMTileSet(version="1arc_v3"),
+    GDALDigitalElevationModelTileFactory("./local-SRTM-tiles"))
 
-geodetic_location_of_ul_corner = sensor_model.image_to_world(ImageCoordinate([0, 0]), elevation_model=elevation_model)
+# Note the order of ImageCoordinate is (x, y)
+geodetic_location_of_ul_corner = sensor_model.image_to_world(
+    ImageCoordinate([0, 0]),
+    elevation_model=elevation_model)
 
 lon_degrees = -77.404453
 lat_degrees = 38.954831
 meters_above_ellipsoid = 100.0
-image_location = sensor_model.world_to_image(GeodeticWorldCoordinate([radians(lon_degrees),
-                                                                      radians(lat_degrees),
-                                                                      meters_above_ellipsoid]))
+
+image_location = sensor_model.world_to_image(
+    GeodeticWorldCoordinate([radians(lon_degrees),
+                             radians(lat_degrees),
+                             meters_above_ellipsoid]))
 ```
 
 ## Contributing

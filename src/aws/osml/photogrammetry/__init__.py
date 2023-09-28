@@ -16,7 +16,7 @@ from .coordinates import (
     geodetic_to_geocentric,
 )
 from .digital_elevation_model import DigitalElevationModel, DigitalElevationModelTileFactory, DigitalElevationModelTileSet
-from .elevation_model import ConstantElevationModel, ElevationModel
+from .elevation_model import ConstantElevationModel, ElevationModel, ElevationRegionSummary
 from .gdal_sensor_model import GDALAffineSensorModel
 from .projective_sensor_model import ProjectiveSensorModel
 from .replacement_sensor_model import (
@@ -31,6 +31,17 @@ from .replacement_sensor_model import (
 )
 from .rpc_sensor_model import RPCPolynomial, RPCSensorModel
 from .sensor_model import SensorModel, SensorModelOptions
+from .sicd_sensor_model import (
+    COAProjectionSet,
+    INCAProjectionSet,
+    PFAProjectionSet,
+    PlaneProjectionSet,
+    Polynomial2D,
+    PolynomialXYZ,
+    RGAZCOMPProjectionSet,
+    SARImageCoordConverter,
+    SICDSensorModel,
+)
 from .srtm_dem_tile_set import SRTMTileSet
 
 __all__ = [
@@ -46,8 +57,16 @@ __all__ = [
     "DigitalElevationModelTileSet",
     "ConstantElevationModel",
     "ElevationModel",
+    "ElevationRegionSummary",
     "GDALAffineSensorModel",
+    "SARImageCoordConverter",
+    "INCAProjectionSet",
+    "PlaneProjectionSet",
+    "PFAProjectionSet",
+    "PolynomialXYZ",
+    "Polynomial2D",
     "ProjectiveSensorModel",
+    "RGAZCOMPProjectionSet",
     "RSMContext",
     "RSMGroundDomain",
     "RSMGroundDomainForm",
@@ -60,5 +79,6 @@ __all__ = [
     "RPCSensorModel",
     "SensorModel",
     "SensorModelOptions",
+    "SICDSensorModel",
     "SRTMTileSet",
 ]

@@ -7,7 +7,9 @@ from osgeo import gdal, gdalconst
 
 from aws.osml.photogrammetry import SensorModel
 
+from .dynamic_range_adjustment import DRAParameters
 from .sensor_model_factory import SensorModelFactory, SensorModelTypes
+from .typing import RangeAdjustmentType
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +35,7 @@ def load_gdal_dataset(image_path: str) -> Tuple[gdal.Dataset, Optional[SensorMod
     # Get a GDAL Geo Transform and any available GCPs
     geo_transform = ds.GetGeoTransform(can_return_null=True)
     ground_control_points = ds.GetGCPs()
+    proj_wkt = ds.GetProjection()
 
     # If this image has NITF TREs defined parse them
     parsed_tres = None
@@ -40,26 +43,24 @@ def load_gdal_dataset(image_path: str) -> Tuple[gdal.Dataset, Optional[SensorMod
     if xml_tres is not None and len(xml_tres) > 0:
         parsed_tres = ElementTree.fromstring(xml_tres[0])
 
-    # If this image has SICD Metadata parse it
-    parsed_dess = None
+    # If this image has NITF DES segments read them
     xml_dess = ds.GetMetadata("xml:DES")
-    if xml_dess is not None and len(xml_dess) > 0:
-        parsed_dess = ElementTree.fromstring(xml_dess[0])
 
     selected_sensor_model_types = [
         SensorModelTypes.AFFINE,
         SensorModelTypes.PROJECTIVE,
         SensorModelTypes.RPC,
-        # TODO: Enable RSM model once testing complete
-        # SensorModelTypes.RSM,
+        SensorModelTypes.SICD,
+        SensorModelTypes.RSM,
     ]
     # Create the best sensor model available
     sensor_model = SensorModelFactory(
         ds.RasterXSize,
         ds.RasterYSize,
         xml_tres=parsed_tres,
-        xml_dess=parsed_dess,
+        xml_dess=xml_dess,
         geo_transform=geo_transform,
+        proj_wkt=proj_wkt,
         ground_control_points=ground_control_points,
         selected_sensor_model_types=selected_sensor_model_types,
     ).build()
@@ -67,54 +68,111 @@ def load_gdal_dataset(image_path: str) -> Tuple[gdal.Dataset, Optional[SensorMod
     return ds, sensor_model
 
 
-def get_type_and_scales(raster_dataset: gdal.Dataset) -> Tuple[int, List[List[int]]]:
+def get_minmax_for_type(gdal_type: int) -> Tuple[float, float]:
+    """
+    This function computes the minimum and maximum values that can be stored in a given GDAL pixel type.
+
+    :param gdal_type: the pixel type
+    :return: tuple of min, max values
+    """
+    min_value = 0
+    max_value = 255
+    if gdal_type == gdalconst.GDT_Byte:
+        min_value = 0
+        max_value = 2**8 - 1
+    elif gdal_type == gdalconst.GDT_UInt16:
+        min_value = 0
+        max_value = 2**16 - 1
+    elif gdal_type == gdalconst.GDT_Int16:
+        min_value = -(2**15)
+        max_value = 2**15 - 1
+    elif gdal_type == gdalconst.GDT_UInt32:
+        min_value = 0
+        max_value = 2**32 - 1
+    elif gdal_type == gdalconst.GDT_Int32:
+        min_value = -(2**31)
+        max_value = 2**31 - 1
+    elif gdal_type == gdalconst.GDT_UInt64:
+        min_value = 0
+        max_value = 2**64 - 1
+    elif gdal_type == gdalconst.GDT_Int64:
+        min_value = -(2**63)
+        max_value = 2**63 - 1
+    elif gdal_type == gdalconst.GDT_Float32:
+        min_value = -3.4028235e38
+        max_value = 3.4028235e38
+    elif gdal_type == gdalconst.GDT_Float64:
+        min_value = -1.7976931348623157e308
+        max_value = 1.7976931348623157e308
+    else:
+        logger.warning("Image uses unsupported GDAL datatype {}. Defaulting to [0,255] range".format(gdal_type))
+
+    return min_value, max_value
+
+
+def get_type_and_scales(
+    raster_dataset: gdal.Dataset,
+    desired_output_type: Optional[int] = None,
+    range_adjustment: RangeAdjustmentType = RangeAdjustmentType.NONE,
+) -> Tuple[int, List[List[int]]]:
     """
     Get type and scales of a provided raster dataset
 
     :param raster_dataset: the raster dataset containing the region
+    :param desired_output_type: type to be output after dynamic range adjustments
+    :param range_adjustment: the type of pixel scaling effort to
 
     :return: a tuple containing type and scales
     """
     scale_params = []
-    num_bands = raster_dataset.RasterCount
     output_type = gdalconst.GDT_Byte
-    min = 0
-    max = 255
+    num_bands = raster_dataset.RasterCount
     for band_num in range(1, num_bands + 1):
         band = raster_dataset.GetRasterBand(band_num)
-        output_type = band.DataType
-        if output_type == gdalconst.GDT_Byte:
-            min = 0
-            max = 2**8 - 1
-        elif output_type == gdalconst.GDT_UInt16:
-            min = 0
-            max = 2**16 - 1
-        elif output_type == gdalconst.GDT_Int16:
-            min = -(2**15)
-            max = 2**15 - 1
-        elif output_type == gdalconst.GDT_UInt32:
-            min = 0
-            max = 2**32 - 1
-        elif output_type == gdalconst.GDT_Int32:
-            min = -(2**31)
-            max = 2**31 - 1
-        # TODO: Add these 64-bit cases in once GDAL is upgraded to a version that supports them
-        # elif output_type == gdalconst.GDT_UInt64:
-        #    min = 0
-        #    max = 2**64-1
-        # elif output_type == gdalconst.GDT_Int64:
-        #    min = -2**63
-        #    max = 2**63-1
-        elif output_type == gdalconst.GDT_Float32:
-            min = -3.4028235e38
-            max = 3.4028235e38
-        elif output_type == gdalconst.GDT_Float64:
-            min = -1.7976931348623157e308
-            max = 1.7976931348623157e308
-        else:
-            logger.warning("Image uses unsupported GDAL datatype {}. Defaulting to [0,255] range".format(output_type))
+        band_type = band.DataType
+        min_value, max_value = get_minmax_for_type(band_type)
 
-        scale_params.append([min, max, min, max])
+        if desired_output_type is None:
+            output_type = band_type
+            output_min = min_value
+            output_max = max_value
+        else:
+            output_type = desired_output_type
+            output_min, output_max = get_minmax_for_type(desired_output_type)
+
+        # If a range adjustment is requested compute the range of source pixel values that will be mapped to the full
+        # output range.
+        selected_min = min_value
+        selected_max = max_value
+        if range_adjustment is not RangeAdjustmentType.NONE:
+            # GetStatistics(1,1) means it is ok to approximate but force computation is stats not already available
+            stats = band.GetStatistics(1, 1)
+            min_value = stats[0]
+            max_value = stats[1]
+
+            num_buckets = int(max_value - min_value)
+            if band_type == gdalconst.GDT_Float32 or band_type == gdalconst.GDT_Float64:
+                num_buckets = 255
+
+            dra = DRAParameters.from_counts(
+                counts=band.GetHistogram(
+                    buckets=num_buckets, max=max_value, min=min_value, include_out_of_range=1, approx_ok=1
+                ),
+                first_bucket_value=min_value,
+                last_bucket_value=max_value,
+            )
+
+            if range_adjustment == RangeAdjustmentType.DRA:
+                selected_min = dra.suggested_min_value
+                selected_max = dra.suggested_max_value
+            elif range_adjustment == RangeAdjustmentType.MINMAX:
+                selected_min = dra.actual_min_value
+                selected_max = dra.actual_max_value
+            else:
+                logger.warning(f"Unknown range adjustment selected {range_adjustment}. Skipping.")
+
+        band_scale_parameters = [selected_min, selected_max, output_min, output_max]
+        scale_params.append(band_scale_parameters)
 
     return output_type, scale_params
 

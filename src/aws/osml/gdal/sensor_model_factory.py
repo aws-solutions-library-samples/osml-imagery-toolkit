@@ -1,3 +1,4 @@
+import base64
 import logging
 from enum import Enum
 from typing import List, Optional
@@ -8,9 +9,11 @@ from osgeo import gdal
 from aws.osml.photogrammetry import ChippedImageSensorModel, CompositeSensorModel, ImageCoordinate, SensorModel
 
 from .gdal_sensor_model_builder import GDALAffineSensorModelBuilder, GDALGCPSensorModelBuilder
+from .nitf_des_accessor import NITFDESAccessor
 from .projective_sensor_model_builder import ProjectiveSensorModelBuilder
 from .rpc_sensor_model_builder import RPCSensorModelBuilder
 from .rsm_sensor_model_builder import RSMSensorModelBuilder
+from .sicd_sensor_model_builder import SICDSensorModelBuilder
 from .xmltre_utils import get_tre_field_value
 
 
@@ -57,6 +60,7 @@ class SensorModelTypes(Enum):
     PROJECTIVE = "PROJECTIVE"
     RPC = "RPC"
     RSM = "RSM"
+    SICD = "SICD"
 
 
 ALL_SENSOR_MODEL_TYPES = [item for item in SensorModelTypes]
@@ -74,8 +78,9 @@ class SensorModelFactory:
         actual_image_width: int,
         actual_image_height: int,
         xml_tres: Optional[ET.Element] = None,
-        xml_dess: Optional[ET.Element] = None,
+        xml_dess: Optional[List[str]] = None,
         geo_transform: Optional[List[float]] = None,
+        proj_wkt: Optional[str] = None,
         ground_control_points: Optional[List[gdal.GCP]] = None,
         selected_sensor_model_types: Optional[List[SensorModelTypes]] = None,
     ) -> None:
@@ -89,6 +94,7 @@ class SensorModelFactory:
         :param xml_tres: XML representing metadata in the tagged record extensions(TRE)
         :param xml_dess: XML representing data contained in the data extension segments (DES)
         :param geo_transform: a GDAL affine transform
+        :param proj_wkt: the well known text string of the CRS used by the image
         :param ground_control_points: a list of GDAL GCPs that identify correspondences in the image
         :param selected_sensor_model_types: a list of sensor models that should be attempted by this factory
 
@@ -101,6 +107,7 @@ class SensorModelFactory:
         self.xml_tres = xml_tres
         self.xml_dess = xml_dess
         self.geo_transform = geo_transform
+        self.proj_wkt = proj_wkt
         self.ground_control_points = ground_control_points
         self.selected_sensor_model_types = selected_sensor_model_types
 
@@ -117,7 +124,7 @@ class SensorModelFactory:
 
         if SensorModelTypes.AFFINE in self.selected_sensor_model_types:
             if self.geo_transform is not None:
-                approximate_sensor_model = GDALAffineSensorModelBuilder(self.geo_transform).build()
+                approximate_sensor_model = GDALAffineSensorModelBuilder(self.geo_transform, self.proj_wkt).build()
 
         if SensorModelTypes.PROJECTIVE in self.selected_sensor_model_types:
             if self.ground_control_points is not None and len(self.ground_control_points) > 3:
@@ -171,6 +178,22 @@ class SensorModelFactory:
 
                 # TODO: Maybe create a projective sensor model from corner locations derived from the precision model
                 # TODO: Consider using the rough corners from IGEOLO
+
+        if self.xml_dess is not None and len(self.xml_dess) > 0:
+            des_accessor = NITFDESAccessor(self.xml_dess)
+
+            xml_data_content_segments = des_accessor.get_segments_by_name("XML_DATA_CONTENT")
+            if xml_data_content_segments is not None:
+                for xml_data_segment in xml_data_content_segments:
+                    xml_bytes = des_accessor.parse_field_value(xml_data_segment, "DESDATA", base64.b64decode)
+                    xml_str = xml_bytes.decode("utf-8")
+                    if "SIDD" in xml_str:
+                        # This looks like a SIDD file. Skip for now
+                        # SIDD images will contain SICD extensions but the SIDD should come first
+                        break
+                    elif "SICD" in xml_str and SensorModelTypes.SICD in self.selected_sensor_model_types:
+                        precision_sensor_model = SICDSensorModelBuilder(sicd_xml=xml_str).build()
+                        break
 
         # If we have both an approximate and a precision sensor model return them as a composite so applications
         # can choose which model best meets their needs. If we were only able to construct one or the other then

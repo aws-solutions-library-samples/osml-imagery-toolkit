@@ -13,16 +13,18 @@ class GDALAffineSensorModelBuilder(SensorModelBuilder):
     This builder is used to create sensor models for images that have GDAL geo transforms.
     """
 
-    def __init__(self, geo_transform: List[float]) -> None:
+    def __init__(self, geo_transform: List[float], proj_wkt: Optional[str] = None) -> None:
         """
         Constructor for the builder accepting the required GDAL geotransform.
 
         :param geo_transform: the geotransform for this image
+        :param proj_wkt: the well known text string of the CRS used by the image
 
         :return: None
         """
         super().__init__()
         self.geo_transform = geo_transform
+        self.proj_wkt = proj_wkt
 
     def build(self) -> Optional[GDALAffineSensorModel]:
         """
@@ -32,7 +34,7 @@ class GDALAffineSensorModelBuilder(SensorModelBuilder):
         """
         if self.geo_transform is None:
             return None
-        return GDALAffineSensorModel(self.geo_transform)
+        return GDALAffineSensorModel(self.geo_transform, self.proj_wkt)
 
 
 class GDALGCPSensorModelBuilder(SensorModelBuilder):
