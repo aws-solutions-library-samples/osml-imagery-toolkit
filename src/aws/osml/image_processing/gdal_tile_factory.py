@@ -111,12 +111,18 @@ class GDALTileFactory:
         )
 
         # Read the VSIFile
-        vsifile_handle = gdal.VSIFOpenL(temp_ds_name, "r")
-        if vsifile_handle is None:
-            return None
-        stat = gdal.VSIStatL(temp_ds_name, gdal.VSI_STAT_SIZE_FLAG)
-        vsibuf = gdal.VSIFReadL(1, stat.size, vsifile_handle)
-        return vsibuf
+        vsifile_handle = None
+        try:
+            vsifile_handle = gdal.VSIFOpenL(temp_ds_name, "r")
+            if vsifile_handle is None:
+                return None
+            stat = gdal.VSIStatL(temp_ds_name, gdal.VSI_STAT_SIZE_FLAG)
+            vsibuf = gdal.VSIFReadL(1, stat.size, vsifile_handle)
+            return vsibuf
+        finally:
+            if vsifile_handle is not None:
+                gdal.VSIFCloseL(vsifile_handle)
+            gdal.GetDriverByName(self.tile_format).Delete(temp_ds_name)
 
     def create_new_igeolo(self, src_window: List[int]) -> str:
         """
