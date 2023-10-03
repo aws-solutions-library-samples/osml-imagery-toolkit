@@ -3,6 +3,7 @@ from math import radians
 
 import numpy as np
 import pytest
+from osgeo import gdal
 
 
 class TestGDALSensorModel(unittest.TestCase):
@@ -76,6 +77,20 @@ class TestGDALSensorModel(unittest.TestCase):
         ]
         with pytest.raises(ValueError):
             GDALAffineSensorModel(transform)
+
+    def test_sample_tiff(self):
+        from aws.osml.photogrammetry.coordinates import ImageCoordinate
+        from aws.osml.photogrammetry.gdal_sensor_model import GDALAffineSensorModel
+
+        ds = gdal.Open("./test/data/GeogToWGS84GeoKey5.tif")
+        geo_transform = ds.GetGeoTransform(can_return_null=True)
+        proj_wkt = ds.GetProjection()
+
+        sample_gdal_sensor_model = GDALAffineSensorModel(geo_transform, proj_wkt)
+        world_coord = sample_gdal_sensor_model.image_to_world(ImageCoordinate([50, 50]))
+        assert pytest.approx(world_coord.coordinate, abs=0.1) == [radians(9.0), radians(52.0), 0.0]
+        image_coord = sample_gdal_sensor_model.world_to_image(world_coord)
+        assert pytest.approx(image_coord.coordinate, abs=0.1) == [50, 50]
 
 
 if __name__ == "__main__":
