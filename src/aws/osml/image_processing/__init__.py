@@ -6,5 +6,6 @@ The image_processing package contains various utilities for manipulating overhea
 """
 
 from .gdal_tile_factory import GDALTileFactory
+from .sar_complex_imageop import histogram_stretch, quarter_power_image
 
 __all__ = ["GDALTileFactory"]
