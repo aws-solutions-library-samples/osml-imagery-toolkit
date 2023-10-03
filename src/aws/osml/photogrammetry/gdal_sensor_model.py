@@ -52,7 +52,9 @@ class GDALAffineSensorModel(SensorModel):
 
             self.image_to_wgs84 = None
             if proj_wkt:
-                self.image_to_wgs84 = pyproj.Transformer.from_crs(pyproj.CRS.from_string(proj_wkt), LLA_PROJ.crs)
+                self.image_to_wgs84 = pyproj.Transformer.from_crs(
+                    pyproj.CRS.from_string(proj_wkt), LLA_PROJ.crs, always_xy=True
+                )
 
         except np.linalg.LinAlgError:
             raise ValueError("GeoTransform can not be inverted. Not a valid matrix for a sensor model.")
