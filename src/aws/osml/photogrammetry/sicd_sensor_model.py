@@ -975,9 +975,8 @@ class SICDSensorModel(SensorModel):
         self,
         coord_converter: SARImageCoordConverter,
         coa_projection_set: COAProjectionSet,
-        scp_arp: np.ndarray,
-        scp_varp: np.ndarray,
-        side_of_track: str,
+        u_spn: np.ndarray,
+        side_of_track: str = "L",
         u_gpn: Optional[np.ndarray] = None,
     ):
         """
@@ -985,25 +984,43 @@ class SICDSensorModel(SensorModel):
 
         :param coord_converter: converts coordinates between image grid and image plane
         :param coa_projection_set: projects image locations to the r/rdot contour
-        :param scp_arp: aperture reference point position
-        :param scp_varp: aperture reference point velocity
-        :param side_of_track: side of track imaged
+        :param u_spn: slant plane normal
+        :param side_of_track: side of track imaged, "L" or "R", default "L"
         :param u_gpn: optional unit normal for ground plane
         """
         super().__init__()
         self.coa_projection_set = coa_projection_set
         self.coord_converter = coord_converter
         self.uvect_gpn = u_gpn
-        self.scp_arp = scp_arp
-        self.scp_varp = scp_varp
+        self.uvect_spn = u_spn
         self.side_of_track = side_of_track
 
-        self.uvect_spn = np.cross(scp_varp, coord_converter.scp_ecf.coordinate - scp_arp)
-        if side_of_track == "R":
-            self.uvect_spn *= -1.0
-        self.uvect_spn /= np.linalg.norm(self.uvect_spn)
-
         self.default_surface_projection = GroundPlaneRRDotSurfaceProjection(self.coord_converter.scp_ecf, self.uvect_gpn)
+
+    @staticmethod
+    def compute_u_spn(scp_ecf: WorldCoordinate, scp_arp: np.ndarray, scp_varp: np.ndarray, side_of_track: str) -> np.ndarray:
+        """
+        This helper function computes the slant plane normal.
+
+        :param scp_ecf: Scene Center Point position in ECF coordinates
+        :param scp_arp: aperture reference point position
+        :param scp_varp: aperture reference point velocity
+        :param side_of_track: side of track imaged
+        :return: unit vector for the slant plane normal
+        """
+        u_spn = np.cross(scp_varp, scp_ecf.coordinate - scp_arp)
+        if side_of_track == "R":
+            u_spn *= -1.0
+        u_spn /= np.linalg.norm(u_spn)
+        return u_spn
+
+    @staticmethod
+    def compute_u_gpn(scp_ecf: WorldCoordinate, u_row: np.ndarray, u_col: np.ndarray) -> np.ndarray:
+        u_gpn = np.cross(u_row, u_col)
+        u_gpn /= np.linalg.norm(u_gpn)
+        if np.dot(u_gpn, scp_ecf.coordinate) < 0:
+            u_gpn *= -1
+        return u_gpn
 
     def image_to_world(
         self,
