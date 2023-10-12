@@ -14,6 +14,7 @@ from .projective_sensor_model_builder import ProjectiveSensorModelBuilder
 from .rpc_sensor_model_builder import RPCSensorModelBuilder
 from .rsm_sensor_model_builder import RSMSensorModelBuilder
 from .sicd_sensor_model_builder import SICDSensorModelBuilder
+from .sidd_sensor_model_builder import SIDDSensorModelBuilder
 from .xmltre_utils import get_tre_field_value
 
 
@@ -188,8 +189,9 @@ class SensorModelFactory:
                     xml_bytes = des_accessor.parse_field_value(xml_data_segment, "DESDATA", base64.b64decode)
                     xml_str = xml_bytes.decode("utf-8")
                     if "SIDD" in xml_str:
-                        # This looks like a SIDD file. Skip for now
-                        # SIDD images will contain SICD extensions but the SIDD should come first
+                        # SIDD images will often contain SICD XML metadata as well but the SIDD should come first
+                        # so we can stop processing other XML data segments
+                        precision_sensor_model = SIDDSensorModelBuilder(sidd_xml=xml_str).build()
                         break
                     elif "SICD" in xml_str and SensorModelTypes.SICD in self.selected_sensor_model_types:
                         precision_sensor_model = SICDSensorModelBuilder(sicd_xml=xml_str).build()
