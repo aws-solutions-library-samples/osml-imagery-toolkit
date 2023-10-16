@@ -1,4 +1,4 @@
-name: Generate and Publish Documentation for OSML Model Runner
+name: Generate and Publish Documentation for OSML Imagery Toolkit
 
 on:
   workflow_call:
