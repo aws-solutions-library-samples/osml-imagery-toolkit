@@ -63,8 +63,12 @@ class TestSICDSensorModel(unittest.TestCase):
         sicd_sensor_model = SICDSensorModel(
             coord_converter=coord_converter,
             coa_projection_set=projection_set,
-            scp_arp=xyztype_to_ndarray(sicd.scpcoa.arppos),
-            scp_varp=xyztype_to_ndarray(sicd.scpcoa.arpvel),
+            u_spn=SICDSensorModel.compute_u_spn(
+                scp_ecf=scp_ecf,
+                scp_arp=xyztype_to_ndarray(sicd.scpcoa.arppos),
+                scp_varp=xyztype_to_ndarray(sicd.scpcoa.arpvel),
+                side_of_track=str(sicd.scpcoa.side_of_track.value),
+            ),
             side_of_track=str(sicd.scpcoa.side_of_track.value),
         )
 
@@ -137,8 +141,12 @@ class TestSICDSensorModel(unittest.TestCase):
         sicd_sensor_model = SICDSensorModel(
             coord_converter=image_plane,
             coa_projection_set=projection_set,
-            scp_arp=xyztype_to_ndarray(sicd.scpcoa.arppos),
-            scp_varp=xyztype_to_ndarray(sicd.scpcoa.arpvel),
+            u_spn=SICDSensorModel.compute_u_spn(
+                scp_ecf=scp_ecf,
+                scp_arp=xyztype_to_ndarray(sicd.scpcoa.arppos),
+                scp_varp=xyztype_to_ndarray(sicd.scpcoa.arpvel),
+                side_of_track=str(sicd.scpcoa.side_of_track.value),
+            ),
             side_of_track=str(sicd.scpcoa.side_of_track.value),
         )
 
@@ -224,8 +232,12 @@ class TestSICDSensorModel(unittest.TestCase):
         sicd_sensor_model = SICDSensorModel(
             coord_converter=image_plane,
             coa_projection_set=projection_set,
-            scp_arp=xyztype_to_ndarray(sicd.scpcoa.arppos),
-            scp_varp=xyztype_to_ndarray(sicd.scpcoa.arpvel),
+            u_spn=SICDSensorModel.compute_u_spn(
+                scp_ecf=scp_ecf,
+                scp_arp=xyztype_to_ndarray(sicd.scpcoa.arppos),
+                scp_varp=xyztype_to_ndarray(sicd.scpcoa.arpvel),
+                side_of_track=str(sicd.scpcoa.side_of_track.value),
+            ),
             side_of_track=str(sicd.scpcoa.side_of_track.value),
             u_gpn=ugpn,
         )
