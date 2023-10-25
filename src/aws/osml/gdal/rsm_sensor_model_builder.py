@@ -280,7 +280,7 @@ class RSMSensorModelBuilder(SensorModelBuilder):
 
         coefficients = []
         for coeff_suffix in ["0", "X", "Y", "Z", "XX", "XY", "XZ", "YY", "YZ", "ZZ"]:
-            coefficients.append(get_tre_field_value(rsmpi_tre, f"{polynomial_prefix}{coeff_suffix}", int))
+            coefficients.append(get_tre_field_value(rsmpi_tre, f"{polynomial_prefix}{coeff_suffix}", float))
         return RSMLowOrderPolynomial(coefficients)
 
     @staticmethod
@@ -306,9 +306,9 @@ class RSMSensorModelBuilder(SensorModelBuilder):
             sensor_model_grid_map[(sensor_model.section_row, sensor_model.section_col)] = sensor_model
 
         section_sensor_model_grid = []
-        for row in range(0, num_section_rows):
+        for row in range(1, num_section_rows + 1):
             row_of_sensor_models = []
-            for col in range(0, num_section_cols):
+            for col in range(1, num_section_cols + 1):
                 row_of_sensor_models.append(sensor_model_grid_map[(row, col)])
             section_sensor_model_grid.append(row_of_sensor_models)
 
