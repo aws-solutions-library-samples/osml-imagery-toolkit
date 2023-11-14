@@ -13,6 +13,7 @@ Imagery Transmission Format (NITF) standards.
    _apidoc/aws.osml.photogrammetry
    _apidoc/aws.osml.gdal
    _apidoc/aws.osml.image_processing
+   _apidoc/aws.osml.features
 
 
 Indices and tables
