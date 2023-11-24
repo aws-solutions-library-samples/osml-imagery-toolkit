@@ -14,6 +14,12 @@ class TestCoordinates(unittest.TestCase):
         assert world_coordinate.z == 3.0
         assert world_coordinate.coordinate.shape == (3,)  # 1D numpy array
 
+    def test_worldcoordinate_repr(self):
+        from aws.osml.photogrammetry.coordinates import WorldCoordinate
+
+        world_coordinate = WorldCoordinate([1.0, 2.0, 3.0])
+        assert f"{world_coordinate!r}" == "WorldCoordinate(coordinate=array([1., 2., 3.]))"
+
     def test_imagecoordinate_list_constructor(self):
         from aws.osml.photogrammetry.coordinates import ImageCoordinate
 
@@ -37,6 +43,12 @@ class TestCoordinates(unittest.TestCase):
         with pytest.raises(ValueError) as value_error:
             image_coordinate = ImageCoordinate([1.0, 2.0, 3.0])  # noqa: F841
         assert "must have 2 components" in str(value_error.value)
+
+    def test_imagecoordinate_repr(self):
+        from aws.osml.photogrammetry.coordinates import ImageCoordinate
+
+        image_coordinate = ImageCoordinate([-10.2, 5.0])
+        assert f"{image_coordinate!r}" == "ImageCoordinate(coordinate=array([-10.2,   5. ]))"
 
     def test_geodeticworldcoordinate_list_constructor(self):
         from aws.osml.photogrammetry.coordinates import GeodeticWorldCoordinate
@@ -114,6 +126,23 @@ class TestCoordinates(unittest.TestCase):
         assert geodetic_coordinate.to_dms_string() == "103045S1213045W"
         geodetic_coordinate = GeodeticWorldCoordinate([radians(1.5125), radians(1.5125), 10.0])
         assert geodetic_coordinate.to_dms_string() == "013045N0013045E"
+
+    def test_geodeticworldcoordinate_format(self):
+        from aws.osml.photogrammetry.coordinates import GeodeticWorldCoordinate
+
+        geodetic_coordinate = GeodeticWorldCoordinate([radians(115.25), radians(-45.5), 3.0])
+        assert f"{geodetic_coordinate:%ld%lm%ls%lH %od%om%os%oH %E}" == "453000S 1151500E 3.0"
+        assert f"{geodetic_coordinate:%ld %lm %ls %lh %od %om %os %oh %E}" == "45 30 00 s 115 15 00 e 3.0"
+        assert f"{geodetic_coordinate:%l %o %E}" == "45.5 115.25 3.0"
+        assert f"{geodetic_coordinate:%L %O %E}" == "-0.7941248096574199 2.011491962923465 3.0"
+        assert f"{geodetic_coordinate}" == "453000S 1151500E 3.0"
+        assert f"{geodetic_coordinate:100%% unexpected usage: %X}" == "100% unexpected usage: "
+
+    def test_geodeticworldcoordinate_repr(self):
+        from aws.osml.photogrammetry.coordinates import GeodeticWorldCoordinate
+
+        geodetic_coordinate = GeodeticWorldCoordinate([1.1, 2.2, 3.3])
+        assert f"{geodetic_coordinate!r}" == "GeodeticWorldCoordinate(coordinate=array([1.1, 2.2, 3.3]))"
 
     def test_ecef_to_geodetic(self):
         from aws.osml.photogrammetry.coordinates import WorldCoordinate, geocentric_to_geodetic

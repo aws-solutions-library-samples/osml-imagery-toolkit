@@ -18,6 +18,7 @@ from .coordinates import (
 from .digital_elevation_model import DigitalElevationModel, DigitalElevationModelTileFactory, DigitalElevationModelTileSet
 from .elevation_model import ConstantElevationModel, ElevationModel, ElevationRegionSummary
 from .gdal_sensor_model import GDALAffineSensorModel
+from .generic_dem_tile_set import GenericDEMTileSet
 from .projective_sensor_model import ProjectiveSensorModel
 from .replacement_sensor_model import (
     RSMContext,
@@ -59,6 +60,7 @@ __all__ = [
     "ElevationModel",
     "ElevationRegionSummary",
     "GDALAffineSensorModel",
+    "GenericDEMTileSet",
     "SARImageCoordConverter",
     "INCAProjectionSet",
     "PlaneProjectionSet",
