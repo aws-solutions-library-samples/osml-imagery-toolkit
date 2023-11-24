@@ -10,11 +10,14 @@ class GenericDEMTileSet(DigitalElevationModelTileSet):
     A generalizable tile set with a naming convention that can be described as a format string.
     """
 
-    def __init__(self, format_spec: str = "%od%oh/%ld%lh.dt2",
-                 min_latitude_degrees: float = -90.0,
-                 max_latitude_degrees: float = 90.0,
-                 min_longitude_degrees: float = -180.0,
-                 max_longitude_degrees: float = 180.0) -> None:
+    def __init__(
+        self,
+        format_spec: str = "%od%oh/%ld%lh.dt2",
+        min_latitude_degrees: float = -90.0,
+        max_latitude_degrees: float = 90.0,
+        min_longitude_degrees: float = -180.0,
+        max_longitude_degrees: float = 180.0,
+    ) -> None:
         """
         Construct a tile set from a limited collection of configurable parameters. This implementation uses the
         custom formatting directives supplied with GeodeticWorldCoordinate to allow users to create tile IDs
@@ -47,7 +50,12 @@ class GenericDEMTileSet(DigitalElevationModelTileSet):
 
         # The SRTM mission only covers latitudes N59 through S56 so if the requested location is outside those
         # ranges we know there is no file available for it.
-        if latitude_degrees > self.max_latitude_degrees or latitude_degrees < self.min_latitude_degrees or longitude_degrees > self.max_longitude_degrees or longitude_degrees < self.min_longitude_degrees:
+        if (
+            latitude_degrees > self.max_latitude_degrees
+            or latitude_degrees < self.min_latitude_degrees
+            or longitude_degrees > self.max_longitude_degrees
+            or longitude_degrees < self.min_longitude_degrees
+        ):
             return None
 
         return f"{geodetic_world_coordinate:{self.format_string}}"
