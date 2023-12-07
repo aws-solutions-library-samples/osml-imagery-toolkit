@@ -35,6 +35,32 @@ class TestGDALTileFactory(TestCase):
         assert tile_dataset.RasterYSize == 256
         assert tile_dataset.GetDriver().ShortName == GDALImageFormats.PNG
 
+    def test_create_sicd_chip_from_chip(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/sicd/capella-sicd121-chip1.ntf")
+
+        tile_factory = GDALTileFactory(full_dataset, sensor_model, GDALImageFormats.NITF, GDALCompressionOptions.NONE)
+        encoded_tile_data = tile_factory.create_encoded_tile([10, 10, 128, 256])
+
+        temp_ds_name = "/vsimem/" + token_hex(16) + ".NITF"
+        gdal.FileFromMemBuffer(temp_ds_name, encoded_tile_data)
+        tile_dataset = gdal.Open(temp_ds_name)
+        assert tile_dataset.RasterXSize == 128
+        assert tile_dataset.RasterYSize == 256
+        assert tile_dataset.GetDriver().ShortName == GDALImageFormats.NITF
+
+    def test_create_sidd_chip_from_chip(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/sidd/umbra-sidd200-chip1.ntf")
+
+        tile_factory = GDALTileFactory(full_dataset, sensor_model, GDALImageFormats.NITF, GDALCompressionOptions.NONE)
+        encoded_tile_data = tile_factory.create_encoded_tile([10, 10, 128, 256])
+
+        temp_ds_name = "/vsimem/" + token_hex(16) + ".NITF"
+        gdal.FileFromMemBuffer(temp_ds_name, encoded_tile_data)
+        tile_dataset = gdal.Open(temp_ds_name)
+        assert tile_dataset.RasterXSize == 128
+        assert tile_dataset.RasterYSize == 256
+        assert tile_dataset.GetDriver().ShortName == GDALImageFormats.NITF
+
     def test_create_png_with_dra(self):
         full_dataset, sensor_model = load_gdal_dataset("./test/data/small.ntf")
         tile_factory = GDALTileFactory(
@@ -59,6 +85,25 @@ class TestGDALTileFactory(TestCase):
         tile_dataset.GetRasterBand(1).ComputeStatistics(approx_ok=0)
         assert tile_dataset.GetRasterBand(1).GetMinimum() == 0
         assert tile_dataset.GetRasterBand(1).GetMaximum() == 185
+
+    def test_create_png_with_output_size(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.ntf")
+        tile_factory = GDALTileFactory(
+            full_dataset,
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.DRA,
+        )
+
+        encoded_tile_data = tile_factory.create_encoded_tile([0, 0, 256, 512], output_size=(128, 256))
+        temp_ds_name = "/vsimem/" + token_hex(16) + ".PNG"
+        gdal.FileFromMemBuffer(temp_ds_name, encoded_tile_data)
+        tile_dataset = gdal.Open(temp_ds_name)
+        assert tile_dataset.RasterXSize == 128
+        assert tile_dataset.RasterYSize == 256
+        assert tile_dataset.GetDriver().ShortName == GDALImageFormats.PNG
 
     # Test data here could be improved. We're reusing a nitf file for everything and just
     # testing a single raster scale

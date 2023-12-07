@@ -1,15 +1,15 @@
 import base64
 import logging
 from secrets import token_hex
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
-from defusedxml import ElementTree
 from osgeo import gdal, gdalconst
 
 from aws.osml.gdal import GDALCompressionOptions, GDALImageFormats, NITFDESAccessor, RangeAdjustmentType, get_type_and_scales
 from aws.osml.photogrammetry import ImageCoordinate, SensorModel
 
 from .sicd_updater import SICDUpdater
+from .sidd_updater import SIDDUpdater
 
 logger = logging.getLogger(__name__)
 
@@ -44,8 +44,8 @@ class GDALTileFactory:
         self.raster_dataset = raster_dataset
         self.sensor_model = sensor_model
         self.des_accessor = None
-        self.sicd_updater = None
-        self.sicd_des_header = None
+        self.sar_updater = None
+        self.sar_des_header = None
         self.range_adjustment = range_adjustment
         self.output_type = output_type
 
@@ -56,22 +56,27 @@ class GDALTileFactory:
             xml_data_content_segments = self.des_accessor.get_segments_by_name("XML_DATA_CONTENT")
             if xml_data_content_segments is not None and len(xml_data_content_segments) > 0:
                 # This appears to be SICD or SIDD data
-                # TODO: Check to make sure this is the right XML_DATA_CONTENT segment containing SICD
-                sicd_des = xml_data_content_segments[0]
-                sicd_bytes = self.des_accessor.parse_field_value(sicd_des, "DESDATA", base64.b64decode)
-                sicd_xml = sicd_bytes.decode("utf-8")
-                sicd_metadata = ElementTree.fromstring(sicd_xml)
-                self.sicd_des_header = self.des_accessor.extract_des_header(sicd_des)
-                self.sicd_updater = SICDUpdater(sicd_metadata)
+                xml_data_segment = xml_data_content_segments[0]
+                xml_bytes = self.des_accessor.parse_field_value(xml_data_segment, "DESDATA", base64.b64decode)
+                xml_str = xml_bytes.decode("utf-8")
+                if "SIDD" in xml_str:
+                    self.sar_des_header = self.des_accessor.extract_des_header(xml_data_segment)
+                    self.sar_updater = SIDDUpdater(xml_str)
+                elif "SICD" in xml_str:
+                    self.sar_des_header = self.des_accessor.extract_des_header(xml_data_segment)
+                    self.sar_updater = SICDUpdater(xml_str)
 
         self.default_gdal_translate_kwargs = self._create_gdal_translate_kwargs()
 
-    def create_encoded_tile(self, src_window: List[int]) -> Optional[bytearray]:
+    def create_encoded_tile(
+        self, src_window: List[int], output_size: Optional[Tuple[int, int]] = None
+    ) -> Optional[bytearray]:
         """
         This method cuts a tile from the full image, updates the metadata as needed, and finally compresses/encodes
         the result in the output format requested.
 
         :param src_window: the [left_x, top_y, width, height] bounds of this tile
+        :param output_size: an optional size of the output tile (width, height)
         :return: the encoded image tile or None if one could not be produced
         """
         temp_ds_name = f"/vsimem/{token_hex(16)}.{self.tile_format}"
@@ -81,23 +86,27 @@ class GDALTileFactory:
         # create image tiles using the format, compression, etc. requested by the client.
         gdal_translate_kwargs = self.default_gdal_translate_kwargs.copy()
 
+        if output_size is not None:
+            gdal_translate_kwargs["width"] = output_size[0]
+            gdal_translate_kwargs["height"] = output_size[1]
+
         # Create a new IGEOLO value based on the corner points of this tile
         if self.sensor_model is not None and self.tile_format == GDALImageFormats.NITF:
             gdal_translate_kwargs["creationOptions"].append("ICORDS=G")
             gdal_translate_kwargs["creationOptions"].append("IGEOLO=" + self.create_new_igeolo(src_window))
 
-        if self.sicd_updater is not None and self.tile_format == GDALImageFormats.NITF:
-            # If we're outputting a SICD tile we need to update the XML metadata to include the new chip
+        if self.sar_updater is not None and self.tile_format == GDALImageFormats.NITF:
+            # If we're outputting a SICD or SIDD tile we need to update the XML metadata to include the new chip
             # origin and size. This will allow applications using the tile to correctly interpret the remaining
             # image metadata.
-            self.sicd_updater.update_image_data_for_chip(src_window)
-            updated_sicd_des = self.sicd_des_header + self.sicd_updater.encode_current_xml()
+            self.sar_updater.update_image_data_for_chip(src_window, output_size)
+            updated_sar_des = self.sar_des_header + self.sar_updater.encode_current_xml()
 
             gdal_translate_kwargs["creationOptions"].append("ICAT=SAR")
             gdal_translate_kwargs["creationOptions"].append("IREP=NODISPLY")
             gdal_translate_kwargs["creationOptions"].append("IREPBAND= , ")
             gdal_translate_kwargs["creationOptions"].append("ISUBCAT=I,Q")
-            gdal_translate_kwargs["creationOptions"].append("DES=XML_DATA_CONTENT=" + updated_sicd_des)
+            gdal_translate_kwargs["creationOptions"].append("DES=XML_DATA_CONTENT=" + updated_sar_des)
 
         # Use GDAL to create an encoded tile of the image region
         # From GDAL documentation:
