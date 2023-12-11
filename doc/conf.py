@@ -46,7 +46,7 @@ def setup(app):
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "OversightML Imagery Core"
+project = "OversightML Imagery Toolkit"
 copyright = "{}, Amazon.com".format(datetime.datetime.now().year)
 author = "Amazon Web Services"
 
