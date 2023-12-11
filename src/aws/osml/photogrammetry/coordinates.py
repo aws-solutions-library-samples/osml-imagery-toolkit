@@ -64,7 +64,7 @@ class GeodeticWorldCoordinate(WorldCoordinate):
 
     This class uses a custom format specification for a geodetic coordinate uses % directives similar to datetime.
     These custom directives can be combined as needed with literal values to produce a wide
-    range of output formats. For example, '%ld%lm%ls%lH%od%om%os%oh' will produce a ddmmssXdddmmssY formatted
+    range of output formats. For example, '%ld%lm%ls%lH%od%om%os%oH' will produce a ddmmssXdddmmssY formatted
     coordinate. The first half, ddmmssX, represents degrees, minutes, and seconds of latitude with X representing
     North or South (N for North, S for South). The second half, dddmmssY, represents degrees, minutes, and seconds
     of longitude with Y representing East or West (E for East, W for West), respectively.
