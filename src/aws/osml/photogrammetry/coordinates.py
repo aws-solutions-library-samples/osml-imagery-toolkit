@@ -6,14 +6,9 @@ from pyproj.enums import TransformDirection
 
 class WorldCoordinate:
     """
-    A world coordinate is a vector representing a position in 3D space. The ground coordinate system specified is
-    either Geodetic (latitude, longitude, and height above the WGS 84 reference ellipsoid), or Rectangular (cartesian
-    coordinates in reference to a local tangent plane). Regardless whether the coordinate system is specified as
-    Geodetic or Rectangular, associated ground point locations are represented as a triple – x, y, and z.
-
-    A Rectangular system should be specified when the image footprint is near the earth’s North or South Pole. Either
-    a Rectangular or Geodetic system can be specified when the footprint is near 180 degrees East longitude. However,
-    if Geodetic, the range for longitude is then specified as (0,2pi) radians instead of the usual (-pi, +pi) radians.
+    A world coordinate is a vector representing a position in 3D space. Note that this type is a simple value with
+    3 components that does not distinguish between geodetic or other cartesian coordinate systems (e.g. geocentric
+    Earth-Centered Earth-Fixed or coordinates based on a local tangent plane).
     """
 
     def __init__(self, coordinate: npt.ArrayLike = None) -> None:
@@ -57,11 +52,50 @@ class WorldCoordinate:
     def z(self, value: float) -> None:
         self.coordinate[2] = value
 
+    def __repr__(self):
+        return f"WorldCoordinate(coordinate={np.array_repr(self.coordinate)})"
+
 
 class GeodeticWorldCoordinate(WorldCoordinate):
     """
     A GeodeticWorldCoordinate is an WorldCoordinate where the x,y,z components can be interpreted as longitude,
-    latitude, and elevation.
+    latitude, and elevation. It is important to note that longitude, and latitude are in radians while elevation
+    is meters above the ellipsoid.
+
+    This class uses a custom format specification for a geodetic coordinate uses % directives similar to datetime.
+    These custom directives can be combined as needed with literal values to produce a wide
+    range of output formats. For example, '%ld%lm%ls%lH%od%om%os%oH' will produce a ddmmssXdddmmssY formatted
+    coordinate. The first half, ddmmssX, represents degrees, minutes, and seconds of latitude with X representing
+    North or South (N for North, S for South). The second half, dddmmssY, represents degrees, minutes, and seconds
+    of longitude with Y representing East or West (E for East, W for West), respectively.
+
+
+    ========= ================================================ =====
+    Directive Meaning                                          Notes
+    ========= ================================================ =====
+    %L        latitude in decimal radians                       1
+    %l        latitude in decimal degrees                       1
+    %ld       latitute degrees                                  2
+    %lm       latitude minutes
+    %ls       latitude seconds
+    %lh       latitude hemisphere (n or s)
+    %lH       latitude hemisphere uppercase (N or S)
+    %O        longitude in decimal radians                      1
+    %o        longitude in decimal degrees                      1
+    %od       longitude degrees                                 2
+    %om       longitude minutes
+    %os       longitude seconds
+    %oh       longitude hemisphere (e or w)
+    %oH       longitude hemisphere uppercase (E or W)
+    %E        elevation in meters
+    %%        used to represent a literal % in the output
+    ========= ================================================ =====
+
+    Notes:
+
+    #. Formatting in decimal degrees or radians will be signed values
+    #. Formatting for the degrees, minutes, seconds will always be unsigned assuming hemisphere will be included
+    #. Any unknown directives will be ignored
     """
 
     def __init__(self, coordinate: npt.ArrayLike = None) -> None:
@@ -109,34 +143,85 @@ class GeodeticWorldCoordinate(WorldCoordinate):
 
         :return: the formatted coordinate string
         """
-        result_parts = []
+        return f"{self:%ld%lm%ls%lH%od%om%os%oH}"
+
+    def __repr__(self):
+        return f"GeodeticWorldCoordinate(coordinate={np.array_repr(self.coordinate)})"
+
+    def __format__(self, format_spec: str) -> str:
+        if format_spec is None or format_spec == "":
+            format_spec = "%ld%lm%ls%lH %od%om%os%oH %E"
+
         lat_degrees = np.degrees(self.latitude)
-        direction = "N"
+        lh = "N"
         if lat_degrees < 0:
             lat_degrees *= -1.0
-            direction = "S"
-        d = int(lat_degrees)
-        m = int(round(lat_degrees - d, 6) * 60)
-        s = int(round(lat_degrees - d - m / 60, 6) * 3600)
-        result_parts.append(format(d, "02d"))
-        result_parts.append(format(m, "02d"))
-        result_parts.append(format(s, "02d"))
-        result_parts.append(direction)
+            lh = "S"
+        ld = int(lat_degrees)
+        lm = int(round(lat_degrees - ld, 6) * 60)
+        ls = int(round(lat_degrees - ld - lm / 60, 6) * 3600)
 
         lon_degrees = np.degrees(self.longitude)
-        direction = "E"
+        oh = "E"
         if lon_degrees < 0:
             lon_degrees *= -1.0
-            direction = "W"
-        d = int(lon_degrees)
-        m = int(round(lon_degrees - d, 6) * 60)
-        s = int(round(lon_degrees - d - m / 60, 6) * 3600)
-        result_parts.append(format(d, "03d"))
-        result_parts.append(format(m, "02d"))
-        result_parts.append(format(s, "02d"))
-        result_parts.append(direction)
+            oh = "W"
+        od = int(lon_degrees)
+        om = int(round(lon_degrees - od, 6) * 60)
+        os = int(round(lon_degrees - od - om / 60, 6) * 3600)
 
-        return "".join(result_parts)
+        result = []
+        i = 0
+        while i < len(format_spec):
+            if format_spec[i] == "%" and (i + 1) < len(format_spec):
+                i += 1
+                directive = format_spec[i]
+                if directive == "L":
+                    result.append(str(self.latitude))
+                elif directive == "O":
+                    result.append(str(self.longitude))
+                elif directive == "l":
+                    if (i + 1) < len(format_spec) and format_spec[i + 1] in ["d", "m", "s", "h", "H"]:
+                        i += 1
+                        part = format_spec[i]
+                        if part == "d":
+                            result.append(format(ld, "02d"))
+                        elif part == "m":
+                            result.append(format(lm, "02d"))
+                        elif part == "s":
+                            result.append(format(ls, "02d"))
+                        elif part == "h":
+                            result.append(lh.lower())
+                        else:
+                            # part must equal 'H'
+                            result.append(lh)
+                    else:
+                        result.append(str(lat_degrees))
+                elif directive == "o":
+                    if (i + 1) < len(format_spec) and format_spec[i + 1] in ["d", "m", "s", "h", "H"]:
+                        i += 1
+                        part = format_spec[i]
+                        if part == "d":
+                            result.append(format(od, "03d"))
+                        elif part == "m":
+                            result.append(format(om, "02d"))
+                        elif part == "s":
+                            result.append(format(os, "02d"))
+                        elif part == "h":
+                            result.append(oh.lower())
+                        else:
+                            # part must equal 'H'
+                            result.append(oh)
+                    else:
+                        result.append(str(lon_degrees))
+                elif directive == "E":
+                    result.append(str(self.elevation))
+                elif directive == "%":
+                    result.append("%")
+            else:
+                result.append(format_spec[i])
+            i += 1
+        return "".join(result)
 
 
 # These are common definitions of projections used by Pyproj. They are used when converting between an Earth Centered
@@ -248,3 +333,6 @@ class ImageCoordinate:
     @y.setter
     def y(self, value: float) -> None:
         self.r = value
+
+    def __repr__(self):
+        return f"ImageCoordinate(coordinate={np.array_repr(self.coordinate)})"

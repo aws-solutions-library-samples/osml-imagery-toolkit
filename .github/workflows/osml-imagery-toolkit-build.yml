@@ -1,0 +1,10 @@
+name: "OSML Imagery Toolkit Build Workflow"
+
+on:
+  pull_request:
+    branches: ["main", "dev"]
+
+jobs:
+  Build_Validate_Tox:
+    uses: ./.github/workflows/python-tox.yml
+    secrets: inherit
