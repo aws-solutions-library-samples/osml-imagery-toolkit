@@ -115,6 +115,19 @@ class ImagedFeaturePropertyAccessor:
                 feature.properties[self.BOUNDS_IMCORDS] = list(geometry.bounds)
 
     @classmethod
+    def get_image_geometry(cls, feature: geojson.Feature) -> Optional[shapely.Geometry]:
+        if cls.IMAGE_GEOMETRY in feature["properties"]:
+            return shapely.geometry.shape(feature.properties[cls.IMAGE_GEOMETRY])
+        return None
+
+    @classmethod
+    def get_image_bbox(cls, feature: geojson.Feature) -> Optional[shapely.Geometry]:
+        if cls.IMAGE_BBOX in feature["properties"]:
+            bbox = feature.properties[cls.IMAGE_BBOX]
+            return shapely.geometry.box(minx=bbox[0], miny=bbox[1], maxx=bbox[2], maxy=bbox[3])
+        return None
+
+    @classmethod
     def set_image_geometry(cls, feature: geojson.Feature, geometry: shapely.Geometry) -> None:
         """
         Add or set the "imageGeometry" property for a feature. This is a 2D geometry that supports a variety of
