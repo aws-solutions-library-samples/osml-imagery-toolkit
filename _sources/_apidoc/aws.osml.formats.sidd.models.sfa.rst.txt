@@ -1,0 +1,7 @@
+aws.osml.formats.sidd.models.sfa module
+=======================================
+
+.. automodule:: aws.osml.formats.sidd.models.sfa
+   :members:
+   :undoc-members:
+   :show-inheritance:

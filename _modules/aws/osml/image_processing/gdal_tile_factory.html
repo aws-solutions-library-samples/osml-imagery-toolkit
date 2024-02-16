@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.image_processing.gdal_tile_factory &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.image_processing.gdal_tile_factory</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.image_processing.gdal_tile_factory</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">secrets</span> <span class="kn">import</span> <span class="n">token_hex</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">osgeo</span> <span class="kn">import</span> <span class="n">gdal</span><span class="p">,</span> <span class="n">gdalconst</span>
+
+<span class="kn">from</span> <span class="nn">aws.osml.gdal</span> <span class="kn">import</span> <span class="n">GDALCompressionOptions</span><span class="p">,</span> <span class="n">GDALImageFormats</span><span class="p">,</span> <span class="n">NITFDESAccessor</span><span class="p">,</span> <span class="n">RangeAdjustmentType</span><span class="p">,</span> <span class="n">get_type_and_scales</span>
+<span class="kn">from</span> <span class="nn">aws.osml.photogrammetry</span> <span class="kn">import</span> <span class="n">ImageCoordinate</span><span class="p">,</span> <span class="n">SensorModel</span>
+
+<span class="kn">from</span> <span class="nn">.sicd_updater</span> <span class="kn">import</span> <span class="n">SICDUpdater</span>
+<span class="kn">from</span> <span class="nn">.sidd_updater</span> <span class="kn">import</span> <span class="n">SIDDUpdater</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="GDALTileFactory">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.gdal_tile_factory.html#aws.osml.image_processing.GDALTileFactory">[docs]</a>
+<span class="k">class</span> <span class="nc">GDALTileFactory</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class creates tiles from a larger image on request. Image metadata is retained whenever possible but updated</span>
+<span class="sd">    as necessary to account for the new raster bounds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">raster_dataset</span><span class="p">:</span> <span class="n">gdal</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">sensor_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SensorModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tile_format</span><span class="p">:</span> <span class="n">GDALImageFormats</span> <span class="o">=</span> <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">NITF</span><span class="p">,</span>
+        <span class="n">tile_compression</span><span class="p">:</span> <span class="n">GDALCompressionOptions</span> <span class="o">=</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+        <span class="n">output_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">range_adjustment</span><span class="p">:</span> <span class="n">RangeAdjustmentType</span> <span class="o">=</span> <span class="n">RangeAdjustmentType</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a new factory capable of producing tiles from a given GDAL raster dataset.</span>
+
+<span class="sd">        :param raster_dataset: the original raster dataset to create tiles from</span>
+<span class="sd">        :param sensor_model: the sensor model providing mensuration support for this image</span>
+<span class="sd">        :param tile_format: the output tile format</span>
+<span class="sd">        :param tile_compression: the output tile compression</span>
+<span class="sd">        :param output_type: the GDAL pixel type in the output tile</span>
+<span class="sd">        :param range_adjustment: the type of scaling used to convert raw pixel values to the output range</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span> <span class="o">=</span> <span class="n">tile_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">=</span> <span class="n">tile_compression</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span> <span class="o">=</span> <span class="n">raster_dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensor_model</span> <span class="o">=</span> <span class="n">sensor_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sar_des_header</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range_adjustment</span> <span class="o">=</span> <span class="n">range_adjustment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_type</span> <span class="o">=</span> <span class="n">output_type</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">GetDriver</span><span class="p">()</span><span class="o">.</span><span class="n">ShortName</span> <span class="o">==</span> <span class="s2">&quot;NITF&quot;</span><span class="p">:</span>
+            <span class="n">xml_des</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">GetMetadata</span><span class="p">(</span><span class="s2">&quot;xml:DES&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span> <span class="o">=</span> <span class="n">NITFDESAccessor</span><span class="p">(</span><span class="n">xml_des</span><span class="p">)</span>
+
+            <span class="n">xml_data_content_segments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span><span class="o">.</span><span class="n">get_segments_by_name</span><span class="p">(</span><span class="s2">&quot;XML_DATA_CONTENT&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">xml_data_content_segments</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">xml_data_content_segments</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># This appears to be SICD or SIDD data</span>
+                <span class="n">xml_data_segment</span> <span class="o">=</span> <span class="n">xml_data_content_segments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">xml_bytes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">xml_data_segment</span><span class="p">,</span> <span class="s2">&quot;DESDATA&quot;</span><span class="p">,</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">)</span>
+                <span class="n">xml_str</span> <span class="o">=</span> <span class="n">xml_bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;SIDD&quot;</span> <span class="ow">in</span> <span class="n">xml_str</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sar_des_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span><span class="o">.</span><span class="n">extract_des_header</span><span class="p">(</span><span class="n">xml_data_segment</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span> <span class="o">=</span> <span class="n">SIDDUpdater</span><span class="p">(</span><span class="n">xml_str</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="s2">&quot;SICD&quot;</span> <span class="ow">in</span> <span class="n">xml_str</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sar_des_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span><span class="o">.</span><span class="n">extract_des_header</span><span class="p">(</span><span class="n">xml_data_segment</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span> <span class="o">=</span> <span class="n">SICDUpdater</span><span class="p">(</span><span class="n">xml_str</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_gdal_translate_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_gdal_translate_kwargs</span><span class="p">()</span>
+
+<div class="viewcode-block" id="GDALTileFactory.create_encoded_tile">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.gdal_tile_factory.html#aws.osml.image_processing.GDALTileFactory.create_encoded_tile">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_encoded_tile</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">src_window</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">output_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytearray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method cuts a tile from the full image, updates the metadata as needed, and finally compresses/encodes</span>
+<span class="sd">        the result in the output format requested.</span>
+
+<span class="sd">        :param src_window: the [left_x, top_y, width, height] bounds of this tile</span>
+<span class="sd">        :param output_size: an optional size of the output tile (width, height)</span>
+<span class="sd">        :return: the encoded image tile or None if one could not be produced</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temp_ds_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/vsimem/</span><span class="si">{</span><span class="n">token_hex</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Use the request and metadata from the raster dataset to create a set of keyword</span>
+        <span class="c1"># arguments for the gdal.Translate() function. This will configure that function to</span>
+        <span class="c1"># create image tiles using the format, compression, etc. requested by the client.</span>
+        <span class="n">gdal_translate_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_gdal_translate_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">output_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Create a new IGEOLO value based on the corner points of this tile</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensor_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span> <span class="o">==</span> <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">NITF</span><span class="p">:</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ICORDS=G&quot;</span><span class="p">)</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IGEOLO=&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_new_igeolo</span><span class="p">(</span><span class="n">src_window</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span> <span class="o">==</span> <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">NITF</span><span class="p">:</span>
+            <span class="c1"># If we&#39;re outputting a SICD or SIDD tile we need to update the XML metadata to include the new chip</span>
+            <span class="c1"># origin and size. This will allow applications using the tile to correctly interpret the remaining</span>
+            <span class="c1"># image metadata.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span><span class="o">.</span><span class="n">update_image_data_for_chip</span><span class="p">(</span><span class="n">src_window</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
+            <span class="n">updated_sar_des</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sar_des_header</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span><span class="o">.</span><span class="n">encode_current_xml</span><span class="p">()</span>
+
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ICAT=SAR&quot;</span><span class="p">)</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IREP=NODISPLY&quot;</span><span class="p">)</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IREPBAND= , &quot;</span><span class="p">)</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ISUBCAT=I,Q&quot;</span><span class="p">)</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DES=XML_DATA_CONTENT=&quot;</span> <span class="o">+</span> <span class="n">updated_sar_des</span><span class="p">)</span>
+
+        <span class="c1"># Use GDAL to create an encoded tile of the image region</span>
+        <span class="c1"># From GDAL documentation:</span>
+        <span class="c1">#   srcWin --- subwindow in pixels to extract:</span>
+        <span class="c1">#               [left_x, top_y, width, height]</span>
+        <span class="n">gdal</span><span class="o">.</span><span class="n">Translate</span><span class="p">(</span>
+            <span class="n">temp_ds_name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="p">,</span>
+            <span class="n">srcWin</span><span class="o">=</span><span class="n">src_window</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">gdal_translate_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Read the VSIFile</span>
+        <span class="n">vsifile_handle</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">vsifile_handle</span> <span class="o">=</span> <span class="n">gdal</span><span class="o">.</span><span class="n">VSIFOpenL</span><span class="p">(</span><span class="n">temp_ds_name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">vsifile_handle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">stat</span> <span class="o">=</span> <span class="n">gdal</span><span class="o">.</span><span class="n">VSIStatL</span><span class="p">(</span><span class="n">temp_ds_name</span><span class="p">,</span> <span class="n">gdal</span><span class="o">.</span><span class="n">VSI_STAT_SIZE_FLAG</span><span class="p">)</span>
+            <span class="n">vsibuf</span> <span class="o">=</span> <span class="n">gdal</span><span class="o">.</span><span class="n">VSIFReadL</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">stat</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">vsifile_handle</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">vsibuf</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">vsifile_handle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">gdal</span><span class="o">.</span><span class="n">VSIFCloseL</span><span class="p">(</span><span class="n">vsifile_handle</span><span class="p">)</span>
+            <span class="n">gdal</span><span class="o">.</span><span class="n">GetDriverByName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span><span class="p">)</span><span class="o">.</span><span class="n">Delete</span><span class="p">(</span><span class="n">temp_ds_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GDALTileFactory.create_new_igeolo">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.gdal_tile_factory.html#aws.osml.image_processing.GDALTileFactory.create_new_igeolo">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_new_igeolo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_window</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new 60 character string representing the corner coordinates of this tile. The string conforms to</span>
+<span class="sd">        the geographic &quot;G&quot; choice for the ICORDS field as specified in MIL-STD-2500C Table A-3 NITF Image Subheader.</span>
+
+<span class="sd">        The locations of the four corners of are encoded image coordinate order:</span>
+<span class="sd">        (0,0), (Max X, 0), (Max X, Max Y), (0, Max Y) with each corner represented as a ddmmssXdddmmssY string</span>
+<span class="sd">        representing latitude and longitude. The first half, ddmmssX, represents degrees, minutes, and seconds of</span>
+<span class="sd">        latitude with X representing North or South (N for North, S for South). The second half, dddmmssY, represents</span>
+<span class="sd">        degrees, minutes, and seconds of longitude with Y representing East or West (E for East, W for West),</span>
+<span class="sd">        respectively.</span>
+
+<span class="sd">        :param src_window: the [left_x, top_y, width, height] bounds of this tile</span>
+<span class="sd">        :return: the 60 character IGEOLO geographic coordinate string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tile_corners</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="n">src_window</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">src_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">src_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">src_window</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
+        <span class="p">]</span>
+        <span class="n">dms_coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">tile_corners</span><span class="p">:</span>
+            <span class="n">geodetic_tile_corner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensor_model</span><span class="o">.</span><span class="n">image_to_world</span><span class="p">(</span><span class="n">ImageCoordinate</span><span class="p">(</span><span class="n">coord</span><span class="p">))</span>
+            <span class="n">dms_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">geodetic_tile_corner</span><span class="o">.</span><span class="n">to_dms_string</span><span class="p">())</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dms_coords</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_create_gdal_translate_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method creates a set of keyword arguments suitable for passing to the gdal.Translate</span>
+<span class="sd">        function. The values for these options are derived from the region processing request and</span>
+<span class="sd">        the raster dataset itself.</span>
+
+<span class="sd">        See: https://gdal.org/python/osgeo.gdal-module.html#Translate</span>
+<span class="sd">        See: https://gdal.org/python/osgeo.gdal-module.html#TranslateOptions</span>
+
+<span class="sd">        :return: Dict[str, any] = the dictionary of translate keyword arguments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Figure out what type of image this is and calculate a scale to map input pixels to the output type</span>
+        <span class="n">output_type</span><span class="p">,</span> <span class="n">scale_params</span> <span class="o">=</span> <span class="n">get_type_and_scales</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="p">,</span> <span class="n">desired_output_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_type</span><span class="p">,</span> <span class="n">range_adjustment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">range_adjustment</span>
+        <span class="p">)</span>
+
+        <span class="n">gdal_translate_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;scaleParams&quot;</span><span class="p">:</span> <span class="n">scale_params</span><span class="p">,</span>
+            <span class="s2">&quot;outputType&quot;</span><span class="p">:</span> <span class="n">output_type</span><span class="p">,</span>
+            <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">creation_options</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span> <span class="o">==</span> <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">NITF</span><span class="p">:</span>
+            <span class="c1"># Creation options specific to the NITF raster driver.</span>
+            <span class="c1"># See: https://gdal.org/drivers/raster/nitf.html</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">J2K</span><span class="p">:</span>
+                <span class="c1"># Default NITF tiles to JPEG2000 compression if not specified</span>
+                <span class="c1"># The OpenJPEG library does not currently support floating point pixel types. If J2K compression</span>
+                <span class="c1"># was requested we need to fall back to no compression to avoid a failure. This update can be</span>
+                <span class="c1"># removed if compression of floating points is supported or if we move to an alternate J2K library.</span>
+                <span class="k">if</span> <span class="n">output_type</span> <span class="ow">in</span> <span class="p">[</span><span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Float32</span><span class="p">,</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Float64</span><span class="p">]:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;OpenJPEG J2K library does not support floating point pixel values. &quot;</span>
+                        <span class="s2">&quot;Outputs will not be compressed.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IC=NC&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IC=C8&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">JPEG</span><span class="p">:</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IC=C3&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IC=NC&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid compress specified for NITF image defaulting to JPEG2000!&quot;</span><span class="p">)</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IC=C8&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span> <span class="o">==</span> <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">GTIFF</span><span class="p">:</span>
+            <span class="c1"># Creation options specific to the GeoTIFF raster driver.</span>
+            <span class="c1"># See: https://gdal.org/drivers/raster/nitf.html</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Default GeoTiff tiles to LZQ compression if not specified</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;COMPRESS=LZW&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">LZW</span><span class="p">:</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;COMPRESS=LZW&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">JPEG</span><span class="p">:</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;COMPRESS=JPEG&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;COMPRESS=NONE&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid compress specified for GTIFF image defaulting to LZW!&quot;</span><span class="p">)</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;COMPRESS=LZW&quot;</span><span class="p">)</span>
+
+        <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">creation_options</span>
+
+        <span class="k">return</span> <span class="n">gdal_translate_kwargs</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

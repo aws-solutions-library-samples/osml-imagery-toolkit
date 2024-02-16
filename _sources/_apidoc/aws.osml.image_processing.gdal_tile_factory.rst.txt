@@ -1,0 +1,7 @@
+aws.osml.image\_processing.gdal\_tile\_factory module
+=====================================================
+
+.. automodule:: aws.osml.image_processing.gdal_tile_factory
+   :members:
+   :undoc-members:
+   :show-inheritance:
