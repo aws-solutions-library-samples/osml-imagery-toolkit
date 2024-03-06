@@ -1,3 +1,5 @@
+# Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
+
 # Swap BASE_CONTAINER to a container output while building cert-base if you need to override the pip mirror
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023 as osml-imagery-toolkit
 

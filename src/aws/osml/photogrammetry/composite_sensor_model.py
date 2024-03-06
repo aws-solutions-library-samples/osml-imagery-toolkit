@@ -1,3 +1,5 @@
+#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
+
 import math
 from typing import Any, Dict, Optional
 

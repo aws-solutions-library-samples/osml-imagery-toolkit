@@ -1,3 +1,5 @@
+#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
+
 from abc import ABC
 from enum import Enum
 from math import floor, pi, radians, sqrt
