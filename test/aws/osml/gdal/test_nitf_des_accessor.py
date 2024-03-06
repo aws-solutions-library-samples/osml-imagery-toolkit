@@ -1,3 +1,5 @@
+#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
+
 import unittest
 from unittest import TestCase
 from xml.etree import ElementTree as ET

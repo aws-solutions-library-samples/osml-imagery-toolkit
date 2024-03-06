@@ -1,3 +1,5 @@
+#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
+
 from .feature_index import Feature2DSpatialIndex, STRFeature2DSpatialIndex
 from .geolocation import Geolocator
 from .imaged_feature_property_accessor import ImagedFeaturePropertyAccessor
