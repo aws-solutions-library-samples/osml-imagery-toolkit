@@ -1,3 +1,5 @@
+#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional

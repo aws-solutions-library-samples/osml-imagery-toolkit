@@ -1,3 +1,5 @@
+#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
+
 # TODO: Add typing for ArrayLike once Numpy upgraded to 1.20+
 # from numpy.typing import ArrayLike
 

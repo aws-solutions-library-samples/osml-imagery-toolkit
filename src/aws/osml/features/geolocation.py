@@ -1,3 +1,5 @@
+#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
+
 import logging
 import math
 from typing import List, Optional, Tuple, Union

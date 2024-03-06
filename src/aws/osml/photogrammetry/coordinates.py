@@ -1,3 +1,5 @@
+#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
+
 import numpy as np
 import numpy.typing as npt
 import pyproj
