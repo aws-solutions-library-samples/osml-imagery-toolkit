@@ -1,8 +1,8 @@
 name: "OSML Imagery Toolkit Build and Publish Workflow"
 
 on:
-  push:
-    branches: ["main"]
+  release:
+    types: [published]
 
 jobs:
   Build_Validate_Tox:
