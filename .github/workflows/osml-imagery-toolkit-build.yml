@@ -2,7 +2,7 @@ name: "OSML Imagery Toolkit Build Workflow"
 
 on:
   pull_request:
-    branches: ["main", "dev"]
+    branches: ["main"]
 
 jobs:
   Build_Validate_Tox:
