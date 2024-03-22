@@ -1,4 +1,4 @@
-name: "OSML Imagery Toolkit Build Workflow"
+name: "build"
 
 on:
   pull_request:
