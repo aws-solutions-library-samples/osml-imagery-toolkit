@@ -1,0 +1,10 @@
+name: build
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  tox:
+    uses: ./.github/workflows/tox.yml
+    secrets: inherit
