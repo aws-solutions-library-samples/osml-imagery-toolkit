@@ -1,4 +1,4 @@
-name: "OSML Imagery Toolkit Build and Publish Workflow"
+name: OSML Imagery Toolkit Release Workflow
 
 on:
   release:
