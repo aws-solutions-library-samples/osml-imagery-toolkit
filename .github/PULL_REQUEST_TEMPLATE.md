@@ -15,10 +15,4 @@ Before you submit a pull request, please make sure you have the following:
 - [ ] Security implications of the changes (if any) are reviewed and addressed
 - [ ] I have read the [Contributing Guidelines](../CONTRIBUTING.md) and agree to follow the [Code of Conduct](../CODE_OF_CONDUCT.md)
 
-
-
-
-
-
-
 By submitting this pull request, I confirm that you can use, modify, copy, and redistribute this contribution, under the terms of your choice.
