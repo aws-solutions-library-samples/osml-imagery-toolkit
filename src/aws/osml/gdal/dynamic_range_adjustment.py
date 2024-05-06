@@ -72,12 +72,12 @@ class DRAParameters:
         max_counts = cumulative_counts[-1]
         low_threshold = min_percentage * max_counts
         e_min = 0
-        while cumulative_counts[e_min] < low_threshold:
+        while cumulative_counts[e_min] < low_threshold and e_min < len(cumulative_counts) - 1:
             e_min += 1
 
         high_threshold = max_percentage * max_counts
         e_max = num_histogram_bins - 1
-        while cumulative_counts[e_max] > high_threshold:
+        while cumulative_counts[e_max] > high_threshold and e_max > 0:
             e_max -= 1
 
         min_value = max([actual_min_value, e_min - a * (e_max - e_min)])
