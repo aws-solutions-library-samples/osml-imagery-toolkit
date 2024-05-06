@@ -50,6 +50,35 @@ GDAL generated overviews if they are available to the dataset.
 
     viz_tile = viz_tile_factory.create_encoded_tile([0, 0, 1024, 1024], output_size=(512, 512))
 
+Image Tiling: Map Tiles / Orthophotos
+*************************************
+
+The TileFactory supports creation of tiles suitable for use by geographic information systems (GIS) or map-based
+visualization tools. Given a north-east aligned bounding box in geographic coordinates the tile factory can use
+the sensor models to orthorectify imagery to remove the perspective and terrain effects.
+
+.. code-block:: python
+    :caption: Example showing creation of a map tile from the WebMercatorQuad tile set
+
+    # Look up the tile boundary for a tile in a well known tile set
+    tile_set = MapTileSetFactory.get_for_id("WebMercatorQuad")
+    tile_id = MapTileId(tile_matrix=16, tile_row=37025, tile_col=54816)
+    tile = tile_set.get_tile(tile_id)
+
+    # Create an orthophoto for this tile
+    image_bytes = viz_tile_factory.create_orthophoto_tile(geo_bbox=tile.bounds, tile_size=tile.size)
+
+.. figure:: ../images/MapTileExample-BeforeAfter.png
+    :width: 600
+    :alt: Original image with perspective effects and same area after orthorectification
+
+    Example showing original image with perspective effects and same area after orthorectification.
+
+.. figure:: ../images/MapTileExample-MapOverlay.png
+    :width: 400
+    :alt: Orthophoto tile overlaid on Google Maps
+
+    Example showing map tile overlaid on Google Maps
 
 Complex SAR Data Display
 ************************
@@ -93,6 +122,17 @@ APIs
 """
 
 from .gdal_tile_factory import GDALTileFactory
+from .map_tileset import MapTile, MapTileId, MapTileSet
+from .map_tileset_factory import MapTileSetFactory, WellKnownMapTileSet
 from .sar_complex_imageop import histogram_stretch, quarter_power_image
 
-__all__ = ["GDALTileFactory", "histogram_stretch", "quarter_power_image"]
+__all__ = [
+    "GDALTileFactory",
+    "MapTile",
+    "MapTileId",
+    "MapTileSet",
+    "MapTileSetFactory",
+    "WellKnownMapTileSet",
+    "histogram_stretch",
+    "quarter_power_image",
+]
