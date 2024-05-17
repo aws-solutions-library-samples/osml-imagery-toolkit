@@ -1,5 +1,5 @@
 # OversightML Imagery Toolkit
-![Build Badge](https://github.com/aws-solutions-library-samples/osml-imagery-toolkit/actions/workflows/osml-imagery-toolkit-build.yml/badge.svg)
+![Build Badge](https://github.com/aws-solutions-library-samples/osml-imagery-toolkit/actions/workflows/build.yml/badge.svg)
 ![Python Badge](https://img.shields.io/badge/python-3.9%2C%203.10%2C%203.11-blue)
 ![GitHub License](https://img.shields.io/github/license/aws-solutions-library-samples/osml-imagery-toolkit?color=blue)
 ![PyPI - Version](https://img.shields.io/pypi/v/osml-imagery-toolkit)
@@ -13,14 +13,15 @@ Independent Complex Data (SICD), and Sensor Independent Derived Data (SIDD) stan
 This library contains four core packages under the `aws.osml` namespace:
 * **photogrammetry**: convert locations between the image (x, y) and geodetic (lon, lat, elev) coordinate systems
 * **gdal**: utilities to work with datasets loaded by GDAL
-* **image_processing**: common image manipulation routines
-* **features**: common geospatial feature manipulation routines
+* **image_processing**: image manipulation routines including tiling, orthoimage projections, and range adjustments
+* **features**: geospatial feature indexing and property management routines
 
 ## Documentation
 
 * **APIs**: You can find the latest API documentation for the OSML Imagery Toolkit hosted [here](https://aws-solutions-library-samples.github.io/osml-imagery-toolkit/).
 If you are working from the source code running `tox -e docs` will trigger the Sphinx documentation build.
 * **Example Notebooks**: Example notebooks for some operations are in the `examples` directory
+
 ## Installation
 
 This software is available through a Python Package Index.
