@@ -14,7 +14,7 @@ class TestDRAParameters(unittest.TestCase):
 
         dra_parameters = DRAParameters.from_counts(counts=counts)
 
-        self.assertEquals(dra_parameters.actual_min_value, 1)
-        self.assertEquals(dra_parameters.actual_max_value, 1022)
+        self.assertEqual(dra_parameters.actual_min_value, 1)
+        self.assertEqual(dra_parameters.actual_max_value, 1022)
         self.assertAlmostEqual(dra_parameters.suggested_min_value, 47, delta=1)
-        self.assertAlmostEquals(dra_parameters.suggested_max_value, 506, delta=1)
+        self.assertAlmostEqual(dra_parameters.suggested_max_value, 506, delta=1)

@@ -81,7 +81,7 @@ def linear_mapping(magnitude_values: np.ndarray) -> np.ndarray:
     if max_value == min_value:
         return np.full(magnitude_values.shape, 0.5)
 
-    return np.clip((magnitude_values - min_value) / (max_value - min_value), 0, 1.0)
+    return np.clip((magnitude_values.astype(np.float32) - min_value) / (np.float32(max_value) - min_value), 0, 1.0)
 
 
 def histogram_stretch_mag_values(magnitude_values: np.ndarray, scale_factor: float = 8.0):
