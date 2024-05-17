@@ -323,7 +323,7 @@ class GDALTileFactory:
         for_display = (
             255
             * (pixel_array - dra_parameters.suggested_min_value)
-            / (dra_parameters.suggested_max_value - dra_parameters.suggested_min_value)
+            / max(dra_parameters.suggested_max_value - dra_parameters.suggested_min_value, 1.0)
         )
 
         for_display = np.clip(for_display, 0.0, 255.0)
