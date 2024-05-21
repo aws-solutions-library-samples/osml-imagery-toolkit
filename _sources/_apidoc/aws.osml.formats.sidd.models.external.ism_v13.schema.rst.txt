@@ -1,0 +1,16 @@
+aws.osml.formats.sidd.models.external.ism\_v13.schema 
+======================================================
+
+.. automodule:: aws.osml.formats.sidd.models.external.ism_v13.schema
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   aws.osml.formats.sidd.models.external.ism_v13.schema.ism
+   aws.osml.formats.sidd.models.external.ism_v13.schema.ismcat
