@@ -176,6 +176,8 @@ class TestSensorModelFactory(TestCase):
             "./test/data/sicd/capella-sicd121-chip1.ntf",
             "./test/data/sicd/capella-sicd121-chip2.ntf",
             "./test/data/sicd/umbra-sicd121-chip1.ntf",
+            "./test/data/sicd/capella-sicd130-chip1.ntf",
+            "./test/data/sicd/capella-sicd130-chip2.ntf",
         ]
         for image_path in test_examples:
             ds = gdal.Open(image_path)
