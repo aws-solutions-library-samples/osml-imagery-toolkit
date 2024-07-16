@@ -136,8 +136,8 @@ class SICDSensorModelBuilder(SensorModelBuilder):
 
         projection_set = None
         ugpn = None
-        if sicd.grid.type_value == sicd121.ImageGridType.RGAZIM:
-            if sicd.image_formation.image_form_algo == sicd121.ImageFormAlgo.PFA:
+        if sicd.grid.type_value.value == sicd121.ImageGridType.RGAZIM.value:
+            if sicd.image_formation.image_form_algo.value == sicd121.ImageFormAlgo.PFA.value:
                 ugpn = xyztype_to_ndarray(sicd.pfa.fpn)
                 projection_set = PFAProjectionSet(
                     scp_ecf=scp_ecf,
@@ -146,11 +146,11 @@ class SICDSensorModelBuilder(SensorModelBuilder):
                     coa_time_poly=time_coa_poly,
                     arp_poly=arp_poly,
                 )
-            elif sicd.image_formation.image_form_algo == sicd121.ImageFormAlgo.RGAZCOMP:
+            elif sicd.image_formation.image_form_algo.value == sicd121.ImageFormAlgo.RGAZCOMP.value:
                 projection_set = RGAZCOMPProjectionSet(
                     scp_ecf=scp_ecf, az_scale_factor=sicd.rg_az_comp.az_sf, coa_time_poly=time_coa_poly, arp_poly=arp_poly
                 )
-        elif sicd.grid.type_value == sicd121.ImageGridType.RGZERO:
+        elif sicd.grid.type_value.value == sicd121.ImageGridType.RGZERO.value:
             projection_set = INCAProjectionSet(
                 r_ca_scp=sicd.rma.inca.r_ca_scp,
                 inca_time_coa_poly=poly1d_to_native(sicd.rma.inca.time_capoly),
@@ -158,10 +158,10 @@ class SICDSensorModelBuilder(SensorModelBuilder):
                 coa_time_poly=time_coa_poly,
                 arp_poly=arp_poly,
             )
-        elif sicd.grid.type_value in [
-            sicd121.ImageGridType.PLANE,
-            sicd121.ImageGridType.XCTYAT,
-            sicd121.ImageGridType.XRGYCR,
+        elif sicd.grid.type_value.value in [
+            sicd121.ImageGridType.PLANE.value,
+            sicd121.ImageGridType.XCTYAT.value,
+            sicd121.ImageGridType.XRGYCR.value,
         ]:
             projection_set = PlaneProjectionSet(
                 scp_ecf=scp_ecf,
