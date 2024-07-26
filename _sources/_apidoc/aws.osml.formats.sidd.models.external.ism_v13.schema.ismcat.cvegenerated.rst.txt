@@ -1,0 +1,18 @@
+aws.osml.formats.sidd.models.external.ism\_v13.schema.ismcat.cvegenerated package
+=================================================================================
+
+.. automodule:: aws.osml.formats.sidd.models.external.ism_v13.schema.ismcat.cvegenerated
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   aws.osml.formats.sidd.models.external.ism_v13.schema.ismcat.cvegenerated.cvenum_ismcatfgiopen
+   aws.osml.formats.sidd.models.external.ism_v13.schema.ismcat.cvegenerated.cvenum_ismcatfgiprotected
+   aws.osml.formats.sidd.models.external.ism_v13.schema.ismcat.cvegenerated.cvenum_ismcatowner_producer
+   aws.osml.formats.sidd.models.external.ism_v13.schema.ismcat.cvegenerated.cvenum_ismcatrel_to

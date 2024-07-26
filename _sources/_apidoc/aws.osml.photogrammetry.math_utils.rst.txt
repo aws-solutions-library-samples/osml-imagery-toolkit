@@ -1,0 +1,7 @@
+aws.osml.photogrammetry.math\_utils module
+==========================================
+
+.. automodule:: aws.osml.photogrammetry.math_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:

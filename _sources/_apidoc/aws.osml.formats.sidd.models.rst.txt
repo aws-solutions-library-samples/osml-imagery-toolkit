@@ -1,0 +1,28 @@
+aws.osml.formats.sidd.models package
+====================================
+
+.. automodule:: aws.osml.formats.sidd.models
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   aws.osml.formats.sidd.models.external
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   aws.osml.formats.sidd.models.sfa
+   aws.osml.formats.sidd.models.sicommon_types
+   aws.osml.formats.sidd.models.sicommon_types_v1_0
+   aws.osml.formats.sidd.models.sidd_v1_0_0
+   aws.osml.formats.sidd.models.sidd_v2_0_0
+   aws.osml.formats.sidd.models.sidd_v3_0_0

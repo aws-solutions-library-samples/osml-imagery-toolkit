@@ -1,0 +1,7 @@
+aws.osml.image\_processing.map\_tileset module
+==============================================
+
+.. automodule:: aws.osml.image_processing.map_tileset
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,16 @@
+aws.osml.formats.sicd.models package
+====================================
+
+.. automodule:: aws.osml.formats.sicd.models
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   aws.osml.formats.sicd.models.sicd_v1_2_1
+   aws.osml.formats.sicd.models.sicd_v1_3_0

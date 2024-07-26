@@ -1,0 +1,7 @@
+aws.osml.photogrammetry.composite\_sensor\_model module
+=======================================================
+
+.. automodule:: aws.osml.photogrammetry.composite_sensor_model
+   :members:
+   :undoc-members:
+   :show-inheritance:

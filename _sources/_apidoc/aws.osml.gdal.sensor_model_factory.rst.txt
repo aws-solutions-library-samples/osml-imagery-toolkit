@@ -1,0 +1,7 @@
+aws.osml.gdal.sensor\_model\_factory module
+===========================================
+
+.. automodule:: aws.osml.gdal.sensor_model_factory
+   :members:
+   :undoc-members:
+   :show-inheritance:

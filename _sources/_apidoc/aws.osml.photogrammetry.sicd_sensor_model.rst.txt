@@ -1,0 +1,7 @@
+aws.osml.photogrammetry.sicd\_sensor\_model module
+==================================================
+
+.. automodule:: aws.osml.photogrammetry.sicd_sensor_model
+   :members:
+   :undoc-members:
+   :show-inheritance:
