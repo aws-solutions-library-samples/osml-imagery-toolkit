@@ -1,4 +1,5 @@
 import base64
+import copy
 import logging
 from secrets import token_hex
 from typing import Any, Dict, List, Optional, Tuple
@@ -84,7 +85,7 @@ class GDALTileFactory:
         # Use the request and metadata from the raster dataset to create a set of keyword
         # arguments for the gdal.Translate() function. This will configure that function to
         # create image tiles using the format, compression, etc. requested by the client.
-        gdal_translate_kwargs = self.default_gdal_translate_kwargs.copy()
+        gdal_translate_kwargs = copy.deepcopy(self.default_gdal_translate_kwargs)
 
         if output_size is not None:
             gdal_translate_kwargs["width"] = output_size[0]
