@@ -93,7 +93,7 @@ class WebMercatorQuadMapTileSet(MapTileSet):
 
     def _pixels_to_meters(self, x_pixels: float, y_pixels: float, tile_matrix: int) -> tuple[float, float]:
         """
-        Convert an x, y location in pixels to x (east), y (nort) location in meters. This includes shifting the
+        Convert an x, y location in pixels to x (east), y (north) location in meters. This includes shifting the
         origin for the image pixels (0, 0) in upper left corner to the origin in meters (0, 0) in the center of the
         image.
 
@@ -110,7 +110,7 @@ class WebMercatorQuadMapTileSet(MapTileSet):
     def _meters_to_pixels(self, x_meters: float, y_meters: float, tile_matrix: int) -> tuple[float, float]:
         """
         Convert an x (east), y (north) location in meters to x, y location in pixels. This includes shifting the (0, 0)
-        origin in meters from the cetner of the image to the upper left corner (0, 0) in image pixels.
+        origin in meters from the center of the image to the upper left corner (0, 0) in image pixels.
 
         :param x_meters: the x location in meters
         :param y_meters: the y location in meters
@@ -124,7 +124,7 @@ class WebMercatorQuadMapTileSet(MapTileSet):
 
     def _pixels_to_tile(self, x_pixels: float, y_pixels: float) -> tuple[int, int]:
         """
-        This function converts x, y pixel coordinates to col, rol tile indexes.
+        This function converts x, y pixel coordinates to col, row tile indexes.
 
         :param x_pixels: the x location in pixels
         :param y_pixels: the y location in pixels
