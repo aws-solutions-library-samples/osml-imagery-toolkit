@@ -246,20 +246,53 @@ class GDALTileFactory:
         map2 = src_y_interpolator(dst_x, dst_y).astype(np.float32)
 
         logger.debug(
-            f"Sanity check remap array sizes. " f"They should match the desired map tile size {tile_size[0]}x{tile_size[1]}"
+            f"Sanity check remap array sizes. They should match the desired map tile size {tile_size[0]}x{tile_size[1]}"
         )
         logger.debug(f"map1.shape = {map1.shape}")
         logger.debug(f"map2.shape = {map2.shape}")
 
-        dst = cv2.remap(src, map1, map2, cv2.INTER_LINEAR)
+        # Set the scalar for out of bounds pixels to 0 and bias the image just slightly such that all values
+        # of 0 in the output are only from out of bounds pixels.  Valid range for the scalar is 0-255 [int|tuple].
+        scalar = 0
+        if src.ndim == 2:  # 1-band grayscale
+            src[src == 0] = 1
+        elif src.ndim >= 3 and src.shape[2] == 3:  # 3-band
+            scalar = (0, 0, 0)
+            src[(src == [0, 0, 0]).all(axis=2)] = [0, 0, 1]
+        logger.debug(f"scalar = {scalar}")
+
+        # Transform image
+        dst = cv2.remap(src, map1, map2, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=scalar)
+
+        # Create alpha layer mask
+        alpha_mask = None
+        if dst.ndim == 2:  # 1-band grayscale
+            all_channel_pixels_mask = dst != 0
+            alpha_mask = np.zeros_like(dst, dtype=np.uint8)
+            alpha_mask[all_channel_pixels_mask] = 255
+        elif dst.ndim >= 3 and dst.shape[2] == 3:  # 3-band
+            all_channel_pixels_mask = np.all(dst != 0, axis=2)
+            alpha_mask = np.zeros_like(dst[..., 0], dtype=np.uint8)
+            alpha_mask[all_channel_pixels_mask] = 255
+        if alpha_mask is not None:  # arrays with zeros/zero size can be falsy so explicitly check None
+            logger.debug(f"alpha_mask.shape = {alpha_mask.shape}")
+        elif dst.ndim > 2:
+            logger.debug(f"alpha_mask = None.  Image has {dst.ndim} dimensions and {dst.shape[2]} bands.")
+        else:
+            logger.debug(f"alpha_mask = None.  Image has {dst.ndim} dimensions.")
+
         output_tile_pixels = self._create_display_image(dst)
+
+        if alpha_mask is not None:
+            # imencode does not support 2-band (grayscale + alpha) so the workaround is to convert to 3-band
+            if output_tile_pixels.ndim == 2:
+                output_tile_pixels = np.dstack((output_tile_pixels, output_tile_pixels, output_tile_pixels))
+            # add alpha mask
+            output_tile_pixels = np.dstack((output_tile_pixels, alpha_mask))
 
         # TODO: Formats other than PNG?
         is_success, image_bytes = cv2.imencode(".png", output_tile_pixels)
-        if is_success:
-            return image_bytes
-        else:
-            return None
+        return image_bytes if is_success else None
 
     def _read_from_rlevel_as_array(
         self, scaled_bbox: Tuple[int, int, int, int], r_level: int, band_numbers: Optional[List[int]] = None
