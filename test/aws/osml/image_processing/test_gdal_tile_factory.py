@@ -223,6 +223,31 @@ class TestGDALTileFactory(TestCase):
                 assert tile_dataset.RasterYSize == 256
                 assert tile_dataset.GetDriver().ShortName == GDALImageFormats.PNG
 
+    def test_create_map_tiles_for_color_image(self):
+        tile_set_id = "WebMercatorQuad"
+        tile_set = MapTileSetFactory.get_for_id(tile_set_id)
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
+        tile_factory = GDALTileFactory(
+            full_dataset,
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.DRA,
+        )
+        tile_matrix = 14
+        tile_row = 10830
+        tile_col = 8437
+        map_tile = tile_set.get_tile(MapTileId(tile_matrix=tile_matrix, tile_row=tile_row, tile_col=tile_col))
+        encoded_tile_data = tile_factory.create_orthophoto_tile(geo_bbox=map_tile.bounds, tile_size=map_tile.size)
+        assert encoded_tile_data is not None
+        temp_ds_name = "/vsimem/" + token_hex(16) + ".PNG"
+        gdal.FileFromMemBuffer(temp_ds_name, encoded_tile_data)
+        tile_dataset = gdal.Open(temp_ds_name)
+        assert tile_dataset.RasterXSize == 256
+        assert tile_dataset.RasterYSize == 256
+        assert tile_dataset.GetDriver().ShortName == GDALImageFormats.PNG
+
 
 if __name__ == "__main__":
     unittest.main()
