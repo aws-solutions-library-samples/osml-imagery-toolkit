@@ -4,7 +4,7 @@ import base64
 import copy
 import logging
 from secrets import token_hex
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -281,7 +281,7 @@ class GDALTileFactory:
         else:
             logger.debug(f"alpha_mask = None.  Image has {dst.ndim} dimensions.")
 
-        output_tile_pixels = self._create_display_image(dst)
+        output_tile_pixels = self._normalize_image_for_display(dst)
 
         if alpha_mask is not None:
             # imencode does not support 2-band (grayscale + alpha) so the workaround is to convert to 3-band
@@ -339,31 +339,94 @@ class GDALTileFactory:
 
         return result
 
-    def _create_display_image(self, pixel_array: np.array) -> np.array:
+    def _normalize_image_for_display(self, pixel_array: np.array) -> np.array:
         """
-        This method selects the first 3 bands of a multi-band image (or a single band of grayscale) and performs a
-        simple dynamic range adjustment to map those values to the 0-255 range of an 8-bit per pixel image for
-        visualization.
+        This method applies the specified range adjustment to the requested image and returns the adjusted pixels. If
+        the range adjustment is set to NONE it returns the original pixels.
 
         :param pixel_array: the input image pixels
-        :return: a range adjusted 8-bit per pixel image of up to 3 bands
+        :return: a range adjusted 8-bit per pixel image
         """
-        if pixel_array.ndim == 3 and pixel_array.shape[2] > 3:
-            pixel_array = pixel_array[:, :, 0:3]
+        if self.range_adjustment == RangeAdjustmentType.DRA:
+            return self._normalize_bands(pixel_array, self._normalize_band_dra)
+        elif self.range_adjustment == RangeAdjustmentType.MINMAX:
+            return self._normalize_bands(pixel_array, self._normalize_band_minmax)
+        else:
+            return pixel_array.astype(np.uint8)
 
-        max_channel_value = np.max(pixel_array)
-        hist, bin_edges = np.histogram(pixel_array.ravel(), bins=max_channel_value + 1, range=(0, max_channel_value))
-        dra_parameters = DRAParameters.from_counts(hist.tolist(), max_percentage=0.97)
-        for_display = (
+    def _normalize_bands(
+        self, pixel_array: np.array, normalize_band_func: Callable[[gdal.Band, np.array], np.array]
+    ) -> np.array:
+        """
+        This method determines if the input pixel array is grayscale or multiband.  If it is multiband it selects
+        the first 3 bands to process.  The appropriate bands are passed to the normalized_band_func to perform the
+        actual transform.
+
+        :param pixel_array: the input image pixels
+        :param normalize_band_func: function to use to normalize the pixels
+        :return: the range adjusted 8-bit per pixel image
+        """
+        if pixel_array.ndim == 2:  # 1-band grayscale image
+            band = self.raster_dataset.GetRasterBand(1)
+            normalized_pixels = normalize_band_func(band, pixel_array)
+        elif pixel_array.ndim == 3 and pixel_array.shape[2] >= 3:
+            # Multiband image, select the first 3 bands
+            pixel_array = pixel_array[:, :, 0:3]
+            band_count = 3
+            normalized_bands = []
+            for band_idx in range(band_count):
+                band = self.raster_dataset.GetRasterBand(band_idx + 1)
+                normalized_bands.append(normalize_band_func(band, pixel_array[:, :, band_idx]))
+
+            # Combine the normalized bands into a single image
+            normalized_pixels = np.stack(normalized_bands, axis=2)
+        else:
+            logger.debug("Skipping normalization.")
+            normalized_pixels = pixel_array.astype(np.uint8)
+        return normalized_pixels
+
+    @staticmethod
+    def _normalize_band_minmax(band: gdal.Band, pixel_array: np.array) -> np.array:
+        """
+        This method applies Min-Max normalization to an individual band. It attempts to us the min-max values from the
+        image but if they are none it reverts to using values from the individual tile.
+
+        :param pixel_array: the input image pixels
+        :return: a Min-Max normalized 8-bit per pixel image
+        """
+        # Get the minimum and maximum values from the entire GDAL dataset. If the minimum and maximum values are
+        # not available, calculate them from the tile.
+        min_value = band.GetMinimum() if band.GetMinimum() is not None else np.min(pixel_array)
+        max_value = band.GetMaximum() if band.GetMaximum() is not None else np.max(pixel_array)
+
+        # Apply the Min-Max normalization
+        normalized_pixel = (pixel_array - min_value) * (255.0 / max(max_value, 1.0))
+        normalized_pixel = np.clip(normalized_pixel, 0.0, 255.0)
+        return normalized_pixel.astype(np.uint8)
+
+    @staticmethod
+    def _normalize_band_dra(band: gdal.Band, pixel_array: np.array) -> np.array:
+        """
+        This method performs DRA on an input pixel_array using gdal Band data. Normalization is performed with
+        respect to the entire image using the GDAL histogram.
+
+        :param pixel_array: the input image pixels
+        :return: a range adjusted 8-bit per pixel image
+        """
+        # Get the minimum and maximum values from the entire GDAL dataset. If the minimum and maximum values are
+        # not available, calculate them from the tile.
+        min_value = band.GetMinimum() if band.GetMinimum() is not None else np.min(pixel_array)
+        max_value = band.GetMaximum() if band.GetMaximum() is not None else np.max(pixel_array)
+
+        hist = band.GetHistogram(min=min_value, max=max_value, buckets=256)
+        dra_parameters = DRAParameters.from_counts(hist, max_percentage=0.97)
+        normalized_pixel = (
             255
             * (pixel_array - dra_parameters.suggested_min_value)
             / max(dra_parameters.suggested_max_value - dra_parameters.suggested_min_value, 1.0)
         )
-
-        for_display = np.clip(for_display, 0.0, 255.0)
-        for_display = for_display.astype(np.uint8)
-
-        return for_display
+        normalized_pixel = np.clip(normalized_pixel, 0.0, 255.0)
+        return normalized_pixel.astype(np.uint8)
 
     def _create_new_igeolo(self, src_window: List[int]) -> str:
         """
