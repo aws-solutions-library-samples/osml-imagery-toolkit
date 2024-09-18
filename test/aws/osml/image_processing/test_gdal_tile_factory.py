@@ -3,6 +3,7 @@
 import unittest
 from secrets import token_hex
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
 import numpy as np
 from osgeo import gdal, gdalconst
@@ -247,6 +248,176 @@ class TestGDALTileFactory(TestCase):
         assert tile_dataset.RasterXSize == 256
         assert tile_dataset.RasterYSize == 256
         assert tile_dataset.GetDriver().ShortName == GDALImageFormats.PNG
+
+    def test_normalize_image_dra(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
+        gdal_tile_factory = GDALTileFactory(
+            MagicMock(spec=gdal.Dataset),
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.DRA,
+        )
+        pixel_array = np.array([[10, 20, 30], [40, 50, 60]], dtype=np.uint8)
+
+        with patch.object(gdal_tile_factory, "_normalize_bands") as mock_normalize_bands:
+            gdal_tile_factory._normalize_image_for_display(pixel_array)
+            mock_normalize_bands.assert_called_once_with(pixel_array, gdal_tile_factory._normalize_band_dra)
+
+    def test_normalize_image_minmax(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
+        gdal_tile_factory = GDALTileFactory(
+            MagicMock(spec=gdal.Dataset),
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.MINMAX,
+        )
+        pixel_array = np.array([[10, 20, 30], [40, 50, 60]], dtype=np.uint8)
+
+        with patch.object(gdal_tile_factory, "_normalize_bands") as mock_normalize_bands:
+            gdal_tile_factory._normalize_image_for_display(pixel_array)
+            mock_normalize_bands.assert_called_once_with(pixel_array, gdal_tile_factory._normalize_band_minmax)
+
+    def test_normalize_image_none(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
+        gdal_tile_factory = GDALTileFactory(
+            MagicMock(spec=gdal.Dataset),
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.NONE,
+        )
+        pixel_array = np.array([[10, 20, 30], [40, 50, 60]], dtype=np.uint8)
+
+        normalized_pixels = gdal_tile_factory._normalize_image_for_display(pixel_array)
+        np.testing.assert_array_equal(normalized_pixels, pixel_array.astype(np.uint8))
+
+    def test_normalize_bands_single_band(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
+        gdal_tile_factory = GDALTileFactory(
+            MagicMock(spec=gdal.Dataset),
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.MINMAX,
+        )
+        pixel_array = np.array([[10, 20, 30], [40, 50, 60]], dtype=np.uint8)
+
+        with patch.object(
+            gdal_tile_factory,
+            "_normalize_band_minmax",
+            return_value=np.array([[0, 128, 255], [0, 128, 255]], dtype=np.uint8),
+        ) as mock_normalize_band_minmax:
+            normalized_pixels = gdal_tile_factory._normalize_bands(pixel_array, gdal_tile_factory._normalize_band_minmax)
+            mock_normalize_band_minmax.assert_called_once_with(
+                gdal_tile_factory.raster_dataset.GetRasterBand(1), pixel_array
+            )
+            np.testing.assert_array_equal(normalized_pixels, np.array([[0, 128, 255], [0, 128, 255]], dtype=np.uint8))
+
+    def test_normalize_bands_multi_band(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
+        gdal_tile_factory = GDALTileFactory(
+            MagicMock(spec=gdal.Dataset),
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.MINMAX,
+        )
+        pixel_array = np.array([[[10, 20, 30], [40, 50, 60]], [[70, 80, 90], [100, 110, 120]]], dtype=np.uint8)
+
+        with patch.object(
+            gdal_tile_factory,
+            "_normalize_band_minmax",
+            return_value=np.array([[20, 40], [20, 40]], dtype=np.uint8),
+        ) as mock_normalize_band_minmax:
+            normalized_pixels = gdal_tile_factory._normalize_bands(pixel_array, gdal_tile_factory._normalize_band_minmax)
+            self.assertEqual(mock_normalize_band_minmax.call_count, 3)
+            np.testing.assert_array_equal(
+                normalized_pixels,
+                np.array(
+                    [[[20, 20, 20], [40, 40, 40]], [[20, 20, 20], [40, 40, 40]]],
+                    dtype=np.uint8,
+                ),
+            )
+
+    def test_normalize_bands_not_enough_bands(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
+        gdal_tile_factory = GDALTileFactory(
+            MagicMock(spec=gdal.Dataset),
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.MINMAX,
+        )
+        pixel_array = np.array([[[10, 20], [40, 50]], [[70, 80], [100, 110]]], dtype=np.uint8)
+
+        with patch.object(
+            gdal_tile_factory,
+            "_normalize_band_minmax",
+        ) as mock_normalize_band_minmax:
+            normalized_pixels = gdal_tile_factory._normalize_bands(pixel_array, gdal_tile_factory._normalize_band_minmax)
+            self.assertEqual(mock_normalize_band_minmax.call_count, 0)
+            np.testing.assert_array_equal(normalized_pixels, pixel_array)
+
+    def test_normalize_band_minmax(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
+        gdal_tile_factory = GDALTileFactory(
+            MagicMock(spec=gdal.Dataset),
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.MINMAX,
+        )
+        pixel_array = np.array([[10, 20, 30], [40, 50, 60]], dtype=np.uint8)
+        band = MagicMock(spec=gdal.Band)
+        band.GetMinimum.return_value = 10
+        band.GetMaximum.return_value = 60
+
+        normalized_pixels = gdal_tile_factory._normalize_band_minmax(band, pixel_array)
+        np.testing.assert_array_equal(normalized_pixels, np.array([[0, 42, 85], [127, 170, 212]], dtype=np.uint8))
+
+    def test_normalize_band_minmax_no_band_data(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
+        gdal_tile_factory = GDALTileFactory(
+            MagicMock(spec=gdal.Dataset),
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.MINMAX,
+        )
+        pixel_array = np.array([[10, 20, 30], [40, 50, 60]], dtype=np.uint8)
+        band = MagicMock(spec=gdal.Band)
+        band.GetMinimum.return_value = None
+        band.GetMaximum.return_value = None
+
+        normalized_pixels = gdal_tile_factory._normalize_band_minmax(band, pixel_array)
+        np.testing.assert_array_equal(normalized_pixels, np.array([[0, 42, 85], [127, 170, 212]], dtype=np.uint8))
+
+    def test_normalize_band_dra(self):
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
+        gdal_tile_factory = GDALTileFactory(
+            MagicMock(spec=gdal.Dataset),
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.DRA,
+        )
+        pixel_array = np.array([[50, 75, 100], [125, 150, 175]], dtype=np.uint8)
+        band = MagicMock(spec=gdal.Band)
+        band.GetHistogram.return_value = [0 for i in range(20)] + [10 for i in range(216)] + [0 for i in range(20)]
+
+        normalized_pixels = gdal_tile_factory._normalize_band_dra(band, pixel_array)
+        np.testing.assert_array_equal(normalized_pixels, np.array([[35, 65, 94], [124, 154, 183]], dtype=np.uint8))
 
 
 if __name__ == "__main__":
