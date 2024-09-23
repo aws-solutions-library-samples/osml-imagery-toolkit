@@ -1,0 +1,7 @@
+aws.osml.image\_processing.sidd\_updater module
+===============================================
+
+.. automodule:: aws.osml.image_processing.sidd_updater
+   :members:
+   :undoc-members:
+   :show-inheritance:

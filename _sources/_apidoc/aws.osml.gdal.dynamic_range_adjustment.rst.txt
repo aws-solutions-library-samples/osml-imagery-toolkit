@@ -1,0 +1,7 @@
+aws.osml.gdal.dynamic\_range\_adjustment module
+===============================================
+
+.. automodule:: aws.osml.gdal.dynamic_range_adjustment
+   :members:
+   :undoc-members:
+   :show-inheritance:

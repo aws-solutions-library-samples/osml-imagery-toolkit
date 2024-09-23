@@ -1,0 +1,17 @@
+aws.osml.features package
+=========================
+
+.. automodule:: aws.osml.features
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   aws.osml.features.feature_index
+   aws.osml.features.geolocation
+   aws.osml.features.imaged_feature_property_accessor

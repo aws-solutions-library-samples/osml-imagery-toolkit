@@ -1,0 +1,29 @@
+aws.osml.photogrammetry package
+===============================
+
+.. automodule:: aws.osml.photogrammetry
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   aws.osml.photogrammetry.chipped_image_sensor_model
+   aws.osml.photogrammetry.composite_sensor_model
+   aws.osml.photogrammetry.coordinates
+   aws.osml.photogrammetry.digital_elevation_model
+   aws.osml.photogrammetry.elevation_model
+   aws.osml.photogrammetry.gdal_sensor_model
+   aws.osml.photogrammetry.generic_dem_tile_set
+   aws.osml.photogrammetry.math_utils
+   aws.osml.photogrammetry.projective_sensor_model
+   aws.osml.photogrammetry.replacement_sensor_model
+   aws.osml.photogrammetry.rpc_sensor_model
+   aws.osml.photogrammetry.sensor_model
+   aws.osml.photogrammetry.sicd_sensor_model
+   aws.osml.photogrammetry.srtm_dem_tile_set
+   aws.osml.photogrammetry.transforms

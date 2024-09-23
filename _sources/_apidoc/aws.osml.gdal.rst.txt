@@ -1,0 +1,29 @@
+aws.osml.gdal package
+=====================
+
+.. automodule:: aws.osml.gdal
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   aws.osml.gdal.dynamic_range_adjustment
+   aws.osml.gdal.gdal_config
+   aws.osml.gdal.gdal_dem_tile_factory
+   aws.osml.gdal.gdal_sensor_model_builder
+   aws.osml.gdal.gdal_utils
+   aws.osml.gdal.nitf_des_accessor
+   aws.osml.gdal.projective_sensor_model_builder
+   aws.osml.gdal.rpc_sensor_model_builder
+   aws.osml.gdal.rsm_sensor_model_builder
+   aws.osml.gdal.sensor_model_builder
+   aws.osml.gdal.sensor_model_factory
+   aws.osml.gdal.sicd_sensor_model_builder
+   aws.osml.gdal.sidd_sensor_model_builder
+   aws.osml.gdal.typing
+   aws.osml.gdal.xmltre_utils
