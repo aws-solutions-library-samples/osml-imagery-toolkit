@@ -225,11 +225,21 @@ class GDALTileFactory:
         src = self._read_from_rlevel_as_array(overview_bbox, r_level)
         logger.debug(f"src.shape = {src.shape}")
 
+        # Add a replicate border around the source image to handle out-of-bound coordinates during remapping.
+        # When using cv2.remap, some coordinates may fall outside the boundaries of the source image.
+        # Using cv2.BORDER_CONSTANT or setting scalar values will assign a default color (such as black)
+        # to pixels around the border, leading to unwanted uniform-colored edges.
+        # By using cv2.BORDER_REPLICATE, the edge pixels of the source image are repeated in the border region,
+        # allowing remap to use valid pixel values for out-of-bound coordinates, avoiding default color (black lines)
+        # around the output image.
+        border_size = 2
+        src_bordered = cv2.copyMakeBorder(src, border_size, border_size, border_size, border_size, cv2.BORDER_REPLICATE)
+
         # Update the src_x and src_y coordinates because we cropped the image and pulled it from a different
         # resolution level. The original coordinates assumed the image origin at 0,0 in a full resolution
-        # image
-        src_x = (src_x - src_bbox[0]) / 2**r_level
-        src_y = (src_y - src_bbox[1]) / 2**r_level
+        # image and adjusted the remapping coordinates to account for the added border
+        src_x = (src_x - src_bbox[0]) / 2**r_level + border_size
+        src_y = (src_y - src_bbox[1]) / 2**r_level + border_size
 
         # Create 2D linear interpolators that map the pixels in the map tile to x and y values in the source image.
         # This will allow us to efficiently generate the maps needed by the opencv::remap function for every pixel
@@ -251,18 +261,8 @@ class GDALTileFactory:
         logger.debug(f"map1.shape = {map1.shape}")
         logger.debug(f"map2.shape = {map2.shape}")
 
-        # Set the scalar for out of bounds pixels to 0 and bias the image just slightly such that all values
-        # of 0 in the output are only from out of bounds pixels.  Valid range for the scalar is 0-255 [int|tuple].
-        scalar = 0
-        if src.ndim == 2:  # 1-band grayscale
-            src[src == 0] = 1
-        elif src.ndim >= 3 and src.shape[2] == 3:  # 3-band
-            scalar = (0, 0, 0)
-            src[(src == [0, 0, 0]).all(axis=2)] = [0, 0, 1]
-        logger.debug(f"scalar = {scalar}")
-
         # Transform image
-        dst = cv2.remap(src, map1, map2, cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=scalar)
+        dst = cv2.remap(src_bordered, map1, map2, cv2.INTER_LINEAR)
 
         # Create alpha layer mask
         alpha_mask = None
