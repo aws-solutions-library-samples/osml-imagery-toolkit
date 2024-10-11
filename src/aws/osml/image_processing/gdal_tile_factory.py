@@ -15,6 +15,7 @@ from aws.osml.gdal import GDALCompressionOptions, GDALImageFormats, NITFDESAcces
 from aws.osml.gdal.dynamic_range_adjustment import DRAParameters
 from aws.osml.photogrammetry import GeodeticWorldCoordinate, ImageCoordinate, SensorModel
 
+from .sar_complex_imageop import quarter_power_image
 from .sicd_updater import SICDUpdater
 from .sidd_updater import SIDDUpdater
 
@@ -172,15 +173,29 @@ class GDALTileFactory:
 
         # Use the sensor model to compute the image pixel location that corresponds to each
         # world coordinate in the map tile grid. Separate those results into arrays of the x, y
-        # component.
+        # component. Note that if an external elevation model is not provided this code will
+        # use a default elevation provided by the sensor model for a location at the center of
+        # the image.
+        center_x = self.raster_dataset.RasterXSize / 2
+        center_y = self.raster_dataset.RasterYSize / 2
+        geo_image_center = self.sensor_model.image_to_world(ImageCoordinate([center_y, center_x]))
+
         def world_to_image_func(lon, lat):
             # TODO: Assign the elevation from a DEM
-            return self.sensor_model.world_to_image(GeodeticWorldCoordinate([lon, lat, 0.0]))
+            default_elevation = geo_image_center.elevation
+            return self.sensor_model.world_to_image(GeodeticWorldCoordinate([lon, lat, default_elevation]))
 
-        world_to_image_func_vectorized = np.vectorize(world_to_image_func)
-        src_coords = world_to_image_func_vectorized(world_xv, world_yv)
-        src_x = np.vectorize(lambda image_coord: image_coord.x)(src_coords)
-        src_y = np.vectorize(lambda image_coord: image_coord.y)(src_coords)
+        try:
+            world_to_image_func_vectorized = np.vectorize(world_to_image_func)
+            src_coords = world_to_image_func_vectorized(world_xv, world_yv)
+            src_x = np.vectorize(lambda image_coord: image_coord.x)(src_coords)
+            src_y = np.vectorize(lambda image_coord: image_coord.y)(src_coords)
+        except Exception as e:
+            # Unable to convert the map tile coordinates to image coordinates using the sensor model.
+            # This usually means at least one coordinate isn't near the image and fell outside the range
+            # of values the sensor model could create. No map tile can be created from this image.
+            logger.debug("Unable to convert map tile coordinates to image coordinates.", e)
+            return None
 
         # Find min/max x and y for this grid and check to make sure it actually overlaps the image.
         src_bbox = (
@@ -196,11 +211,23 @@ class GDALTileFactory:
             or src_bbox[3] < 0
         ):
             # Source bbox does not intersect the image, no tile to create
+            logger.debug(
+                f"Requested map tile does not overlap with image: map bbox: {src_bbox}"
+                f" image bbox: {(0, 0, self.raster_dataset.RasterXSize, self.raster_dataset.RasterYSize)}"
+            )
             return None
 
-        # Clip the source to the extent of the image and then select an overview level of similar resolution to the
-        # desired map tile. This will ensure we only read the minimum number of pixels necessary and warp them as
-        # little as possible.
+        # Select the image overview level that most closely matches the ground sample distance of the
+        # requested map tile. Note that this must be done before the source bounding box is clipped to the
+        # actual image extend otherwise tiles that only overlap on the edge of the image may be read from a
+        # very different resolution level than the other tiles at a similar map zoom level.
+        def find_appropriate_r_level(src_bbox, tile_width) -> int:
+            src_dim = np.min([src_bbox[2] - src_bbox[0], src_bbox[3] - src_bbox[1]])
+            return int(np.max([0, int(np.floor(np.log2(src_dim / tile_width)))]))
+
+        num_overviews = self.raster_dataset.GetRasterBand(1).GetOverviewCount()
+        r_level = min(find_appropriate_r_level(src_bbox, tile_size[0]), num_overviews)
+
         src_bbox = (
             max(src_bbox[0], 0),
             max(src_bbox[1], 0),
@@ -209,12 +236,6 @@ class GDALTileFactory:
         )
         logger.debug(f"After Clip to Image Bounds src_bbox = {src_bbox}")
 
-        def find_appropriate_r_level(src_bbox, tile_width) -> int:
-            src_dim = np.min([src_bbox[2] - src_bbox[0], src_bbox[3] - src_bbox[1]])
-            return int(np.max([0, int(np.floor(np.log2(src_dim / tile_width)))]))
-
-        num_overviews = self.raster_dataset.GetRasterBand(1).GetOverviewCount()
-        r_level = min(find_appropriate_r_level(src_bbox, tile_size[0]), num_overviews)
         overview_bbox = tuple([int(x / 2**r_level) for x in src_bbox])
         logger.debug(f"Using r-level: {r_level}")
         logger.debug(f"overview_bbox = {overview_bbox}")
@@ -224,6 +245,12 @@ class GDALTileFactory:
         # map tile. This data becomes the "src" in the cv2.remap transformation.
         src = self._read_from_rlevel_as_array(overview_bbox, r_level)
         logger.debug(f"src.shape = {src.shape}")
+
+        # Convert the raw image pixels into a 8-bit per pixel image suitable for human review. These transformations
+        # are applied before the remapping because the remapping itself may alter the distribution of pixel values
+        # and the normalization itself may rely on precomputed pixel statistics/histograms that were calculated
+        # based on the raw pixel values.
+        src = self._normalize_image_for_display(src)
 
         # Add a replicate border around the source image to handle out-of-bound coordinates during remapping.
         # When using cv2.remap, some coordinates may fall outside the boundaries of the source image.
@@ -270,7 +297,7 @@ class GDALTileFactory:
             all_channel_pixels_mask = dst != 0
             alpha_mask = np.zeros_like(dst, dtype=np.uint8)
             alpha_mask[all_channel_pixels_mask] = 255
-        elif dst.ndim >= 3 and dst.shape[2] == 3:  # 3-band
+        elif dst.ndim >= 3:  # multi band image e.g. RGB, complex SAR, MSI, etc.
             all_channel_pixels_mask = np.all(dst != 0, axis=2)
             alpha_mask = np.zeros_like(dst[..., 0], dtype=np.uint8)
             alpha_mask[all_channel_pixels_mask] = 255
@@ -281,8 +308,7 @@ class GDALTileFactory:
         else:
             logger.debug(f"alpha_mask = None.  Image has {dst.ndim} dimensions.")
 
-        output_tile_pixels = self._normalize_image_for_display(dst)
-
+        output_tile_pixels = dst
         if alpha_mask is not None:
             # imencode does not support 2-band (grayscale + alpha) so the workaround is to convert to 3-band
             if output_tile_pixels.ndim == 2:
@@ -380,9 +406,35 @@ class GDALTileFactory:
 
             # Combine the normalized bands into a single image
             normalized_pixels = np.stack(normalized_bands, axis=2)
+        elif pixel_array.ndim == 3 and pixel_array.shape[2] == 2:
+            # TODO: Better checks to ensure this is a Complex SAR image and not an arbitrary 2-band image
+            logger.debug("Complex SAR Image Pixels. Computing quarter power image for visualization")
+            normalized_pixels = self._normalize_complex_sar(pixel_array)
         else:
             logger.debug("Skipping normalization.")
             normalized_pixels = pixel_array.astype(np.uint8)
+        return normalized_pixels
+
+    def _normalize_complex_sar(self, pixel_array):
+        """
+        This method combines the 2-band complex SAR pixels into a single power image and then adjusts the histogram
+        to fit neatly into a 0-255 range.
+
+        :param pixel_array: the input image pixels
+        :return: a visualization ready quarter power image of the SAR complex values (1 band, 8-bit per pixel)
+        """
+        precomputed_mean = None
+        approx_abs_band_means = []
+        for band_num in range(1, self.raster_dataset.RasterCount + 1):
+            band_stats = self.raster_dataset.GetRasterBand(band_num).GetStatistics(True, False)
+            if band_stats and len(band_stats) == 4:
+                min_value, max_value, mean_value, std_value = band_stats
+                approx_abs_band_means.append(std_value * 50 / 68 + mean_value)
+        if len(approx_abs_band_means) > 0:
+            precomputed_mean = np.sqrt(np.sum(np.square(approx_abs_band_means)))
+
+        band_first = pixel_array.transpose((2, 0, 1))
+        normalized_pixels = quarter_power_image(band_first, scale_factor=3.0, precomputed_mean=precomputed_mean)
         return normalized_pixels
 
     @staticmethod

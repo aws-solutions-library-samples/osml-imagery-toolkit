@@ -249,6 +249,70 @@ class TestGDALTileFactory(TestCase):
         assert tile_dataset.RasterYSize == 256
         assert tile_dataset.GetDriver().ShortName == GDALImageFormats.PNG
 
+    def test_create_map_tiles_for_sicd(self):
+        tile_set_id = "WebMercatorQuad"
+        tile_set = MapTileSetFactory.get_for_id(tile_set_id)
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/sicd/capella-sicd130-chip1.ntf")
+
+        tile_factory = GDALTileFactory(
+            full_dataset,
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.DRA,
+        )
+        width = full_dataset.RasterXSize
+        height = full_dataset.RasterYSize
+        image_corners = [[0, 0], [width, 0], [width, height], [0, height]]
+        geo_image_corners = [tile_factory.sensor_model.image_to_world(ImageCoordinate(corner)) for corner in image_corners]
+        for level in range(0, 25):
+            min_tile_col, min_tile_row, max_tile_col, max_tile_row = tile_set.get_tile_matrix_limits_for_area(
+                boundary_coordinates=geo_image_corners, tile_matrix=level
+            )
+            if min_tile_col != max_tile_col or min_tile_row != max_tile_row:
+                break
+
+            tile_matrix = level
+            tile_row = min_tile_row
+            tile_col = min_tile_col
+
+        map_tile = tile_set.get_tile(MapTileId(tile_matrix=tile_matrix, tile_row=tile_row, tile_col=tile_col))
+        encoded_tile_data = tile_factory.create_orthophoto_tile(geo_bbox=map_tile.bounds, tile_size=map_tile.size)
+        assert encoded_tile_data is not None
+
+        temp_ds_name = "/vsimem/" + token_hex(16) + ".PNG"
+        gdal.FileFromMemBuffer(temp_ds_name, encoded_tile_data)
+        tile_dataset = gdal.Open(temp_ds_name)
+        assert tile_dataset.RasterXSize == 256
+        assert tile_dataset.RasterYSize == 256
+        assert tile_dataset.GetDriver().ShortName == GDALImageFormats.PNG
+
+    def test_create_map_tiles_for_sidd(self):
+        tile_set_id = "WebMercatorQuad"
+        tile_set = MapTileSetFactory.get_for_id(tile_set_id)
+        full_dataset, sensor_model = load_gdal_dataset("./test/data/sidd/umbra-sidd200-chip1.ntf")
+        tile_factory = GDALTileFactory(
+            full_dataset,
+            sensor_model,
+            GDALImageFormats.PNG,
+            GDALCompressionOptions.NONE,
+            output_type=gdalconst.GDT_Byte,
+            range_adjustment=RangeAdjustmentType.DRA,
+        )
+        tile_matrix = 0
+        tile_row = 0
+        tile_col = 0
+        map_tile = tile_set.get_tile(MapTileId(tile_matrix=tile_matrix, tile_row=tile_row, tile_col=tile_col))
+        encoded_tile_data = tile_factory.create_orthophoto_tile(geo_bbox=map_tile.bounds, tile_size=map_tile.size)
+        assert encoded_tile_data is not None
+        temp_ds_name = "/vsimem/" + token_hex(16) + ".PNG"
+        gdal.FileFromMemBuffer(temp_ds_name, encoded_tile_data)
+        tile_dataset = gdal.Open(temp_ds_name)
+        assert tile_dataset.RasterXSize == 256
+        assert tile_dataset.RasterYSize == 256
+        assert tile_dataset.GetDriver().ShortName == GDALImageFormats.PNG
+
     def test_normalize_image_dra(self):
         full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
         gdal_tile_factory = GDALTileFactory(
@@ -345,26 +409,6 @@ class TestGDALTileFactory(TestCase):
                     dtype=np.uint8,
                 ),
             )
-
-    def test_normalize_bands_not_enough_bands(self):
-        full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
-        gdal_tile_factory = GDALTileFactory(
-            MagicMock(spec=gdal.Dataset),
-            sensor_model,
-            GDALImageFormats.PNG,
-            GDALCompressionOptions.NONE,
-            output_type=gdalconst.GDT_Byte,
-            range_adjustment=RangeAdjustmentType.MINMAX,
-        )
-        pixel_array = np.array([[[10, 20], [40, 50]], [[70, 80], [100, 110]]], dtype=np.uint8)
-
-        with patch.object(
-            gdal_tile_factory,
-            "_normalize_band_minmax",
-        ) as mock_normalize_band_minmax:
-            normalized_pixels = gdal_tile_factory._normalize_bands(pixel_array, gdal_tile_factory._normalize_band_minmax)
-            self.assertEqual(mock_normalize_band_minmax.call_count, 0)
-            np.testing.assert_array_equal(normalized_pixels, pixel_array)
 
     def test_normalize_band_minmax(self):
         full_dataset, sensor_model = load_gdal_dataset("./test/data/small.tif")
