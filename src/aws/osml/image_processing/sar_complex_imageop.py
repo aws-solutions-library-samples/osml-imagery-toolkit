@@ -98,7 +98,9 @@ def histogram_stretch_mag_values(magnitude_values: np.ndarray, scale_factor: flo
     return np.clip(255.0 * u * magnitude_values, 0.0, 255.0)
 
 
-def quarter_power_mag_values(magnitude_values: np.ndarray, scale_factor: float = 3.0):
+def quarter_power_mag_values(
+    magnitude_values: np.ndarray, scale_factor: float = 3.0, precomputed_mean: Optional[float] = None
+):
     """
     This function converts image pixel magnitudes to a Quarter-Power Image using equations
     found in Section 3.2 of SAR Image Scaling, Dynamic Range, Radiometric Calibration, and Display
@@ -106,10 +108,13 @@ def quarter_power_mag_values(magnitude_values: np.ndarray, scale_factor: float =
 
     :param magnitude_values: SAR magnitude values
     :param scale_factor: a brightness factor that is typically between 5 and 3
+    :param precomputed_mean: a precomputed mean of magnitude usually taken from a larger set of pixels
     :return: the quantized grayscale image clipped to the range of [0:255]
     """
     sqrt_magnitude = np.sqrt(np.abs(magnitude_values))
-    mean_value = np.mean(sqrt_magnitude[np.isfinite(sqrt_magnitude)])
+    mean_value = precomputed_mean
+    if mean_value is None:
+        mean_value = np.mean(sqrt_magnitude[np.isfinite(sqrt_magnitude)])
     b = 1 / (scale_factor * mean_value)
     return np.clip(255.0 * b * sqrt_magnitude, 0.0, 255.0)
 
@@ -142,6 +147,7 @@ def quarter_power_image(
     pixel_type: Optional[str] = None,
     amplitude_table: Optional[np.typing.ArrayLike] = None,
     scale_factor: float = 3.0,
+    precomputed_mean: Optional[float] = None,
 ) -> np.ndarray:
     """
     This function converts SAR image pixels to an 8-bit grayscale image pixel magnitudes to a Quarter-Power
@@ -152,8 +158,9 @@ def quarter_power_image(
     :param pixel_type: "AMP8I_PHS8I", "RE32F_IM32F", or "RE16I_IM16I"
     :param amplitude_table: optional lookup table of amplitude values for AMP8I_PHS8I image pixels
     :param scale_factor: a brightness factor that is typically between 5 and 3
+    :param precomputed_mean: a precomputed mean of magnitude usually taken from a larger set of pixels
     :return: the quantized grayscale image clipped to the range of [0:255]
     """
     complex_data = image_pixels_to_complex(image_pixels, pixel_type=pixel_type, amplitude_table=amplitude_table)
     power_values = complex_to_power_value(complex_data)
-    return quarter_power_mag_values(power_values, scale_factor=scale_factor)
+    return quarter_power_mag_values(power_values, scale_factor=scale_factor, precomputed_mean=precomputed_mean)
