@@ -1,0 +1,202 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.gdal.sicd_sensor_model_builder module &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">aws.osml.gdal.sicd_sensor_model_builder module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_apidoc/aws.osml.gdal.sicd_sensor_model_builder.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-aws.osml.gdal.sicd_sensor_model_builder">
+<span id="aws-osml-gdal-sicd-sensor-model-builder-module"></span><h1>aws.osml.gdal.sicd_sensor_model_builder module<a class="headerlink" href="#module-aws.osml.gdal.sicd_sensor_model_builder" title="Link to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="aws.osml.gdal.sicd_sensor_model_builder.xyztype_to_ndarray">
+<span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.sicd_sensor_model_builder.</span></span><span class="sig-name descname"><span class="pre">xyztype_to_ndarray</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyztype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.formats.sicd.models.sicd_v1_2_1.html#aws.osml.formats.sicd.models.sicd_v1_2_1.XYZType" title="aws.osml.formats.sicd.models.sicd_v1_2_1.XYZType"><span class="pre">XYZType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.formats.sicd.models.sicd_v1_3_0.html#aws.osml.formats.sicd.models.sicd_v1_3_0.XYZType" title="aws.osml.formats.sicd.models.sicd_v1_3_0.XYZType"><span class="pre">XYZType</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/sicd_sensor_model_builder.html#xyztype_to_ndarray"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.sicd_sensor_model_builder.xyztype_to_ndarray" title="Link to this definition"></a></dt>
+<dd><p>Convert the XYZType to a 1-d NumPy array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xyztype</strong> – the XYZType dataclass</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the NumPy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aws.osml.gdal.sicd_sensor_model_builder.poly1d_to_native">
+<span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.sicd_sensor_model_builder.</span></span><span class="sig-name descname"><span class="pre">poly1d_to_native</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poly1d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.formats.sicd.models.sicd_v1_2_1.html#aws.osml.formats.sicd.models.sicd_v1_2_1.Poly1DType" title="aws.osml.formats.sicd.models.sicd_v1_2_1.Poly1DType"><span class="pre">Poly1DType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.formats.sicd.models.sicd_v1_3_0.html#aws.osml.formats.sicd.models.sicd_v1_3_0.XYZType" title="aws.osml.formats.sicd.models.sicd_v1_3_0.XYZType"><span class="pre">XYZType</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Polynomial</span></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/sicd_sensor_model_builder.html#poly1d_to_native"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.sicd_sensor_model_builder.poly1d_to_native" title="Link to this definition"></a></dt>
+<dd><p>Convert the Poly1DType to a NumPy Polynomial.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>poly1d</strong> – the Poly1D dataclass</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the NumPy polynomial with matching coefficients</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aws.osml.gdal.sicd_sensor_model_builder.poly2d_to_native">
+<span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.sicd_sensor_model_builder.</span></span><span class="sig-name descname"><span class="pre">poly2d_to_native</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poly2d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.formats.sicd.models.sicd_v1_2_1.html#aws.osml.formats.sicd.models.sicd_v1_2_1.Poly2DType" title="aws.osml.formats.sicd.models.sicd_v1_2_1.Poly2DType"><span class="pre">Poly2DType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.formats.sicd.models.sicd_v1_3_0.html#aws.osml.formats.sicd.models.sicd_v1_3_0.Poly2DType" title="aws.osml.formats.sicd.models.sicd_v1_3_0.Poly2DType"><span class="pre">Poly2DType</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D" title="aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D"><span class="pre">Polynomial2D</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/sicd_sensor_model_builder.html#poly2d_to_native"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.sicd_sensor_model_builder.poly2d_to_native" title="Link to this definition"></a></dt>
+<dd><p>Convert the Poly2D dataclass to a Polynomial2D.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>poly2d</strong> – the Poly2D dataclass</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the Polynomial2D with matching coefficients</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aws.osml.gdal.sicd_sensor_model_builder.xyzpoly_to_native">
+<span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.sicd_sensor_model_builder.</span></span><span class="sig-name descname"><span class="pre">xyzpoly_to_native</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xyzpoly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.formats.sicd.models.sicd_v1_2_1.html#aws.osml.formats.sicd.models.sicd_v1_2_1.XYZPolyType" title="aws.osml.formats.sicd.models.sicd_v1_2_1.XYZPolyType"><span class="pre">XYZPolyType</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.formats.sicd.models.sicd_v1_3_0.html#aws.osml.formats.sicd.models.sicd_v1_3_0.XYZPolyType" title="aws.osml.formats.sicd.models.sicd_v1_3_0.XYZPolyType"><span class="pre">XYZPolyType</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ" title="aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ"><span class="pre">PolynomialXYZ</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/sicd_sensor_model_builder.html#xyzpoly_to_native"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.sicd_sensor_model_builder.xyzpoly_to_native" title="Link to this definition"></a></dt>
+<dd><p>Convert the XYZPoly dataclass into a PolynomialXYZ.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xyzpoly</strong> – the XYZPoly dataclass</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the PolynomialXYZ with matching coefficients</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.gdal.sicd_sensor_model_builder.SICDSensorModelBuilder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.sicd_sensor_model_builder.</span></span><span class="sig-name descname"><span class="pre">SICDSensorModelBuilder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sicd_xml</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/gdal/sicd_sensor_model_builder.html#SICDSensorModelBuilder"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.sicd_sensor_model_builder.SICDSensorModelBuilder" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="aws.osml.gdal.sensor_model_builder.html#aws.osml.gdal.sensor_model_builder.SensorModelBuilder" title="aws.osml.gdal.sensor_model_builder.SensorModelBuilder"><code class="xref py py-class docutils literal notranslate"><span class="pre">SensorModelBuilder</span></code></a></p>
+<p>This builder is used to create sensor models for images that have SICD metadata. The metadata is provided
+as XML that conforms to the SICD specifications. We intend to support multiple SICD versions but the current
+software was implemented using the v1.2.1 and v1.3.0 specifications.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.gdal.sicd_sensor_model_builder.SICDSensorModelBuilder.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.sensor_model.html#aws.osml.photogrammetry.sensor_model.SensorModel" title="aws.osml.photogrammetry.sensor_model.SensorModel"><span class="pre">SensorModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/sicd_sensor_model_builder.html#SICDSensorModelBuilder.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.sicd_sensor_model_builder.SICDSensorModelBuilder.build" title="Link to this definition"></a></dt>
+<dd><p>Attempt to build a precise SAR sensor model. This sensor model handles chipped images natively.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the sensor model; if available</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.gdal.sicd_sensor_model_builder.SICDSensorModelBuilder.from_dataclass">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dataclass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sicd</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.formats.sicd.models.sicd_v1_2_1.html#aws.osml.formats.sicd.models.sicd_v1_2_1.SICD" title="aws.osml.formats.sicd.models.sicd_v1_2_1.SICD"><span class="pre">SICD</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.formats.sicd.models.sicd_v1_3_0.html#aws.osml.formats.sicd.models.sicd_v1_3_0.SICD" title="aws.osml.formats.sicd.models.sicd_v1_3_0.SICD"><span class="pre">SICD</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.sensor_model.html#aws.osml.photogrammetry.sensor_model.SensorModel" title="aws.osml.photogrammetry.sensor_model.SensorModel"><span class="pre">SensorModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/sicd_sensor_model_builder.html#SICDSensorModelBuilder.from_dataclass"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.sicd_sensor_model_builder.SICDSensorModelBuilder.from_dataclass" title="Link to this definition"></a></dt>
+<dd><p>This method constructs a SICD sensor model from the python dataclasses generated when parsing the XML.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sicd</strong> – the dataclass object constructed from the XML</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the sensor model; if available</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

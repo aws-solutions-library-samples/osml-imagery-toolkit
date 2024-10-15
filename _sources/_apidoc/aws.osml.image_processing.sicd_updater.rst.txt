@@ -1,0 +1,7 @@
+aws.osml.image\_processing.sicd\_updater module
+===============================================
+
+.. automodule:: aws.osml.image_processing.sicd_updater
+   :members:
+   :undoc-members:
+   :show-inheritance:

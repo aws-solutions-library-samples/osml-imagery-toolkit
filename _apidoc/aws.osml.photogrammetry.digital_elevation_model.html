@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.photogrammetry.digital_elevation_model module &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">aws.osml.photogrammetry.digital_elevation_model module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_apidoc/aws.osml.photogrammetry.digital_elevation_model.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-aws.osml.photogrammetry.digital_elevation_model">
+<span id="aws-osml-photogrammetry-digital-elevation-model-module"></span><h1>aws.osml.photogrammetry.digital_elevation_model module<a class="headerlink" href="#module-aws.osml.photogrammetry.digital_elevation_model" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.digital_elevation_model.</span></span><span class="sig-name descname"><span class="pre">DigitalElevationModelTileSet</span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/digital_elevation_model.html#DigitalElevationModelTileSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>This class defines an abstraction that is capable of identifying which elevation tile in a
+DEM contains the elevations for a given world coordinate. It is common to split a DEM with
+global coverage up into a collection of files with well understood coverage areas. Those files
+may follow a simple naming convention but could be cataloged in an external spatial index. This
+class abstracts those details away from the DigitalElevationModel allowing us to easily extend
+this design to various tile sets.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileSet.find_tile_id">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_tile_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geodetic_world_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/digital_elevation_model.html#DigitalElevationModelTileSet.find_tile_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileSet.find_tile_id" title="Link to this definition"></a></dt>
+<dd><p>Converts the latitude, longitude of the world coordinate into a tile path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>geodetic_world_coordinate</strong> – GeodeticWorldCoordinate = the world coordinate of interest</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the tile path or None if the DEM does not have coverage for this location</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.digital_elevation_model.</span></span><span class="sig-name descname"><span class="pre">DigitalElevationModelTileFactory</span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/digital_elevation_model.html#DigitalElevationModelTileFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileFactory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>This class defines an abstraction that is able to load a tile and convert it to a Numpy array
+of elevation data along with a SensorModel that can be used to identify the grid locations
+associated with a latitude, longitude.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileFactory.get_tile">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_tile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.photogrammetry.sensor_model.html#aws.osml.photogrammetry.sensor_model.SensorModel" title="aws.osml.photogrammetry.sensor_model.SensorModel"><span class="pre">SensorModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.photogrammetry.elevation_model.html#aws.osml.photogrammetry.elevation_model.ElevationRegionSummary" title="aws.osml.photogrammetry.elevation_model.ElevationRegionSummary"><span class="pre">ElevationRegionSummary</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/digital_elevation_model.html#DigitalElevationModelTileFactory.get_tile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileFactory.get_tile" title="Link to this definition"></a></dt>
+<dd><p>Retrieve a numpy array of elevation values and a sensor model.</p>
+<p>TODO: Replace Any with numpy.typing.ArrayLike once we move to numpy &gt;1.20</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tile_path</strong> – the location of the tile to load</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>an array of elevation values, a sensor model, and a summary</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.digital_elevation_model.</span></span><span class="sig-name descname"><span class="pre">DigitalElevationModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tile_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileSet" title="aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileSet"><span class="pre">DigitalElevationModelTileSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_factory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileFactory" title="aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileFactory"><span class="pre">DigitalElevationModelTileFactory</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">raster_cache_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/digital_elevation_model.html#DigitalElevationModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="aws.osml.photogrammetry.elevation_model.html#aws.osml.photogrammetry.elevation_model.ElevationModel" title="aws.osml.photogrammetry.elevation_model.ElevationModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElevationModel</span></code></a></p>
+<p>A Digital Elevation Model (DEM) is a representation of the topographic surface of the Earth. Theoretically
+these representations exclude trees, buildings, and any other surface objects but in practice elevations
+from those objects are likely captured by the sensors use to capture the elevation data.</p>
+<p>These datasets are normally stored as a pre-tiled collection of images with a well established resolution and
+coverage.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModel.set_elevation">
+<span class="sig-name descname"><span class="pre">set_elevation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geodetic_world_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/digital_elevation_model.html#DigitalElevationModel.set_elevation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModel.set_elevation" title="Link to this definition"></a></dt>
+<dd><p>This method updates the elevation component of a geodetic world coordinate to match the surface
+elevation at the provided latitude and longitude. Note that if the DEM does not have elevation
+values for this region or if there is an error loading the associated image the elevation will
+be unchanged.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>geodetic_world_coordinate</strong> – the coordinate to update</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModel.describe_region">
+<span class="sig-name descname"><span class="pre">describe_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geodetic_world_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.elevation_model.html#aws.osml.photogrammetry.elevation_model.ElevationRegionSummary" title="aws.osml.photogrammetry.elevation_model.ElevationRegionSummary"><span class="pre">ElevationRegionSummary</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/digital_elevation_model.html#DigitalElevationModel.describe_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModel.describe_region" title="Link to this definition"></a></dt>
+<dd><p>Get a summary of the region near the provided world coordinate</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>geodetic_world_coordinate</strong> – the coordinate at the center of the region of interest</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a summary of the elevation data in this tile</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModel.get_interpolation_grid">
+<span class="sig-name descname"><span class="pre">get_interpolation_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">RectBivariateSpline</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.photogrammetry.sensor_model.html#aws.osml.photogrammetry.sensor_model.SensorModel" title="aws.osml.photogrammetry.sensor_model.SensorModel"><span class="pre">SensorModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.photogrammetry.elevation_model.html#aws.osml.photogrammetry.elevation_model.ElevationRegionSummary" title="aws.osml.photogrammetry.elevation_model.ElevationRegionSummary"><span class="pre">ElevationRegionSummary</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/digital_elevation_model.html#DigitalElevationModel.get_interpolation_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModel.get_interpolation_grid" title="Link to this definition"></a></dt>
+<dd><p>This method loads and converts an array of elevation values into a class that can
+interpolate values that lie between measured elevations. The sensor model is also
+returned to allow us to precisely identify the location in the grid of a
+world coordinate.</p>
+<p>Note that the results of this method are cached by tile_id. It is very common for
+the set_elevation() method to be called multiple times for locations that are in a
+narrow region of interest. This will prevent unnecessary repeated loading of tiles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tile_path</strong> – the location of the tile to load</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the cached interpolation object, sensor model, and summary</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

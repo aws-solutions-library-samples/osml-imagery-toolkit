@@ -1,0 +1,464 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.photogrammetry.sicd_sensor_model module &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">aws.osml.photogrammetry.sicd_sensor_model module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_apidoc/aws.osml.photogrammetry.sicd_sensor_model.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-aws.osml.photogrammetry.sicd_sensor_model">
+<span id="aws-osml-photogrammetry-sicd-sensor-model-module"></span><h1>aws.osml.photogrammetry.sicd_sensor_model module<a class="headerlink" href="#module-aws.osml.photogrammetry.sicd_sensor_model" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">Polynomial2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coef</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SupportsArray</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_NestedSequence</span><span class="p"><span class="pre">[</span></span><span class="pre">_SupportsArray</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.13)"><span class="pre">complex</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_NestedSequence</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.13)"><span class="pre">complex</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#Polynomial2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This class contains coefficients for a two-dimensional polynomial.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">PolynomialXYZ</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_polynomial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Polynomial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_polynomial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Polynomial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_polynomial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Polynomial</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#PolynomialXYZ"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This class is an aggregation 3 one-dimensional polynomials all with the same input variable. The result of
+evaluating this class on the input variable is an [x, y, z] vector.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ.deriv">
+<span class="sig-name descname"><span class="pre">deriv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">m</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#PolynomialXYZ.deriv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ.deriv" title="Link to this definition"></a></dt>
+<dd><p>Create a new PolynomialXYZ that is the derivative of the current PolynomialXYZ.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>m</strong> – find the derivative of order m</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the new polynomial derivative</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">SARImageCoordConverter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_pixel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">scp_ecf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_ss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_ss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_pixel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">ImageCoordinate(coordinate=array([0.,</span> <span class="pre">0.]))</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#SARImageCoordConverter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This class contains image grid and image plane coordinate conversions for a provided set of SICD parameters. The
+equations are mostly defined in Section 2 of the SICD Standard Volume 3.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter.rowcol_to_xrowycol">
+<span class="sig-name descname"><span class="pre">rowcol_to_xrowycol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#SARImageCoordConverter.rowcol_to_xrowycol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter.rowcol_to_xrowycol" title="Link to this definition"></a></dt>
+<dd><p>This function converts the row and column indexes (row, col) in the global image grid to SCP centered
+image coordinates (xrow, ycol) using equations (2) (3) in Section 2.2 of the SICD Specification
+Volume 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>row_col</strong> – the [row, col] location as an array</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the [xrow, ycol] location as an array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter.xrowycol_to_rowcol">
+<span class="sig-name descname"><span class="pre">xrowycol_to_rowcol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xrow_ycol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#SARImageCoordConverter.xrowycol_to_rowcol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter.xrowycol_to_rowcol" title="Link to this definition"></a></dt>
+<dd><p>This function converts the SCP centered image coordinates (xrow, ycol) to row and column indexes (row, col)
+in the global image grid using equations (2) (3) in Section 2.2 of the SICD Specification Volume 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xrow_ycol</strong> – the [xrow, ycol] location as an array</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the [row, col] location as an array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter.xrowycol_to_ipp">
+<span class="sig-name descname"><span class="pre">xrowycol_to_ipp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xrow_ycol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#SARImageCoordConverter.xrowycol_to_ipp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter.xrowycol_to_ipp" title="Link to this definition"></a></dt>
+<dd><p>This function converts SCP centered image coordinates (xrow, ycol) to a ECF coordinate, image plane point (IPP),
+on the image plane using equations in Section 2.4 of the SICD Specification Volume 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xrow_ycol</strong> – the [xrow, ycol] location as an array</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the image plane point [x, y, z] ECF location on the image plane</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter.ipp_to_xrowycol">
+<span class="sig-name descname"><span class="pre">ipp_to_xrowycol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ipp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#SARImageCoordConverter.ipp_to_xrowycol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter.ipp_to_xrowycol" title="Link to this definition"></a></dt>
+<dd><p>This function converts an ECF location on the image plane into SCP centered image coordinates (xrow, ycol)
+using equations in Section 2.4 of the SICD Specification volume 3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ipp</strong> – the image plane point [x, y, z] ECF location on the image plane</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the [xrow, ycol] location as an array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">COAProjectionSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coa_time_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D" title="aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D"><span class="pre">Polynomial2D</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ" title="aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ"><span class="pre">PolynomialXYZ</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_arp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_varp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#COAProjectionSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This is an abstract base class for R/Rdot projection contour computations described in Section 4 of the SICD
+Standard Volume 3.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet.precise_rrdot_computation">
+<span class="sig-name descname"><span class="pre">precise_rrdot_computation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xrow_ycol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#COAProjectionSet.precise_rrdot_computation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet.precise_rrdot_computation" title="Link to this definition"></a></dt>
+<dd><p>This executes the precise image pixel grid location to R/Rdot projection. This function invokes
+the _grid_specific_projection() function implemented by subclasses which should handle the portions
+of the calculation that are dependent on the image grid and image formation algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>xrow_ycol</strong> – the [xrow, ycol] location as an array</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the COA projection set { Rcoa, Rdotcoa, tcoa, arpcoa, varpcoa }</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.PFAProjectionSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">PFAProjectionSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_ecf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">polar_ang_poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_freq_sf_poly</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coa_time_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D" title="aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D"><span class="pre">Polynomial2D</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ" title="aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ"><span class="pre">PolynomialXYZ</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_arp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_varp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#PFAProjectionSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.PFAProjectionSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet" title="aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">COAProjectionSet</span></code></a></p>
+<p>This Center Of Aperture (COA) Projection set is to be used with a range azimuth image grid (RGAZIM) and polar
+formatted (PFA) phase history data. See section 4.1 of the SICD Specification Volume 3.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.RGAZCOMPProjectionSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">RGAZCOMPProjectionSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_ecf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">az_scale_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coa_time_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D" title="aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D"><span class="pre">Polynomial2D</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ" title="aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ"><span class="pre">PolynomialXYZ</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_arp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_varp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#RGAZCOMPProjectionSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.RGAZCOMPProjectionSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet" title="aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">COAProjectionSet</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.INCAProjectionSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">INCAProjectionSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_ca_scp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">inca_time_coa_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Polynomial</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drate_sf_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D" title="aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D"><span class="pre">Polynomial2D</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coa_time_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D" title="aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D"><span class="pre">Polynomial2D</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ" title="aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ"><span class="pre">PolynomialXYZ</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_arp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_varp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#INCAProjectionSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.INCAProjectionSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet" title="aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">COAProjectionSet</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.PlaneProjectionSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">PlaneProjectionSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_ecf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_plane_urow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_plane_ucol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coa_time_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D" title="aws.osml.photogrammetry.sicd_sensor_model.Polynomial2D"><span class="pre">Polynomial2D</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ" title="aws.osml.photogrammetry.sicd_sensor_model.PolynomialXYZ"><span class="pre">PolynomialXYZ</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_arp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_varp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">array([0.,</span> <span class="pre">0.,</span> <span class="pre">0.])</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#PlaneProjectionSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.PlaneProjectionSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet" title="aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">COAProjectionSet</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.RRDotSurfaceProjection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">RRDotSurfaceProjection</span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#RRDotSurfaceProjection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.RRDotSurfaceProjection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This is the base class for calculations that project the R/RDot contour onto a surface model. The SICD specification
+defines a way to do this for planes, a surface of constant height above an ellipsoid, or a digital elevation model.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.RRDotSurfaceProjection.rrdot_to_ground">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rrdot_to_ground</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_tgt_coa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_dot_tgt_coa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_velocity</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#RRDotSurfaceProjection.rrdot_to_ground"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.RRDotSurfaceProjection.rrdot_to_ground" title="Link to this definition"></a></dt>
+<dd><p>Subclasses should implement this method to compute the R/RDot Contour Ground Plane intersection with a
+specific surface type (e.g. planar, HAE, DEM)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r_tgt_coa</strong> – target COA range</p></li>
+<li><p><strong>r_dot_tgt_coa</strong> – target COA range rate</p></li>
+<li><p><strong>arp_position</strong> – ARP position</p></li>
+<li><p><strong>arp_velocity</strong> – ARP velocity</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the intersection between the R/Rdot Contour and the ground plane</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">GroundPlaneRRDotSurfaceProjection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_ecf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpn_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection.GroundPlaneNormalType" title="aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection.GroundPlaneNormalType"><span class="pre">GroundPlaneNormalType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">GroundPlaneNormalType.GEODETIC_EARTH</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#GroundPlaneRRDotSurfaceProjection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.RRDotSurfaceProjection" title="aws.osml.photogrammetry.sicd_sensor_model.RRDotSurfaceProjection"><code class="xref py py-class docutils literal notranslate"><span class="pre">RRDotSurfaceProjection</span></code></a></p>
+<p>This class implements the Precise R/RDot Ground Plane Projection described in Section 5 of the SICD Specification
+Volume 3 (v1.3.0).</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection.GroundPlaneNormalType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">GroundPlaneNormalType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#GroundPlaneRRDotSurfaceProjection.GroundPlaneNormalType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection.GroundPlaneNormalType" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection.GroundPlaneNormalType.SPHERICAL_EARTH">
+<span class="sig-name descname"><span class="pre">SPHERICAL_EARTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SPHERICAL_EARTH'</span></em><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection.GroundPlaneNormalType.SPHERICAL_EARTH" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection.GroundPlaneNormalType.GEODETIC_EARTH">
+<span class="sig-name descname"><span class="pre">GEODETIC_EARTH</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GEODETIC_EARTH'</span></em><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection.GroundPlaneNormalType.GEODETIC_EARTH" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection.rrdot_to_ground">
+<span class="sig-name descname"><span class="pre">rrdot_to_ground</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_tgt_coa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_dot_tgt_coa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_velocity</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#GroundPlaneRRDotSurfaceProjection.rrdot_to_ground"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.GroundPlaneRRDotSurfaceProjection.rrdot_to_ground" title="Link to this definition"></a></dt>
+<dd><p>This method implements the R/RDot Contour Ground Plane Intersection described in section 5.2</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r_tgt_coa</strong> – target COA range</p></li>
+<li><p><strong>r_dot_tgt_coa</strong> – target COA range rate</p></li>
+<li><p><strong>arp_position</strong> – ARP position</p></li>
+<li><p><strong>arp_velocity</strong> – ARP velocity</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the intersection between the R/Rdot Contour and the ground plane</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.HAERRDotSurfaceProjection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">HAERRDotSurfaceProjection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_ecf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_of_track</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">hae</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_number_iterations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#HAERRDotSurfaceProjection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.HAERRDotSurfaceProjection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.RRDotSurfaceProjection" title="aws.osml.photogrammetry.sicd_sensor_model.RRDotSurfaceProjection"><code class="xref py py-class docutils literal notranslate"><span class="pre">RRDotSurfaceProjection</span></code></a></p>
+<p>This class implements the Precise R/RDot Height Above Ellipsioid (HAE) Projection described in Section 9 of the
+SICD Specification Volume 3 (v1.3.0).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.HAERRDotSurfaceProjection.rrdot_to_ground">
+<span class="sig-name descname"><span class="pre">rrdot_to_ground</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_tgt_coa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_dot_tgt_coa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_velocity</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#HAERRDotSurfaceProjection.rrdot_to_ground"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.HAERRDotSurfaceProjection.rrdot_to_ground" title="Link to this definition"></a></dt>
+<dd><p>This method implements the R/RDot Contour Ground Plane Intersection described in section 9.2.</p>
+<p>The precise projection to a surface of constant height above the WGS-84 reference ellipsoid along an
+R/Rdot contour. The R/Rdot contour is relative to an ARP Center Of Aperture position and velocity. The
+algorithm computes the R/Rdot projection to one or more ground planes that are tangent to the constant
+height surface. Each ground plane projection point computed is slightly above the constant HAE surface.
+The final surface position is computed by projecting from the final ground plane projection point down
+to the HAE surface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r_tgt_coa</strong> – target COA range</p></li>
+<li><p><strong>r_dot_tgt_coa</strong> – target COA range rate</p></li>
+<li><p><strong>arp_position</strong> – ARP position</p></li>
+<li><p><strong>arp_velocity</strong> – ARP velocity</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the intersection between the R/Rdot Contour and the ground plane</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.DEMRRDotSurfaceProjection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">DEMRRDotSurfaceProjection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_ecf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_of_track</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevation_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.elevation_model.html#aws.osml.photogrammetry.elevation_model.ElevationModel" title="aws.osml.photogrammetry.elevation_model.ElevationModel"><span class="pre">ElevationModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_adjacent_point_distance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height_threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#DEMRRDotSurfaceProjection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.DEMRRDotSurfaceProjection" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.RRDotSurfaceProjection" title="aws.osml.photogrammetry.sicd_sensor_model.RRDotSurfaceProjection"><code class="xref py py-class docutils literal notranslate"><span class="pre">RRDotSurfaceProjection</span></code></a></p>
+<p>This class implements the Precise R/RDot Height Above a Digital Elevation Model (DEM) Projection described in
+Section 10 of the SICD Specification Volume 3 (v1.3.0).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.DEMRRDotSurfaceProjection.rrdot_to_ground">
+<span class="sig-name descname"><span class="pre">rrdot_to_ground</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_tgt_coa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_dot_tgt_coa</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arp_velocity</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#DEMRRDotSurfaceProjection.rrdot_to_ground"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.DEMRRDotSurfaceProjection.rrdot_to_ground" title="Link to this definition"></a></dt>
+<dd><p>This method implements the R/RDot Contour Ground Plane Intersection described in section 10.3</p>
+<p>The R/Rdot contour is relative to an ARP Center Of Aperture position and velocity. The earth surface is
+described by a Digital Elevation Model (DEM) that defines a unique surface height as a function of two
+horizontal coordinates. The projection computation may yield one or more surface points that lie along
+the R/Rdot contour.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>r_tgt_coa</strong> – target COA range</p></li>
+<li><p><strong>r_dot_tgt_coa</strong> – target COA range rate</p></li>
+<li><p><strong>arp_position</strong> – ARP position</p></li>
+<li><p><strong>arp_velocity</strong> – ARP velocity</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the intersection between the R/Rdot Contour and the DEM, if multiple intersections occur they will
+be returned in order of increasing height above the WGS-84 ellipsoid.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.SICDSensorModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.sicd_sensor_model.</span></span><span class="sig-name descname"><span class="pre">SICDSensorModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord_converter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter" title="aws.osml.photogrammetry.sicd_sensor_model.SARImageCoordConverter"><span class="pre">SARImageCoordConverter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coa_projection_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet" title="aws.osml.photogrammetry.sicd_sensor_model.COAProjectionSet"><span class="pre">COAProjectionSet</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_spn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_of_track</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'L'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_gpn</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#SICDSensorModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.SICDSensorModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="aws.osml.photogrammetry.sensor_model.html#aws.osml.photogrammetry.sensor_model.SensorModel" title="aws.osml.photogrammetry.sensor_model.SensorModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SensorModel</span></code></a></p>
+<p>This is an implementation of the SICD sensor model as described by SICD Volume 3 Image Projections Description
+NGA.STND.0024-3_1.3.0 (2021-11-30)</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.SICDSensorModel.compute_u_spn">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute_u_spn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_ecf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">scp_arp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scp_varp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_of_track</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#SICDSensorModel.compute_u_spn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.SICDSensorModel.compute_u_spn" title="Link to this definition"></a></dt>
+<dd><p>This helper function computes the slant plane normal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scp_ecf</strong> – Scene Center Point position in ECF coordinates</p></li>
+<li><p><strong>scp_arp</strong> – aperture reference point position</p></li>
+<li><p><strong>scp_varp</strong> – aperture reference point velocity</p></li>
+<li><p><strong>side_of_track</strong> – side of track imaged</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>unit vector for the slant plane normal</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.SICDSensorModel.compute_u_gpn">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute_u_gpn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scp_ecf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#SICDSensorModel.compute_u_gpn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.SICDSensorModel.compute_u_gpn" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.SICDSensorModel.image_to_world">
+<span class="sig-name descname"><span class="pre">image_to_world</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevation_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.elevation_model.html#aws.osml.photogrammetry.elevation_model.ElevationModel" title="aws.osml.photogrammetry.elevation_model.ElevationModel"><span class="pre">ElevationModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#SICDSensorModel.image_to_world"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.SICDSensorModel.image_to_world" title="Link to this definition"></a></dt>
+<dd><p>This is an implementation of an Image Grid to Scene point projection that first projects the image
+location to the R/RDot contour and then intersects the R/RDot contour with the elevation model. If
+an elevation model is provided then this routine intersects the R/Rdot contour with the DEM surface which
+may result in multiple solutions. In that case the solution with the lowest HAE is returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_coordinate</strong> – the x,y image coordinate</p></li>
+<li><p><strong>elevation_model</strong> – the optional elevation model, if none supplied a plane tangent to SCP is assumed</p></li>
+<li><p><strong>options</strong> – no additional options are supported at this time</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the lon, lat, elev geodetic coordinate of the surface matching the image coordinate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.sicd_sensor_model.SICDSensorModel.world_to_image">
+<span class="sig-name descname"><span class="pre">world_to_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">world_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/sicd_sensor_model.html#SICDSensorModel.world_to_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.sicd_sensor_model.SICDSensorModel.world_to_image" title="Link to this definition"></a></dt>
+<dd><p>This is an implementation of Section 6.1 Scene To Image Grid Projection for a single point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>world_coordinate</strong> – lon, lat, elevation coordinate of the scene point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the x,y pixel location in this image</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

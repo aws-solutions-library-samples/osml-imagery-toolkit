@@ -1,0 +1,228 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.gdal.rpc_sensor_model_builder &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.gdal.rpc_sensor_model_builder</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.gdal.rpc_sensor_model_builder</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">ElementTree</span> <span class="k">as</span> <span class="n">ET</span>
+
+<span class="kn">from</span> <span class="nn">aws.osml.photogrammetry</span> <span class="kn">import</span> <span class="n">RPCPolynomial</span><span class="p">,</span> <span class="n">RPCSensorModel</span>
+
+<span class="kn">from</span> <span class="nn">.sensor_model_builder</span> <span class="kn">import</span> <span class="n">SensorModelBuilder</span>
+<span class="kn">from</span> <span class="nn">.xmltre_utils</span> <span class="kn">import</span> <span class="n">get_tre_field_value</span><span class="p">,</span> <span class="n">parse_rpc_coefficients</span>
+
+
+<div class="viewcode-block" id="RPCSensorModelBuilder">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.rpc_sensor_model_builder.html#aws.osml.gdal.rpc_sensor_model_builder.RPCSensorModelBuilder">[docs]</a>
+<span class="k">class</span> <span class="nc">RPCSensorModelBuilder</span><span class="p">(</span><span class="n">SensorModelBuilder</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This builder is used to create sensor models for images that have RPC TREs. The inputs are not the TREs themselves</span>
+<span class="sd">    but rather the XML formatted TREs resulting from GDAL&#39;s parsing of that information. This information can be</span>
+<span class="sd">    obtained by accessing the xml:TRE metadata domain for a given GDAL dataset.</span>
+
+<span class="sd">    This builder only supports the RPC00B format of this metadata information. Support for other TREs can be added</span>
+<span class="sd">    in the future if we find ourselves working with imagery containing that metadata.</span>
+
+<span class="sd">     See STDI-0002 Volume 1 Appendix E for more detailed information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_tres</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the builder accepting the required XML TREs.</span>
+
+<span class="sd">        :param xml_tres: the XML tres for this image</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xml_tres</span> <span class="o">=</span> <span class="n">xml_tres</span>
+
+<div class="viewcode-block" id="RPCSensorModelBuilder.build">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.rpc_sensor_model_builder.html#aws.osml.gdal.rpc_sensor_model_builder.RPCSensorModelBuilder.build">[docs]</a>
+    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">RPCSensorModel</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Examine the TRE metadata for RPC information, parse the necessary values out of those TREs, and construct a</span>
+<span class="sd">        RPC sensor model.</span>
+
+<span class="sd">        :return: a RPC SensorModel if one can be constructed, None otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check to see if an RPC00B TRE is included with the metadata. It would contain the necessary parameters for</span>
+        <span class="c1"># this type of sensor model.</span>
+        <span class="c1"># TODO: Consider expanding support to include RPC00A which is defined in STDI-0001</span>
+        <span class="n">rpc_tre</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_tres</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;./tre[@name=&#39;RPC00B&#39;]&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rpc_tre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No RPC00B TRE found. Skipping RPC sensor model build.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Attempt to construct the RPC camera model from the metadata provided</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">success</span> <span class="o">=</span> <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;SUCCESS&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">success</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;RPC00B TRE SUCCESS field was not &#39;1&#39;. Skipping RPC sensor model build.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+            <span class="k">return</span> <span class="n">RPCSensorModelBuilder</span><span class="o">.</span><span class="n">build_rpc_sensor_model</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ve</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unable to parse RPC00B TRE found in XML metadata. No SensorModel created.&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ve</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="RPCSensorModelBuilder.build_rpc_sensor_model">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.rpc_sensor_model_builder.html#aws.osml.gdal.rpc_sensor_model_builder.RPCSensorModelBuilder.build_rpc_sensor_model">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">build_rpc_sensor_model</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RPCSensorModel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This private method constructs an RPC sensor model from an RPC00B TRE.</span>
+
+<span class="sd">        :param rpc_tre: the GDAL XML for RPC00B</span>
+
+<span class="sd">        :return: the RPC sensor model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RPCSensorModel</span><span class="p">(</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;ERR_BIAS&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;ERR_RAND&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;LINE_OFF&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;SAMP_OFF&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;LAT_OFF&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;LONG_OFF&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;HEIGHT_OFF&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;LINE_SCALE&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;SAMP_SCALE&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;LAT_SCALE&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;LONG_SCALE&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;HEIGHT_SCALE&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">RPCSensorModelBuilder</span><span class="o">.</span><span class="n">build_rpc_polynomial</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;LINE_NUM_COEFF&quot;</span><span class="p">),</span>
+            <span class="n">RPCSensorModelBuilder</span><span class="o">.</span><span class="n">build_rpc_polynomial</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;LINE_DEN_COEFF&quot;</span><span class="p">),</span>
+            <span class="n">RPCSensorModelBuilder</span><span class="o">.</span><span class="n">build_rpc_polynomial</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;SAMP_NUM_COEFF&quot;</span><span class="p">),</span>
+            <span class="n">RPCSensorModelBuilder</span><span class="o">.</span><span class="n">build_rpc_polynomial</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="s2">&quot;SAMP_DEN_COEFF&quot;</span><span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RPCSensorModelBuilder.build_rpc_polynomial">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.rpc_sensor_model_builder.html#aws.osml.gdal.rpc_sensor_model_builder.RPCSensorModelBuilder.build_rpc_polynomial">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">build_rpc_polynomial</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="n">polynomial_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RPCPolynomial</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This private method constructs a RPC polynomial from coefficients found inthe RPC00B TRE. There are 4</span>
+<span class="sd">        repeating groups of these coefficients for the polynomials associated with line or sample numerators and</span>
+<span class="sd">        denominators.</span>
+
+<span class="sd">        :param rpc_tre: the GDAL XML for RPC00B</span>
+<span class="sd">        :param polynomial_name: the name of the polynomial to build</span>
+
+<span class="sd">        :return: the RPC polynomial</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RPCPolynomial</span><span class="p">(</span><span class="n">parse_rpc_coefficients</span><span class="p">(</span><span class="n">rpc_tre</span><span class="p">,</span> <span class="n">polynomial_name</span><span class="p">))</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

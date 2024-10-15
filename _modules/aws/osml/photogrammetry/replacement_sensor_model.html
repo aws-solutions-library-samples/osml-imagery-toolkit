@@ -1,0 +1,968 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.photogrammetry.replacement_sensor_model &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.photogrammetry.replacement_sensor_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.photogrammetry.replacement_sensor_model</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">floor</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="n">radians</span><span class="p">,</span> <span class="n">sqrt</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
+
+<span class="kn">from</span> <span class="nn">.coordinates</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GeodeticWorldCoordinate</span><span class="p">,</span>
+    <span class="n">ImageCoordinate</span><span class="p">,</span>
+    <span class="n">WorldCoordinate</span><span class="p">,</span>
+    <span class="n">geocentric_to_geodetic</span><span class="p">,</span>
+    <span class="n">geodetic_to_geocentric</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.elevation_model</span> <span class="kn">import</span> <span class="n">ConstantElevationModel</span><span class="p">,</span> <span class="n">ElevationModel</span>
+<span class="kn">from</span> <span class="nn">.math_utils</span> <span class="kn">import</span> <span class="n">equilateral_triangle</span>
+<span class="kn">from</span> <span class="nn">.sensor_model</span> <span class="kn">import</span> <span class="n">SensorModel</span><span class="p">,</span> <span class="n">SensorModelOptions</span>
+
+<span class="c1"># TODO: Add Support for Grid Based RSM Sensor Models</span>
+<span class="c1"># TODO: Add Support for Adjustable RSM Sensor Models</span>
+<span class="c1"># TODO: Add Support for Error Assessments</span>
+<span class="c1"># TODO: Add typing for ArrayLike inputs once Numpy upgraded to 1.20+</span>
+<span class="c1"># from numpy.typing import ArrayLike</span>
+
+
+<div class="viewcode-block" id="RSMImageDomain">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMImageDomain">[docs]</a>
+<span class="k">class</span> <span class="nc">RSMImageDomain</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This RSM image domain is a rectangle defined by the minimum and maximum discrete row coordinate values, and the</span>
+<span class="sd">    minimum and maximum discrete column coordinate values. It is typically constructed from values in the NITF RSMID</span>
+<span class="sd">    TRE. For more information see section 5.5 of STDI-0002 Volume 1 Appendix U.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">min_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">max_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">min_column</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">max_column</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct an RSM Image domain from parameters</span>
+
+<span class="sd">        :param min_row: min row</span>
+<span class="sd">        :param max_row: max row</span>
+<span class="sd">        :param min_column: min column</span>
+<span class="sd">        :param max_column: max column</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_row</span> <span class="o">=</span> <span class="n">min_row</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_row</span> <span class="o">=</span> <span class="n">max_row</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_column</span> <span class="o">=</span> <span class="n">min_column</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_column</span> <span class="o">=</span> <span class="n">max_column</span></div>
+
+
+
+<div class="viewcode-block" id="RSMGroundDomainForm">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMGroundDomainForm">[docs]</a>
+<span class="k">class</span> <span class="nc">RSMGroundDomainForm</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The RSMGroundDomainForm defines how world coordinates (x, y, z) should be interpreted in this sensor model.</span>
+
+<span class="sd">    If geodetic, X, Y, and Z, correspond to longitude, latitude, and height above the ellipsoid, respectively.</span>
+<span class="sd">    Longitude is specified east of the prime meridian, and latitude is specified north of the equator. Units for X, Y,</span>
+<span class="sd">    and Z, are radians, radians, and meters, respectively. The range for Y is (-pi/2 to pi/2). The range for X is</span>
+<span class="sd">    (-pi to pi) when GEODETIC, and (0 to 2pi) when GEODETIC_2PI. The latter is specified when the RSM ground domain</span>
+<span class="sd">    contains a longitude value near pi radians.</span>
+
+<span class="sd">    If RECTANGULAR, X, Y, and Z correspond to a coordinate system that is defined as an offset from and rotation</span>
+<span class="sd">    about the WGS 84 Rectangular coordinate system.</span>
+
+<span class="sd">    For more information see the GRNDD TRE field definition in section 5.9 of STDI-0002 Volume 1 Appendix U.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">GEODETIC</span> <span class="o">=</span> <span class="s2">&quot;G&quot;</span>
+    <span class="n">GEODETIC_2PI</span> <span class="o">=</span> <span class="s2">&quot;H&quot;</span>
+    <span class="n">RECTANGULAR</span> <span class="o">=</span> <span class="s2">&quot;R&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="RSMGroundDomain">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMGroundDomain">[docs]</a>
+<span class="k">class</span> <span class="nc">RSMGroundDomain</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The RSM ground domain is an approximation of the ground area where the RSM representation is valid. It is a solid</span>
+<span class="sd">    in three-dimensional space bounded by a hexahedron with quadrilateral faces specified using eight</span>
+<span class="sd">    three-dimensional vertices.</span>
+
+<span class="sd">    It is typically constructed from values in the NITF RSMID TRE. For more information see section 5.6 of</span>
+<span class="sd">    STDI-0002 Volume 1 Appendix U.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ground_domain_form</span><span class="p">:</span> <span class="n">RSMGroundDomainForm</span><span class="p">,</span>
+        <span class="n">ground_domain_vertices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">WorldCoordinate</span><span class="p">],</span>
+        <span class="n">rectangular_coordinate_origin</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">WorldCoordinate</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">rectangular_coordinate_unit_vectors</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">ground_reference_point</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">WorldCoordinate</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a RSM ground domain from parameters typically found in the RSMID TRE.</span>
+
+<span class="sd">        TODO: Change the type hint for rectangular_coordinate_unit_vectors to Optional[ArrayLike] once Numpy &gt; 1.20</span>
+
+<span class="sd">        :param ground_domain_form: form of coordinates used by this sensor model</span>
+<span class="sd">        :param ground_domain_vertices: collection of vertices defining the valid model area</span>
+<span class="sd">        :param rectangular_coordinate_origin: optional origin of the rectangular system</span>
+<span class="sd">        :param rectangular_coordinate_unit_vectors: optional unit vectors to define rectangular system</span>
+<span class="sd">        :param ground_reference_point: optional reference point for this image</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ground_domain_vertices</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">8</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Incorrect number of vertices in RSMGroundDomain. &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">ground_domain_vertices</span><span class="p">)</span><span class="si">}</span><span class="s2"> provided, 8 expected.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">ground_domain_form</span> <span class="o">==</span> <span class="n">RSMGroundDomainForm</span><span class="o">.</span><span class="n">RECTANGULAR</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="n">rectangular_coordinate_origin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">rectangular_coordinate_unit_vectors</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Rectangular coordinate system for RSMGroundDomain has not been defined&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ground_domain_form</span> <span class="o">=</span> <span class="n">ground_domain_form</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ground_domain_vertices</span> <span class="o">=</span> <span class="n">ground_domain_vertices</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_origin</span> <span class="o">=</span> <span class="n">rectangular_coordinate_origin</span>
+        <span class="k">if</span> <span class="n">rectangular_coordinate_unit_vectors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_unit_vectors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">rectangular_coordinate_unit_vectors</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_unit_vectors_inverse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_unit_vectors</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ground_reference_point</span> <span class="o">=</span> <span class="n">ground_reference_point</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">geodetic_ground_domain_vertices</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ground_domain_coordinate_to_geodetic</span><span class="p">(</span><span class="n">vertex</span><span class="p">)</span> <span class="k">for</span> <span class="n">vertex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ground_domain_vertices</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Calculate a bounding box and average elevation for this ground domain in geodetic coordinates</span>
+        <span class="n">elevation_sum</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">)]</span>
+        <span class="k">for</span> <span class="n">geodetic_vertex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">geodetic_ground_domain_vertices</span><span class="p">:</span>
+            <span class="n">elevation_sum</span> <span class="o">+=</span> <span class="n">geodetic_vertex</span><span class="o">.</span><span class="n">elevation</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">geodetic_vertex</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">geodetic_vertex</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">geodetic_vertex</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">geodetic_vertex</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span>
+
+        <span class="c1"># If a ground reference point is included we will set the reference geodetic height to match that point.</span>
+        <span class="c1"># If that point is not included then we will compute it from the average height of the ground domain</span>
+        <span class="c1"># hexahedron in reference to the WGS84 ellipsoid. See section 5.7 of STDI-0002 Volume 1 Appendix U.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ground_reference_point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">geodetic_ground_reference_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ground_domain_coordinate_to_geodetic</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ground_reference_point</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">default_elevation_model</span> <span class="o">=</span> <span class="n">ConstantElevationModel</span><span class="p">(</span><span class="n">geodetic_ground_reference_point</span><span class="o">.</span><span class="n">elevation</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">average_elevation</span> <span class="o">=</span> <span class="n">elevation_sum</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">geodetic_ground_domain_vertices</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">default_elevation_model</span> <span class="o">=</span> <span class="n">ConstantElevationModel</span><span class="p">(</span><span class="n">average_elevation</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RSMGroundDomain.geodetic_to_ground_domain_coordinate">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMGroundDomain.geodetic_to_ground_domain_coordinate">[docs]</a>
+    <span class="k">def</span> <span class="nf">geodetic_to_ground_domain_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geodetic_coordinate</span><span class="p">:</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorldCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function converts WGS-84 geodetic world coordinate into a world coordinate that uses the domain</span>
+<span class="sd">        coordinate system for this sensor model.</span>
+
+<span class="sd">        :param geodetic_coordinate: the WGS-84 longitude, latitude, elevation</span>
+
+<span class="sd">        :return: the x, y, z domain coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ground_domain_form</span> <span class="o">==</span> <span class="n">RSMGroundDomainForm</span><span class="o">.</span><span class="n">RECTANGULAR</span><span class="p">:</span>
+            <span class="c1"># This shouldn&#39;t happen due to the check in the constructor but the type checker is flagging this, so</span>
+            <span class="c1"># we check again to ensure we have all the values necessary</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_origin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_unit_vectors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Rectangular ground domain missing origin or unit vectors&quot;</span><span class="p">)</span>
+
+            <span class="c1"># The ground domain uses a rectangular coordinate system, so we need to convert the input geodetic</span>
+            <span class="c1"># coordinate (longitude, latitude, elevation) to the rectangular coordinate system using the provided</span>
+            <span class="c1"># parameters. See STDI-002 Volume 1 Appendix U Section 5.3 for more details.</span>
+
+            <span class="c1"># The longitude, latitude, elevation in (radians, radians, meters) needs to be converted to a</span>
+            <span class="c1"># WGS84 earth centric coordinate system before subtracting off the coordinate system origin. Then</span>
+            <span class="c1"># the matrix of unit vectors is applied as shown in the specification.</span>
+            <span class="n">ecef_world_coordinate</span> <span class="o">=</span> <span class="n">geodetic_to_geocentric</span><span class="p">(</span><span class="n">geodetic_coordinate</span><span class="p">)</span>
+            <span class="n">coordinate_relative_to_origin</span> <span class="o">=</span> <span class="n">ecef_world_coordinate</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_origin</span><span class="o">.</span><span class="n">coordinate</span>
+            <span class="n">ground_domain_coordinate</span> <span class="o">=</span> <span class="n">WorldCoordinate</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_unit_vectors</span><span class="p">,</span>
+                    <span class="n">coordinate_relative_to_origin</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">ground_domain_form</span> <span class="o">==</span> <span class="n">RSMGroundDomainForm</span><span class="o">.</span><span class="n">GEODETIC_2PI</span><span class="p">:</span>
+            <span class="c1"># The ground domain uses geodetic coordinates but the range of longitude values is [0,2*PI). Adjust the</span>
+            <span class="c1"># input value to ensure that range assumption is met.</span>
+            <span class="n">ground_domain_coordinate</span> <span class="o">=</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="p">(</span><span class="n">geodetic_coordinate</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span><span class="p">),</span>
+                    <span class="n">geodetic_coordinate</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+                    <span class="n">geodetic_coordinate</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># The ground domain is using normal geodetic coordinates so there is nothing to do.</span>
+            <span class="n">ground_domain_coordinate</span> <span class="o">=</span> <span class="n">geodetic_coordinate</span>
+
+        <span class="k">return</span> <span class="n">ground_domain_coordinate</span></div>
+
+
+<div class="viewcode-block" id="RSMGroundDomain.ground_domain_coordinate_to_geodetic">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMGroundDomain.ground_domain_coordinate_to_geodetic">[docs]</a>
+    <span class="k">def</span> <span class="nf">ground_domain_coordinate_to_geodetic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ground_domain_coordinate</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function converts an x, y, z coordinate defined in the ground domain of this sensor model into a WGS-84</span>
+<span class="sd">        longitude, latitude, elevation coordinate.</span>
+
+<span class="sd">        :param ground_domain_coordinate: the x, y, z domain coordinate</span>
+
+<span class="sd">        :return: the WGS-84 longitude, latitude, elevation coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ground_domain_form</span> <span class="o">==</span> <span class="n">RSMGroundDomainForm</span><span class="o">.</span><span class="n">RECTANGULAR</span><span class="p">:</span>
+            <span class="c1"># This shouldn&#39;t happen due to the check in the constructor but the type checker is flagging this, so</span>
+            <span class="c1"># we check again to ensure we have all the values necessary</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_origin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_unit_vectors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Rectangular ground domain missing origin or unit vectors&quot;</span><span class="p">)</span>
+
+            <span class="c1"># The ground domain uses a rectangular coordinate system, so we need to convert the input rectangular</span>
+            <span class="c1"># coordinate (x,y,z) to the geodetic coordinate system (longitude, latitude, elevation) using the inverse</span>
+            <span class="c1"># of the provided parameters. See STDI-002 Volume 1 Appendix U Section 5.3 for more details.</span>
+            <span class="n">ecef_world_coordinate</span> <span class="o">=</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_unit_vectors_inverse</span><span class="p">,</span>
+                    <span class="n">ground_domain_coordinate</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">rectangular_coordinate_origin</span><span class="o">.</span><span class="n">coordinate</span>
+            <span class="p">)</span>
+            <span class="n">world_coordinate</span> <span class="o">=</span> <span class="n">geocentric_to_geodetic</span><span class="p">(</span><span class="n">ecef_world_coordinate</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># The ground domain is using normal geodetic coordinates so there is nothing to do.</span>
+            <span class="c1"># TODO: Consider if we should adjust longitude to be in the [-PI,PI) range</span>
+            <span class="n">world_coordinate</span> <span class="o">=</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">(</span><span class="n">ground_domain_coordinate</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">world_coordinate</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RSMContext">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMContext">[docs]</a>
+<span class="k">class</span> <span class="nc">RSMContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The RSM context contains information necessary to apply and interpret results from the sensor models on an image.</span>
+
+<span class="sd">    This current implementation only covers the ground domain and image domains necessary for georeferencing but it</span>
+<span class="sd">    can be expanded as needed to support other RSM functions.</span>
+
+<span class="sd">    TODO: Implement the TimeContext which can be used to identify the collection time of any x, y image coordinate</span>
+<span class="sd">    TODO: Implement the IlluminationContext which can be used to predict shadow information on an image</span>
+<span class="sd">    TODO: Implement the TrajectoryModel which captures the sensors 3D position in relation to the image</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ground_domain</span><span class="p">:</span> <span class="n">RSMGroundDomain</span><span class="p">,</span> <span class="n">image_domain</span><span class="p">:</span> <span class="n">RSMImageDomain</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct the overall RSM context from parameters typically found in the RSMID TRE.</span>
+
+<span class="sd">        :param ground_domain: the RSM ground domain</span>
+<span class="sd">        :param image_domain: the RSM image domain</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ground_domain</span> <span class="o">=</span> <span class="n">ground_domain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_domain</span> <span class="o">=</span> <span class="n">image_domain</span></div>
+
+
+
+<div class="viewcode-block" id="RSMPolynomial">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomial">[docs]</a>
+<span class="k">class</span> <span class="nc">RSMPolynomial</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is an implementation of a general polynomial that can be applied to a world coordinate (i.e. an x,y,z vector).</span>
+<span class="sd">    For additional information see Section 7.2 of STDI-0002 Volume 1 Appendix U or Section 10.3.3.1.1 of the Manual of</span>
+<span class="sd">    Photogrammetry Sixth Edition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">max_power_x</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">max_power_y</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">max_power_z</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">coefficients</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct the polynomial from coefficients and information about the maximum power.</span>
+<span class="sd">        Note that len(coefficients) must equal (max_power_x +1) * (max_power_y +1) * (max_power_z +1)</span>
+
+<span class="sd">        :param max_power_x: maximum power of x</span>
+<span class="sd">        :param max_power_y: maximum power of y</span>
+<span class="sd">        :param max_power_z: maximum power of z</span>
+<span class="sd">        :param coefficients: coefficients orders in sequence defined in the NITF RSMPCA TRE</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># There must be one coefficient for every combination of x, y, z powers. For example a polynomial with</span>
+        <span class="c1"># a maximum power of 0 for x, y, and z with only have a single coefficient (the constant C). A polynomial with</span>
+        <span class="c1"># a maximum power of 1 for x, y, and z will have 8 coefficients for all the combinations of x, y, and z up to</span>
+        <span class="c1"># a power of 1: [C, X, Y, XY, Z, XZ, YZ, XYZ].</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coefficients</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">max_power_x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_power_y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">max_power_z</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect number of coefficients in RSMPolynomial&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_power_x</span> <span class="o">=</span> <span class="n">max_power_x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_power_y</span> <span class="o">=</span> <span class="n">max_power_y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_power_z</span> <span class="o">=</span> <span class="n">max_power_z</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span> <span class="o">=</span> <span class="n">coefficients</span>
+
+<div class="viewcode-block" id="RSMPolynomial.evaluate">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomial.evaluate">[docs]</a>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalized_world_coordinate</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function evaluates the polynomial for the given world coordinate by summing up the result of applying</span>
+<span class="sd">        each coefficient to the world coordinate components. Note that these polynomials are usually defined with</span>
+<span class="sd">        the assumption that the world coordinate has been normalized.</span>
+
+<span class="sd">        :param normalized_world_coordinate: the world coordinate</span>
+
+<span class="sd">        :return: the resulting value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">a_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Black formatter doesn&#39;t play well with the **&#39;s wrapped in brackets</span>
+        <span class="c1"># fmt: off</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_power_z</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_power_y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_power_x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">result</span> <span class="o">+=</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="n">a_index</span><span class="p">]</span>
+                        <span class="o">*</span> <span class="p">(</span><span class="n">normalized_world_coordinate</span><span class="o">.</span><span class="n">x</span> <span class="o">**</span> <span class="n">i</span><span class="p">)</span>
+                        <span class="o">*</span> <span class="p">(</span><span class="n">normalized_world_coordinate</span><span class="o">.</span><span class="n">y</span> <span class="o">**</span> <span class="n">j</span><span class="p">)</span>
+                        <span class="o">*</span> <span class="p">(</span><span class="n">normalized_world_coordinate</span><span class="o">.</span><span class="n">z</span> <span class="o">**</span> <span class="n">k</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">a_index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># fmt: on</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This makes the polynomial object callable such that it can be applied to a world coordinate directly e.g.</span>
+<span class="sd">        result = polynomial(coordinate).</span>
+
+<span class="sd">        :param args: the world coordinate</span>
+<span class="sd">        :param kwargs: no keyword arguments are accepted but this is required for the Callable interface</span>
+<span class="sd">        :return: the result of the evaluation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="RSMLowOrderPolynomial">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMLowOrderPolynomial">[docs]</a>
+<span class="k">class</span> <span class="nc">RSMLowOrderPolynomial</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is an implementation of a &quot;low order&quot; polynomial used when generating coarse image row and column coordinates</span>
+<span class="sd">    from a world coordinate. For additional information see Section 6.2 of STDI-0002 Volume 1 Appendix U.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a low order polynomial given a set of coefficients that are ordered to match the specific set of</span>
+<span class="sd">        component powers [0, X, Y, Z, XX, XY, XZ, YY, YZ, ZZ]</span>
+
+<span class="sd">        :param coefficients: the low order polynomial coefficients</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coefficients</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incorrect number of coefficients when constructing RSMLowOderPolynomial&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span> <span class="o">=</span> <span class="n">coefficients</span>
+
+<div class="viewcode-block" id="RSMLowOrderPolynomial.evaluate">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMLowOrderPolynomial.evaluate">[docs]</a>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world_coordinate</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function evaluates the polynomial for the given world coordinate by summing up the result of applying</span>
+<span class="sd">        each coefficient to the world coordinate components.</span>
+
+<span class="sd">        :param world_coordinate: the world coordinate</span>
+
+<span class="sd">        :return: the resulting value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># constant</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">x</span>  <span class="c1"># X</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">y</span>  <span class="c1"># Y</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">z</span>  <span class="c1"># Z</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">x</span>  <span class="c1"># XX</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">y</span>  <span class="c1"># XY</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">z</span>  <span class="c1"># XZ</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">y</span>  <span class="c1"># YY</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">z</span>  <span class="c1"># YZ</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">z</span> <span class="o">*</span> <span class="n">world_coordinate</span><span class="o">.</span><span class="n">z</span>  <span class="c1"># ZZ</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This makes the polynomial object callable such that it can be applied to a world coordinate directly e.g.</span>
+<span class="sd">        result = polynomial(coordinate).</span>
+
+<span class="sd">        :param args: the world coordinate</span>
+<span class="sd">        :param kwargs: no keyword arguments are accepted but this is required for the Callable interface</span>
+<span class="sd">        :return: the result of the evaluation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="RSMSensorModel">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMSensorModel">[docs]</a>
+<span class="k">class</span> <span class="nc">RSMSensorModel</span><span class="p">(</span><span class="n">SensorModel</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is an abstract base for all sensor models that use the RSM context information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">RSMContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor that accepts the RSM context as an input.</span>
+
+<span class="sd">        :param context: contextual information describing the collection environment</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span></div>
+
+
+
+<div class="viewcode-block" id="RSMPolynomialSensorModel">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomialSensorModel">[docs]</a>
+<span class="k">class</span> <span class="nc">RSMPolynomialSensorModel</span><span class="p">(</span><span class="n">RSMSensorModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is an implementation of a Rational Polynomial Camera as defined in section 10.3.3.1.1 of the Manual of</span>
+<span class="sd">    Photogrammetry Sixth Edition.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">RSMContext</span><span class="p">,</span>
+        <span class="n">section_row</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">section_col</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">row_norm_offset</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">column_norm_offset</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">x_norm_offset</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">y_norm_offset</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">z_norm_offset</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">row_norm_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">column_norm_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">x_norm_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">y_norm_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">z_norm_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">row_numerator_poly</span><span class="p">:</span> <span class="n">RSMPolynomial</span><span class="p">,</span>
+        <span class="n">row_denominator_poly</span><span class="p">:</span> <span class="n">RSMPolynomial</span><span class="p">,</span>
+        <span class="n">column_numerator_poly</span><span class="p">:</span> <span class="n">RSMPolynomial</span><span class="p">,</span>
+        <span class="n">column_denominator_poly</span><span class="p">:</span> <span class="n">RSMPolynomial</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This constructs the sensor model using parameters normally found in the NITF RSMPC TRE.</span>
+
+<span class="sd">        :param context: contextual information describing the collection environment</span>
+<span class="sd">        :param section_row: image row section number that the sensor model applies to</span>
+<span class="sd">        :param section_col: image col section number that the sensor model applies to</span>
+<span class="sd">        :param row_norm_offset: offset used to normalize/denormalize image row components</span>
+<span class="sd">        :param column_norm_offset: offset used to normalize/denormalize image column components</span>
+<span class="sd">        :param x_norm_offset: offset used to normalize/denormalize world x components</span>
+<span class="sd">        :param y_norm_offset: offset used to normalize/denormalize world y components</span>
+<span class="sd">        :param z_norm_offset: offset used to normalize/denormalize world z components</span>
+<span class="sd">        :param row_norm_scale: scale used to normalize/denormalize image row components</span>
+<span class="sd">        :param column_norm_scale: scale used to normalize/denormalize image column components</span>
+<span class="sd">        :param x_norm_scale: scale used to normalize/denormalize world x components</span>
+<span class="sd">        :param y_norm_scale: scale used to normalize/denormalize world y components</span>
+<span class="sd">        :param z_norm_scale: scale used to normalize/denormalize world z components</span>
+<span class="sd">        :param row_numerator_poly: polynomial used as the numerator in row calculations</span>
+<span class="sd">        :param row_denominator_poly: polynomial used as the denominator in row calculations</span>
+<span class="sd">        :param column_numerator_poly: polynomial used as the numerator in column calculations</span>
+<span class="sd">        :param column_denominator_poly: polynomial used as the denominator in column calculations</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">section_row</span> <span class="o">=</span> <span class="n">section_row</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">section_col</span> <span class="o">=</span> <span class="n">section_col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row_norm_offset</span> <span class="o">=</span> <span class="n">row_norm_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_norm_offset</span> <span class="o">=</span> <span class="n">column_norm_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_norm_offset</span> <span class="o">=</span> <span class="n">x_norm_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_norm_offset</span> <span class="o">=</span> <span class="n">y_norm_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_norm_offset</span> <span class="o">=</span> <span class="n">z_norm_offset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row_norm_scale</span> <span class="o">=</span> <span class="n">row_norm_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_norm_scale</span> <span class="o">=</span> <span class="n">column_norm_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_norm_scale</span> <span class="o">=</span> <span class="n">x_norm_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_norm_scale</span> <span class="o">=</span> <span class="n">y_norm_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_norm_scale</span> <span class="o">=</span> <span class="n">z_norm_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row_numerator_poly</span> <span class="o">=</span> <span class="n">row_numerator_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row_denominator_poly</span> <span class="o">=</span> <span class="n">row_denominator_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_numerator_poly</span> <span class="o">=</span> <span class="n">column_numerator_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_denominator_poly</span> <span class="o">=</span> <span class="n">column_denominator_poly</span>
+
+<div class="viewcode-block" id="RSMPolynomialSensorModel.world_to_image">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomialSensorModel.world_to_image">[docs]</a>
+    <span class="k">def</span> <span class="nf">world_to_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geodetic_coordinate</span><span class="p">:</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function transforms a geodetic world coordinate (longitude, latitude, elevation) into an image coordinate</span>
+<span class="sd">        (x, y).</span>
+
+<span class="sd">        :param geodetic_coordinate: the world coordinate (longitude, latitude, elevation)</span>
+
+<span class="sd">        :return: the resulting image coordinate (x,y)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Convert the geodetic world coordinate into a coordinate in the ground domain then run the ground domain</span>
+        <span class="c1"># to image function to get the final result.</span>
+        <span class="n">world_coordinate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">ground_domain</span><span class="o">.</span><span class="n">geodetic_to_ground_domain_coordinate</span><span class="p">(</span><span class="n">geodetic_coordinate</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ground_domain_to_image</span><span class="p">(</span><span class="n">world_coordinate</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RSMPolynomialSensorModel.image_to_world">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomialSensorModel.image_to_world">[docs]</a>
+    <span class="k">def</span> <span class="nf">image_to_world</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_coordinate</span><span class="p">:</span> <span class="n">ImageCoordinate</span><span class="p">,</span>
+        <span class="n">elevation_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ElevationModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function implements the image to world transform by iteratively invoking world to image within a</span>
+<span class="sd">        minimization routine to find a matching image coordinate. The longitude and latitude parameters are searched</span>
+<span class="sd">        independently while the elevation of the world coordinate comes from the surface provided with the ground</span>
+<span class="sd">        domain.</span>
+
+<span class="sd">        :param image_coordinate: the image coordinate (x, y)</span>
+<span class="sd">        :param elevation_model: an optional elevation model used transform the coordinate</span>
+<span class="sd">        :param options: optional hints, supports initial_guess and initial_search_distance</span>
+
+<span class="sd">        :return: the corresponding world coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># This is the function we will be minimizing. Given a longitude, latitude coordinate we invoke the</span>
+        <span class="c1"># world_to_image function to get a projection of that location in the image. Then we compute the</span>
+        <span class="c1"># distance between that new image location and the input image location. When those locations match then</span>
+        <span class="c1"># we know we have the world coordinate that corresponds to the input.</span>
+        <span class="k">def</span> <span class="nf">distance_to_target_coordinate</span><span class="p">(</span><span class="n">lonlat_coord</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="n">current_world_coordinate</span> <span class="o">=</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">([</span><span class="n">lonlat_coord</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lonlat_coord</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">ground_domain</span><span class="o">.</span><span class="n">default_elevation_model</span><span class="o">.</span><span class="n">set_elevation</span><span class="p">(</span><span class="n">current_world_coordinate</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">elevation_model</span><span class="p">:</span>
+                <span class="n">elevation_model</span><span class="o">.</span><span class="n">set_elevation</span><span class="p">(</span><span class="n">current_world_coordinate</span><span class="p">)</span>
+            <span class="n">new_image_coordinate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_to_image</span><span class="p">(</span><span class="n">current_world_coordinate</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">sqrt</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">image_coordinate</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">new_image_coordinate</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">image_coordinate</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">new_image_coordinate</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Select an initial guess that is at the center of face 1 in the ground domain. Face 1 is defined as the</span>
+        <span class="c1"># plane V1-&gt;V3-&gt;V4-&gt;V2 so taking a location at the center of the diagonal V1-&gt;V4 should start the search off</span>
+        <span class="c1"># at the center of the ground domain.</span>
+        <span class="n">v1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">ground_domain</span><span class="o">.</span><span class="n">geodetic_ground_domain_vertices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">v4</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">ground_domain</span><span class="o">.</span><span class="n">geodetic_ground_domain_vertices</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">initial_guess</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SensorModelOptions</span><span class="o">.</span><span class="n">INITIAL_GUESS</span><span class="p">)</span> <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">initial_guess</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">initial_guess</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([(</span><span class="n">v1</span><span class="o">.</span><span class="n">longitude</span> <span class="o">+</span> <span class="n">v4</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">latitude</span> <span class="o">+</span> <span class="n">v4</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
+            <span class="n">initial_guess</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">)</span>
+
+        <span class="n">initial_search_distance</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SensorModelOptions</span><span class="o">.</span><span class="n">INITIAL_SEARCH_DISTANCE</span><span class="p">)</span> <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">initial_search_distance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">initial_search_distance</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(((</span><span class="n">v1</span><span class="o">.</span><span class="n">longitude</span> <span class="o">-</span> <span class="n">v4</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">((</span><span class="n">v1</span><span class="o">.</span><span class="n">latitude</span> <span class="o">-</span> <span class="n">v4</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="c1"># Iteratively adjust the initial guess to minimize the distance to the target image coordinate. We are only</span>
+        <span class="c1"># allowing the x,y components to vary here and the z is fixed to the elevation model used by the ground</span>
+        <span class="c1"># domain. The starting simplex is estimated as a triangle centered in the ground domain.</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
+            <span class="n">distance_to_target_coordinate</span><span class="p">,</span>
+            <span class="n">initial_guess</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;Nelder-Mead&quot;</span><span class="p">,</span>
+            <span class="n">bounds</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">ground_domain</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">ground_domain</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">ground_domain</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">ground_domain</span><span class="o">.</span><span class="n">geodetic_lonlat_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;xatol&quot;</span><span class="p">:</span> <span class="n">radians</span><span class="p">(</span><span class="mf">0.000001</span><span class="p">),</span>
+                <span class="s2">&quot;fatol&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                <span class="s2">&quot;initial_simplex&quot;</span><span class="p">:</span> <span class="n">equilateral_triangle</span><span class="p">(</span><span class="n">initial_guess</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">initial_search_distance</span><span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="c1"># The minimization result is a (longitude,latitude) tuple, so we need to expand it to</span>
+        <span class="c1"># longitude,latitude,elevation and replace the z component with the height from the elevation model.</span>
+        <span class="n">world_coordinate</span> <span class="o">=</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">ground_domain</span><span class="o">.</span><span class="n">default_elevation_model</span><span class="o">.</span><span class="n">set_elevation</span><span class="p">(</span><span class="n">world_coordinate</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">elevation_model</span><span class="p">:</span>
+            <span class="n">elevation_model</span><span class="o">.</span><span class="n">set_elevation</span><span class="p">(</span><span class="n">world_coordinate</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">world_coordinate</span></div>
+
+
+<div class="viewcode-block" id="RSMPolynomialSensorModel.ground_domain_to_image">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomialSensorModel.ground_domain_to_image">[docs]</a>
+    <span class="k">def</span> <span class="nf">ground_domain_to_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain_coordinate</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function implements the polynomial ground-to-image transform as defined by section 10.3.3.1.1 of the</span>
+<span class="sd">        Manual of Photogrammetry sixth edition. The world coordinate is first normalized using the offsets and scale</span>
+<span class="sd">        factors provided. Then the rational polynomial equations are run to produce an x,y image coordinate. Those</span>
+<span class="sd">        components are then denormalized to find the final image coordinate.</span>
+
+<span class="sd">        :param domain_coordinate: the ground domain coordinate (x, y, z)</span>
+
+<span class="sd">        :return: the image coordinate (x, y)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norm_domain_coordinate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize_world_coordinate</span><span class="p">(</span><span class="n">domain_coordinate</span><span class="p">)</span>
+        <span class="n">norm_row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_numerator_poly</span><span class="p">(</span><span class="n">norm_domain_coordinate</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_denominator_poly</span><span class="p">(</span><span class="n">norm_domain_coordinate</span><span class="p">)</span>
+        <span class="n">norm_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_numerator_poly</span><span class="p">(</span><span class="n">norm_domain_coordinate</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_denominator_poly</span><span class="p">(</span>
+            <span class="n">norm_domain_coordinate</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">denormalize_image_coordinate</span><span class="p">(</span><span class="n">ImageCoordinate</span><span class="p">([</span><span class="n">norm_column</span><span class="p">,</span> <span class="n">norm_row</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="RSMPolynomialSensorModel.normalize_world_coordinate">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomialSensorModel.normalize_world_coordinate">[docs]</a>
+    <span class="k">def</span> <span class="nf">normalize_world_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world_coordinate</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorldCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is a helper function used to normalize a world coordinate for use with the polynomials in this sensor</span>
+<span class="sd">        model.</span>
+
+<span class="sd">        :param world_coordinate: the world coordinate (longitude, latitude, elevation)</span>
+
+<span class="sd">        :return: a world coordinate where each component has been normalized</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norm_x</span> <span class="o">=</span> <span class="n">RSMPolynomialSensorModel</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">world_coordinate</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_norm_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_norm_scale</span><span class="p">)</span>
+        <span class="n">norm_y</span> <span class="o">=</span> <span class="n">RSMPolynomialSensorModel</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">world_coordinate</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_norm_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_norm_scale</span><span class="p">)</span>
+        <span class="n">norm_z</span> <span class="o">=</span> <span class="n">RSMPolynomialSensorModel</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">world_coordinate</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_norm_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_norm_scale</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">WorldCoordinate</span><span class="p">([</span><span class="n">norm_x</span><span class="p">,</span> <span class="n">norm_y</span><span class="p">,</span> <span class="n">norm_z</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RSMPolynomialSensorModel.denormalize_world_coordinate">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomialSensorModel.denormalize_world_coordinate">[docs]</a>
+    <span class="k">def</span> <span class="nf">denormalize_world_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world_coordinate</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorldCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is a helper function used to denormalize a world coordinate for use with the polynomials in this sensor</span>
+<span class="sd">        model.</span>
+
+<span class="sd">        :param world_coordinate: the normalized world coordinate (longitude, latitude, elevation)</span>
+
+<span class="sd">        :return: a world coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">denorm_x</span> <span class="o">=</span> <span class="n">RSMPolynomialSensorModel</span><span class="o">.</span><span class="n">denormalize</span><span class="p">(</span><span class="n">world_coordinate</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_norm_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_norm_scale</span><span class="p">)</span>
+        <span class="n">denorm_y</span> <span class="o">=</span> <span class="n">RSMPolynomialSensorModel</span><span class="o">.</span><span class="n">denormalize</span><span class="p">(</span><span class="n">world_coordinate</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_norm_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_norm_scale</span><span class="p">)</span>
+        <span class="n">denorm_z</span> <span class="o">=</span> <span class="n">RSMPolynomialSensorModel</span><span class="o">.</span><span class="n">denormalize</span><span class="p">(</span><span class="n">world_coordinate</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_norm_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_norm_scale</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">WorldCoordinate</span><span class="p">([</span><span class="n">denorm_x</span><span class="p">,</span> <span class="n">denorm_y</span><span class="p">,</span> <span class="n">denorm_z</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RSMPolynomialSensorModel.normalize_image_coordinate">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomialSensorModel.normalize_image_coordinate">[docs]</a>
+    <span class="k">def</span> <span class="nf">normalize_image_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_coordinate</span><span class="p">:</span> <span class="n">ImageCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is a helper function used to normalize an image coordinate for use in these polynomials.</span>
+
+<span class="sd">        :param image_coordinate: the image coordinate (x, y)</span>
+
+<span class="sd">        :return: the normalized image coordinate (x, y)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">norm_line</span> <span class="o">=</span> <span class="n">RSMPolynomialSensorModel</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">image_coordinate</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_norm_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_norm_scale</span><span class="p">)</span>
+        <span class="n">norm_samp</span> <span class="o">=</span> <span class="n">RSMPolynomialSensorModel</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">image_coordinate</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_norm_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_norm_scale</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ImageCoordinate</span><span class="p">([</span><span class="n">norm_samp</span><span class="p">,</span> <span class="n">norm_line</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RSMPolynomialSensorModel.denormalize_image_coordinate">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomialSensorModel.denormalize_image_coordinate">[docs]</a>
+    <span class="k">def</span> <span class="nf">denormalize_image_coordinate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_coordinate</span><span class="p">:</span> <span class="n">ImageCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is a helper function to denormalize an image coordinate after it has been processed by the polynomials.</span>
+
+<span class="sd">        :param image_coordinate: the normalized image coordinate (x, y)</span>
+
+<span class="sd">        :return: the image coordinate (x, y)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">denorm_line</span> <span class="o">=</span> <span class="n">RSMPolynomialSensorModel</span><span class="o">.</span><span class="n">denormalize</span><span class="p">(</span><span class="n">image_coordinate</span><span class="o">.</span><span class="n">r</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_norm_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_norm_scale</span><span class="p">)</span>
+        <span class="n">denorm_samp</span> <span class="o">=</span> <span class="n">RSMPolynomialSensorModel</span><span class="o">.</span><span class="n">denormalize</span><span class="p">(</span>
+            <span class="n">image_coordinate</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_norm_offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_norm_scale</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ImageCoordinate</span><span class="p">([</span><span class="n">denorm_samp</span><span class="p">,</span> <span class="n">denorm_line</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RSMPolynomialSensorModel.normalize">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomialSensorModel.normalize">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function normalizes a value using an offset and scale using the equations defined in Section 7.2 of</span>
+<span class="sd">        STDI-0002 Volume 1 Appendix U.</span>
+
+<span class="sd">        :param value: the value to be normalized</span>
+<span class="sd">        :param offset: the normalization offset</span>
+<span class="sd">        :param scale: the normalization scale</span>
+
+<span class="sd">        :return: the normalized value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="n">offset</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale</span></div>
+
+
+<div class="viewcode-block" id="RSMPolynomialSensorModel.denormalize">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMPolynomialSensorModel.denormalize">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">denormalize</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function denormalizes a value using an offset and scale using the equations defined in Section 7.2 of</span>
+<span class="sd">        STDI-0002 Volume 1 Appendix U.</span>
+
+<span class="sd">        :param value: the normalized value</span>
+<span class="sd">        :param offset: the normalization offset</span>
+<span class="sd">        :param scale: the normalization scale</span>
+
+<span class="sd">        :return: the denormalized value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="o">*</span> <span class="n">scale</span> <span class="o">+</span> <span class="n">offset</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RSMSectionedPolynomialSensorModel">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMSectionedPolynomialSensorModel">[docs]</a>
+<span class="k">class</span> <span class="nc">RSMSectionedPolynomialSensorModel</span><span class="p">(</span><span class="n">RSMSensorModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is an implementation of a sectioned sensor model that splits overall RSM domain into multiple regions each</span>
+<span class="sd">    serviced by a dedicated sensor model. A low complexity sensor model covering the entire domain is used to first</span>
+<span class="sd">    identify the general region of the image associated with a world coordinate then the final coordinate transform</span>
+<span class="sd">    is delegated to a sensor model associated with that section.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">context</span><span class="p">:</span> <span class="n">RSMContext</span><span class="p">,</span>
+        <span class="n">row_num_image_sections</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">column_num_image_sections</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">row_section_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">column_section_size</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">row_polynomial</span><span class="p">:</span> <span class="n">RSMLowOrderPolynomial</span><span class="p">,</span>
+        <span class="n">column_polynomial</span><span class="p">:</span> <span class="n">RSMLowOrderPolynomial</span><span class="p">,</span>
+        <span class="n">section_sensor_models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">SensorModel</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This constructs the sensor model using parameters normally found in the NITF RSMPI TRE. Note that the</span>
+<span class="sd">        per-section sensor models should be constructed from their individual RSMPC TREs.</span>
+
+<span class="sd">        :param context: contextual information describing the collection environment</span>
+<span class="sd">        :param row_num_image_sections: the number of row image sections</span>
+<span class="sd">        :param column_num_image_sections: the number of column image sections</span>
+<span class="sd">        :param row_section_size: the size of row section</span>
+<span class="sd">        :param column_section_size: the size of column section</span>
+<span class="sd">        :param row_polynomial: polynomial used in row calculations</span>
+<span class="sd">        :param column_polynomial: polynomial used in column calculations</span>
+<span class="sd">        :param section_sensor_models: the list of sensor models</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row_num_image_sections</span> <span class="o">=</span> <span class="n">row_num_image_sections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_num_image_sections</span> <span class="o">=</span> <span class="n">column_num_image_sections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row_section_size</span> <span class="o">=</span> <span class="n">row_section_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_section_size</span> <span class="o">=</span> <span class="n">column_section_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row_polynomial</span> <span class="o">=</span> <span class="n">row_polynomial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">column_polynomial</span> <span class="o">=</span> <span class="n">column_polynomial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">section_sensor_models</span> <span class="o">=</span> <span class="n">section_sensor_models</span>
+
+<div class="viewcode-block" id="RSMSectionedPolynomialSensorModel.world_to_image">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMSectionedPolynomialSensorModel.world_to_image">[docs]</a>
+    <span class="k">def</span> <span class="nf">world_to_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geodetic_coordinate</span><span class="p">:</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function transforms a geodetic world coordinate (longitude, latitude, elevation) into an image coordinate</span>
+<span class="sd">        (x, y).</span>
+
+<span class="sd">        :param geodetic_coordinate: the world coordinate (longitude, latitude, elevation)</span>
+
+<span class="sd">        :return: the resulting image coordinate (x,y)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Use the low order polynomials to approximate an x,y location of this world coordinate in the image</span>
+        <span class="n">domain_coordinate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">ground_domain</span><span class="o">.</span><span class="n">geodetic_to_ground_domain_coordinate</span><span class="p">(</span><span class="n">geodetic_coordinate</span><span class="p">)</span>
+        <span class="n">approximate_row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_polynomial</span><span class="p">(</span><span class="n">domain_coordinate</span><span class="p">)</span>
+        <span class="n">approximate_column</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_polynomial</span><span class="p">(</span><span class="n">domain_coordinate</span><span class="p">)</span>
+
+        <span class="c1"># Find the section of the image containing this approximate coordinate and select the corresponding sensor</span>
+        <span class="c1"># model</span>
+        <span class="n">approximate_image_coordinate</span> <span class="o">=</span> <span class="n">ImageCoordinate</span><span class="p">([</span><span class="n">approximate_column</span><span class="p">,</span> <span class="n">approximate_row</span><span class="p">])</span>
+        <span class="n">column_section_index</span><span class="p">,</span> <span class="n">row_section_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_section_index</span><span class="p">(</span><span class="n">approximate_image_coordinate</span><span class="p">)</span>
+        <span class="n">section_sensor_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_sensor_models</span><span class="p">[</span><span class="n">row_section_index</span><span class="p">][</span><span class="n">column_section_index</span><span class="p">]</span>
+
+        <span class="c1"># Use the selected sensor model to complete the full precision world to image transformation</span>
+        <span class="k">return</span> <span class="n">section_sensor_model</span><span class="o">.</span><span class="n">world_to_image</span><span class="p">(</span><span class="n">geodetic_coordinate</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RSMSectionedPolynomialSensorModel.image_to_world">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMSectionedPolynomialSensorModel.image_to_world">[docs]</a>
+    <span class="k">def</span> <span class="nf">image_to_world</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_coordinate</span><span class="p">:</span> <span class="n">ImageCoordinate</span><span class="p">,</span>
+        <span class="n">elevation_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ElevationModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function implements the image to world transform by selecting the sensor model responsible for coordinates</span>
+<span class="sd">        in the image section and then delegating the image to world calculations to that sensor model.</span>
+
+<span class="sd">        :param image_coordinate: the image coordinate (x, y)</span>
+<span class="sd">        :param elevation_model: optional elevation model used to transform the coordinate</span>
+<span class="sd">        :param options: optional dictionary of hints passed on to the section sensor models</span>
+
+<span class="sd">        :return: the corresponding world coordinate (longitude, latitude, elevation)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Find the section of the image containing this coordinate and select the corresponding sensor model</span>
+        <span class="n">column_section_index</span><span class="p">,</span> <span class="n">row_section_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_section_index</span><span class="p">(</span><span class="n">image_coordinate</span><span class="p">)</span>
+        <span class="n">section_camera</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">section_sensor_models</span><span class="p">[</span><span class="n">row_section_index</span><span class="p">][</span><span class="n">column_section_index</span><span class="p">]</span>
+
+        <span class="c1"># Use the selected sensor model to complete the full precision image to world transformation</span>
+        <span class="k">return</span> <span class="n">section_camera</span><span class="o">.</span><span class="n">image_to_world</span><span class="p">(</span><span class="n">image_coordinate</span><span class="p">,</span> <span class="n">elevation_model</span><span class="o">=</span><span class="n">elevation_model</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RSMSectionedPolynomialSensorModel.get_section_index">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.replacement_sensor_model.html#aws.osml.photogrammetry.RSMSectionedPolynomialSensorModel.get_section_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_section_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_coordinate</span><span class="p">:</span> <span class="n">ImageCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use the equations from STDO-0002 Volume 1 Appendix U Section 6.3 to calculate the section of this image</span>
+<span class="sd">        containing the rough x, y. Note that these equations are slightly different from the documentation since</span>
+<span class="sd">        those equations produce section numbers that start with 1, and we&#39;re starting with 0 to more naturally</span>
+<span class="sd">        index into the array of sensor models. Note that if the value is outside the normal sections it is clamped</span>
+<span class="sd">        to use the sensor model from the closest section available.</span>
+
+<span class="sd">        :param image_coordinate: the image coordinate (x, y)</span>
+
+<span class="sd">        :return: section index (x, y)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">row_section_index</span> <span class="o">=</span> <span class="n">floor</span><span class="p">((</span><span class="n">image_coordinate</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">image_domain</span><span class="o">.</span><span class="n">min_row</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_section_size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">row_section_index</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">row_section_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="n">row_section_index</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_num_image_sections</span><span class="p">:</span>
+            <span class="n">row_section_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_num_image_sections</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="n">column_section_index</span> <span class="o">=</span> <span class="n">floor</span><span class="p">((</span><span class="n">image_coordinate</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">image_domain</span><span class="o">.</span><span class="n">min_column</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_section_size</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">column_section_index</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">column_section_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">elif</span> <span class="n">column_section_index</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_num_image_sections</span><span class="p">:</span>
+            <span class="n">column_section_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_num_image_sections</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="n">column_section_index</span><span class="p">,</span> <span class="n">row_section_index</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+aws.osml.photogrammetry.coordinates module
+==========================================
+
+.. automodule:: aws.osml.photogrammetry.coordinates
+   :members:
+   :undoc-members:
+   :show-inheritance:

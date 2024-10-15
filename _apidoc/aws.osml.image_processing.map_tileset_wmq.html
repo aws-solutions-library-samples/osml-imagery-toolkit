@@ -1,0 +1,171 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.image_processing.map_tileset_wmq module &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">aws.osml.image_processing.map_tileset_wmq module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_apidoc/aws.osml.image_processing.map_tileset_wmq.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-aws.osml.image_processing.map_tileset_wmq">
+<span id="aws-osml-image-processing-map-tileset-wmq-module"></span><h1>aws.osml.image_processing.map_tileset_wmq module<a class="headerlink" href="#module-aws.osml.image_processing.map_tileset_wmq" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.image_processing.map_tileset_wmq.WebMercatorQuadMapTileSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.image_processing.map_tileset_wmq.</span></span><span class="sig-name descname"><span class="pre">WebMercatorQuadMapTileSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tile_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">256</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_matrix_set_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'WebMercatorQuad'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/image_processing/map_tileset_wmq.html#WebMercatorQuadMapTileSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.map_tileset_wmq.WebMercatorQuadMapTileSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.map_tileset.MapTileSet" title="aws.osml.image_processing.map_tileset.MapTileSet"><code class="xref py py-class docutils literal notranslate"><span class="pre">MapTileSet</span></code></a></p>
+<p>Tile matrix set definition for WebMercatorQuad, expressed in <a class="reference external" href="http://www.opengis.net/def/crs/EPSG/0/3857">http://www.opengis.net/def/crs/EPSG/0/3857</a> This tile
+matrix set is the most used tile matrix set in the mass market.(Google Maps, Microsoft Bing Maps, and Open Street
+Map tiles all use this projection). Note that this class should not be imported / used directly; it is an
+implementation detail of the abstract MapTileSet class. The correct way to utilize this class is to get an
+implementation from the MapTileSetFactory using a value from the WellKnownTileSet enumeration.</p>
+<p>It has been long criticized because it is a based on a spherical Mercator instead of an ellipsoid. The use of
+WebMercatorQuad should be limited to visualization. Any additional use (including distance measurements, routing,
+etc.) needs to use the Mercator spherical expressions to transform the coordinate to an appropriate CRS first. The
+risks caused by imprecision in the use of Web Mercator have been noted by the US National Geospatial-Intelligence
+Agency (NGA). NGA has issued an Advisory Notice on web Mercator noting its risks and limiting approved usage to
+visualizations: <a class="reference external" href="https://nsgreg.nga.mil/doc/view?i=4478">https://nsgreg.nga.mil/doc/view?i=4478</a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="aws.osml.image_processing.map_tileset_wmq.WebMercatorQuadMapTileSet.tile_matrix_set_id">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tile_matrix_set_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></em><a class="headerlink" href="#aws.osml.image_processing.map_tileset_wmq.WebMercatorQuadMapTileSet.tile_matrix_set_id" title="Link to this definition"></a></dt>
+<dd><p>Get the identifier for this map tile set. This is the tile matrix set ID in the OGC definitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the tile matrix set ID</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.image_processing.map_tileset_wmq.WebMercatorQuadMapTileSet.get_tile">
+<span class="sig-name descname"><span class="pre">get_tile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tile_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TildId</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.map_tileset.MapTile" title="aws.osml.image_processing.map_tileset.MapTile"><span class="pre">MapTile</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/map_tileset_wmq.html#WebMercatorQuadMapTileSet.get_tile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.map_tileset_wmq.WebMercatorQuadMapTileSet.get_tile" title="Link to this definition"></a></dt>
+<dd><p>Get a description of the tile identified by a specific map tile ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tile_id</strong> – the tile ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the tile description</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.image_processing.map_tileset_wmq.WebMercatorQuadMapTileSet.get_tile_for_location">
+<span class="sig-name descname"><span class="pre">get_tile_for_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">world_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.map_tileset.MapTile" title="aws.osml.image_processing.map_tileset.MapTile"><span class="pre">MapTile</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/map_tileset_wmq.html#WebMercatorQuadMapTileSet.get_tile_for_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.map_tileset_wmq.WebMercatorQuadMapTileSet.get_tile_for_location" title="Link to this definition"></a></dt>
+<dd><p>Get a description of the tile containing a specific world location.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>world_coordinate</strong> – the location in the world</p></li>
+<li><p><strong>tile_matrix</strong> – the tile_matrix or zoom level of interest</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the tile description</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

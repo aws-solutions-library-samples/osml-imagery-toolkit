@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.formats.sidd &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">aws.osml.formats.sidd</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_apidoc/aws.osml.formats.sidd.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-aws.osml.formats.sidd">
+<span id="aws-osml-formats-sidd"></span><h1>aws.osml.formats.sidd<a class="headerlink" href="#module-aws.osml.formats.sidd" title="Link to this heading"></a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.formats.sidd.models.html">aws.osml.formats.sidd.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.AbstractReferenceSystemType"><code class="docutils literal notranslate"><span class="pre">AbstractReferenceSystemType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.CurveType"><code class="docutils literal notranslate"><span class="pre">CurveType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.DatumType"><code class="docutils literal notranslate"><span class="pre">DatumType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.GeocentricCoordinateSystemType"><code class="docutils literal notranslate"><span class="pre">GeocentricCoordinateSystemType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.GeographicCoordinateSystemType"><code class="docutils literal notranslate"><span class="pre">GeographicCoordinateSystemType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.GeometryCollectionType"><code class="docutils literal notranslate"><span class="pre">GeometryCollectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.GeometryType"><code class="docutils literal notranslate"><span class="pre">GeometryType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.LineStringType"><code class="docutils literal notranslate"><span class="pre">LineStringType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.SfaLineType"><code class="docutils literal notranslate"><span class="pre">SfaLineType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.LinearRingType"><code class="docutils literal notranslate"><span class="pre">LinearRingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.MultiCurveType"><code class="docutils literal notranslate"><span class="pre">MultiCurveType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.MultiLineStringType"><code class="docutils literal notranslate"><span class="pre">MultiLineStringType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.MultiPointType"><code class="docutils literal notranslate"><span class="pre">MultiPointType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.MultiPolygonType"><code class="docutils literal notranslate"><span class="pre">MultiPolygonType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.MultiSurfaceType"><code class="docutils literal notranslate"><span class="pre">MultiSurfaceType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.SfaParameterType"><code class="docutils literal notranslate"><span class="pre">SfaParameterType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.PointType"><code class="docutils literal notranslate"><span class="pre">PointType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.SfaPolygonType"><code class="docutils literal notranslate"><span class="pre">SfaPolygonType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.PolyhedralSurfaceType"><code class="docutils literal notranslate"><span class="pre">PolyhedralSurfaceType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.PrimeMeridianType"><code class="docutils literal notranslate"><span class="pre">PrimeMeridianType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.ProjectedCoordinateSystemType"><code class="docutils literal notranslate"><span class="pre">ProjectedCoordinateSystemType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.ProjectionType"><code class="docutils literal notranslate"><span class="pre">ProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.ReferenceSystemType"><code class="docutils literal notranslate"><span class="pre">ReferenceSystemType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.SpheriodType"><code class="docutils literal notranslate"><span class="pre">SpheriodType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.SurfaceType"><code class="docutils literal notranslate"><span class="pre">SurfaceType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.TriangleType"><code class="docutils literal notranslate"><span class="pre">TriangleType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.TriangulatedIrregularNetworkType"><code class="docutils literal notranslate"><span class="pre">TriangulatedIrregularNetworkType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.UNITType"><code class="docutils literal notranslate"><span class="pre">UNITType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.AngleMagnitudeType"><code class="docutils literal notranslate"><span class="pre">AngleMagnitudeType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.ArrayDoubleType"><code class="docutils literal notranslate"><span class="pre">ArrayDoubleType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.CollectIdentifierType"><code class="docutils literal notranslate"><span class="pre">CollectIdentifierType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.CollectionInfoType"><code class="docutils literal notranslate"><span class="pre">CollectionInfoType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.ComplexType"><code class="docutils literal notranslate"><span class="pre">ComplexType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.CornerStringType"><code class="docutils literal notranslate"><span class="pre">CornerStringType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.ErrorFrameType"><code class="docutils literal notranslate"><span class="pre">ErrorFrameType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.ErrorStatisticsType"><code class="docutils literal notranslate"><span class="pre">ErrorStatisticsType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.GammaZeroSFIncidenceMapType"><code class="docutils literal notranslate"><span class="pre">GammaZeroSFIncidenceMapType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.ImageCreationType"><code class="docutils literal notranslate"><span class="pre">ImageCreationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.LLHCornerStringType"><code class="docutils literal notranslate"><span class="pre">LLHCornerStringType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.LLHType"><code class="docutils literal notranslate"><span class="pre">LLHType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.LatLonCornerStringType"><code class="docutils literal notranslate"><span class="pre">LatLonCornerStringType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.LatLonCornerType"><code class="docutils literal notranslate"><span class="pre">LatLonCornerType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.LatLonHAECornerType"><code class="docutils literal notranslate"><span class="pre">LatLonHAECornerType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.LatLonType"><code class="docutils literal notranslate"><span class="pre">LatLonType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.LatLonVertexType"><code class="docutils literal notranslate"><span class="pre">LatLonVertexType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.SicommontypesLineType"><code class="docutils literal notranslate"><span class="pre">SicommontypesLineType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.ModeIdentifierType"><code class="docutils literal notranslate"><span class="pre">ModeIdentifierType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.SicommontypesParameterType"><code class="docutils literal notranslate"><span class="pre">SicommontypesParameterType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.PolarizationType"><code class="docutils literal notranslate"><span class="pre">PolarizationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.Poly1DType"><code class="docutils literal notranslate"><span class="pre">Poly1DType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.Poly2DType"><code class="docutils literal notranslate"><span class="pre">Poly2DType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.PolyCoef1DType"><code class="docutils literal notranslate"><span class="pre">PolyCoef1DType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.PolyCoef2DType"><code class="docutils literal notranslate"><span class="pre">PolyCoef2DType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.SicommontypesPolygonType"><code class="docutils literal notranslate"><span class="pre">SicommontypesPolygonType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.RadarModeType"><code class="docutils literal notranslate"><span class="pre">RadarModeType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.RadiometricType"><code class="docutils literal notranslate"><span class="pre">RadiometricType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.RangeAzimuthType"><code class="docutils literal notranslate"><span class="pre">RangeAzimuthType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.ReferencePointType"><code class="docutils literal notranslate"><span class="pre">ReferencePointType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.RowColDoubleType"><code class="docutils literal notranslate"><span class="pre">RowColDoubleType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.RowColIntType"><code class="docutils literal notranslate"><span class="pre">RowColIntType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.RowColVertexType"><code class="docutils literal notranslate"><span class="pre">RowColVertexType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.SigmaZeroSFIncidenceMapType"><code class="docutils literal notranslate"><span class="pre">SigmaZeroSFIncidenceMapType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.ValidDataType"><code class="docutils literal notranslate"><span class="pre">ValidDataType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.XYZAttributeType"><code class="docutils literal notranslate"><span class="pre">XYZAttributeType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.XYZPolyAttributeType"><code class="docutils literal notranslate"><span class="pre">XYZPolyAttributeType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.XYZPolyType"><code class="docutils literal notranslate"><span class="pre">XYZPolyType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.XYZType"><code class="docutils literal notranslate"><span class="pre">XYZType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10AngleMagnitudeType"><code class="docutils literal notranslate"><span class="pre">V10AngleMagnitudeType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.AngleZeroToExclusive360MagnitudeType"><code class="docutils literal notranslate"><span class="pre">AngleZeroToExclusive360MagnitudeType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10ArrayDoubleType"><code class="docutils literal notranslate"><span class="pre">V10ArrayDoubleType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10CollectIdentifierType"><code class="docutils literal notranslate"><span class="pre">V10CollectIdentifierType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10CollectionInfoType"><code class="docutils literal notranslate"><span class="pre">V10CollectionInfoType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10ComplexType"><code class="docutils literal notranslate"><span class="pre">V10ComplexType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10CornerStringType"><code class="docutils literal notranslate"><span class="pre">V10CornerStringType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10ErrorFrameType"><code class="docutils literal notranslate"><span class="pre">V10ErrorFrameType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10ErrorStatisticsType"><code class="docutils literal notranslate"><span class="pre">V10ErrorStatisticsType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.GeoInfo"><code class="docutils literal notranslate"><span class="pre">GeoInfo</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.GeoInfoType"><code class="docutils literal notranslate"><span class="pre">GeoInfoType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10ImageCreationType"><code class="docutils literal notranslate"><span class="pre">V10ImageCreationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10LLHCornerStringType"><code class="docutils literal notranslate"><span class="pre">V10LLHCornerStringType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10LLHType"><code class="docutils literal notranslate"><span class="pre">V10LLHType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10LatLonCornerStringType"><code class="docutils literal notranslate"><span class="pre">V10LatLonCornerStringType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10LatLonCornerType"><code class="docutils literal notranslate"><span class="pre">V10LatLonCornerType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10LatLonHAECornerType"><code class="docutils literal notranslate"><span class="pre">V10LatLonHAECornerType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.LatLonRestrictionType"><code class="docutils literal notranslate"><span class="pre">LatLonRestrictionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10LatLonType"><code class="docutils literal notranslate"><span class="pre">V10LatLonType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10LatLonVertexType"><code class="docutils literal notranslate"><span class="pre">V10LatLonVertexType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10LineType"><code class="docutils literal notranslate"><span class="pre">V10LineType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.MatchInfoType"><code class="docutils literal notranslate"><span class="pre">MatchInfoType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10ModeIdentifierType"><code class="docutils literal notranslate"><span class="pre">V10ModeIdentifierType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.NoiseLevelNoiseLevelType"><code class="docutils literal notranslate"><span class="pre">NoiseLevelNoiseLevelType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10ParameterType"><code class="docutils literal notranslate"><span class="pre">V10ParameterType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.Polarization1Typevalue"><code class="docutils literal notranslate"><span class="pre">Polarization1Typevalue</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10Poly1DType"><code class="docutils literal notranslate"><span class="pre">V10Poly1DType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10Poly2DType"><code class="docutils literal notranslate"><span class="pre">V10Poly2DType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10PolyCoef1DType"><code class="docutils literal notranslate"><span class="pre">V10PolyCoef1DType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10PolyCoef2DType"><code class="docutils literal notranslate"><span class="pre">V10PolyCoef2DType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10PolygonType"><code class="docutils literal notranslate"><span class="pre">V10PolygonType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10RadarModeType"><code class="docutils literal notranslate"><span class="pre">V10RadarModeType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10RadiometricType"><code class="docutils literal notranslate"><span class="pre">V10RadiometricType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.RadiometricTypeSigmaZeroSFIncidenceMap"><code class="docutils literal notranslate"><span class="pre">RadiometricTypeSigmaZeroSFIncidenceMap</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10RangeAzimuthType"><code class="docutils literal notranslate"><span class="pre">V10RangeAzimuthType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10ReferencePointType"><code class="docutils literal notranslate"><span class="pre">V10ReferencePointType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10RowColDoubleType"><code class="docutils literal notranslate"><span class="pre">V10RowColDoubleType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10RowColIntType"><code class="docutils literal notranslate"><span class="pre">V10RowColIntType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10RowColVertexType"><code class="docutils literal notranslate"><span class="pre">V10RowColVertexType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10ValidDataType"><code class="docutils literal notranslate"><span class="pre">V10ValidDataType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10XYZAttributeType"><code class="docutils literal notranslate"><span class="pre">V10XYZAttributeType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10XYZPolyAttributeType"><code class="docutils literal notranslate"><span class="pre">V10XYZPolyAttributeType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10XYZPolyType"><code class="docutils literal notranslate"><span class="pre">V10XYZPolyType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V10XYZType"><code class="docutils literal notranslate"><span class="pre">V10XYZType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1AcheivedResolutionType"><code class="docutils literal notranslate"><span class="pre">V1AcheivedResolutionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1AnnotationObjectType"><code class="docutils literal notranslate"><span class="pre">V1AnnotationObjectType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1AnnotationType"><code class="docutils literal notranslate"><span class="pre">V1AnnotationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1AnnotationsType"><code class="docutils literal notranslate"><span class="pre">V1AnnotationsType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1BaseProjectionType"><code class="docutils literal notranslate"><span class="pre">V1BaseProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ClassificationGuidanceType"><code class="docutils literal notranslate"><span class="pre">V1ClassificationGuidanceType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ColorDisplayRemapType"><code class="docutils literal notranslate"><span class="pre">V1ColorDisplayRemapType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1CylindricalProjectionType"><code class="docutils literal notranslate"><span class="pre">V1CylindricalProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1DRAHistogramOverridesType"><code class="docutils literal notranslate"><span class="pre">V1DRAHistogramOverridesType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.DecimationMethodType"><code class="docutils literal notranslate"><span class="pre">DecimationMethodType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1DownstreamReprocessingType"><code class="docutils literal notranslate"><span class="pre">V1DownstreamReprocessingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ExploitationFeaturesCollectionGeometryType"><code class="docutils literal notranslate"><span class="pre">V1ExploitationFeaturesCollectionGeometryType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ExploitationFeaturesCollectionInformationType"><code class="docutils literal notranslate"><span class="pre">V1ExploitationFeaturesCollectionInformationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ExploitationFeaturesCollectionPhenomenologyType"><code class="docutils literal notranslate"><span class="pre">V1ExploitationFeaturesCollectionPhenomenologyType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ExploitationFeaturesCollectionType"><code class="docutils literal notranslate"><span class="pre">V1ExploitationFeaturesCollectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ExploitationFeaturesProductType"><code class="docutils literal notranslate"><span class="pre">V1ExploitationFeaturesProductType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ExploitationFeaturesType"><code class="docutils literal notranslate"><span class="pre">V1ExploitationFeaturesType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.FootprintType"><code class="docutils literal notranslate"><span class="pre">FootprintType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.GeographicAndTargetType"><code class="docutils literal notranslate"><span class="pre">GeographicAndTargetType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.GeographicCoverageType"><code class="docutils literal notranslate"><span class="pre">GeographicCoverageType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.GeographicInformationType"><code class="docutils literal notranslate"><span class="pre">GeographicInformationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1GeographicProjectionType"><code class="docutils literal notranslate"><span class="pre">V1GeographicProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1GeometricChipType"><code class="docutils literal notranslate"><span class="pre">V1GeometricChipType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1InputROIType"><code class="docutils literal notranslate"><span class="pre">V1InputROIType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1Lookup3TableType"><code class="docutils literal notranslate"><span class="pre">V1Lookup3TableType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1LookupTableType"><code class="docutils literal notranslate"><span class="pre">V1LookupTableType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.MagnificationMethodType"><code class="docutils literal notranslate"><span class="pre">MagnificationMethodType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1MeasurableProjectionType"><code class="docutils literal notranslate"><span class="pre">V1MeasurableProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1MeasurementType"><code class="docutils literal notranslate"><span class="pre">V1MeasurementType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.MonitorCompensationAppliedType"><code class="docutils literal notranslate"><span class="pre">MonitorCompensationAppliedType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1MonochromeDisplayRemapType"><code class="docutils literal notranslate"><span class="pre">V1MonochromeDisplayRemapType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1PixelType"><code class="docutils literal notranslate"><span class="pre">V1PixelType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1PlaneProjectionType"><code class="docutils literal notranslate"><span class="pre">V1PlaneProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1PolynomialProjectionType"><code class="docutils literal notranslate"><span class="pre">V1PolynomialProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ProcessingEventType"><code class="docutils literal notranslate"><span class="pre">V1ProcessingEventType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ProcessingModuleType"><code class="docutils literal notranslate"><span class="pre">V1ProcessingModuleType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ProcessorInformationType"><code class="docutils literal notranslate"><span class="pre">V1ProcessorInformationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ProductClassificationType"><code class="docutils literal notranslate"><span class="pre">V1ProductClassificationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ProductCreationType"><code class="docutils literal notranslate"><span class="pre">V1ProductCreationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ProductDisplayType"><code class="docutils literal notranslate"><span class="pre">V1ProductDisplayType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ProductPlaneType"><code class="docutils literal notranslate"><span class="pre">V1ProductPlaneType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1ProductProcessingType"><code class="docutils literal notranslate"><span class="pre">V1ProductProcessingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1RemapChoiceType"><code class="docutils literal notranslate"><span class="pre">V1RemapChoiceType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1SIDD"><code class="docutils literal notranslate"><span class="pre">V1SIDD</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.TargetInformationType"><code class="docutils literal notranslate"><span class="pre">TargetInformationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V1TxRcvPolarizationType"><code class="docutils literal notranslate"><span class="pre">V1TxRcvPolarizationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2AccuracyType"><code class="docutils literal notranslate"><span class="pre">V2AccuracyType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2AcheivedResolutionType"><code class="docutils literal notranslate"><span class="pre">V2AcheivedResolutionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2AnnotationObjectType"><code class="docutils literal notranslate"><span class="pre">V2AnnotationObjectType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2AnnotationType"><code class="docutils literal notranslate"><span class="pre">V2AnnotationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2AnnotationsType"><code class="docutils literal notranslate"><span class="pre">V2AnnotationsType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2BandEqualizationType"><code class="docutils literal notranslate"><span class="pre">V2BandEqualizationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2BankCustomType"><code class="docutils literal notranslate"><span class="pre">V2BankCustomType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2BaseProjectionType"><code class="docutils literal notranslate"><span class="pre">V2BaseProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ClassificationGuidanceType"><code class="docutils literal notranslate"><span class="pre">V2ClassificationGuidanceType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ColorDisplayRemapType"><code class="docutils literal notranslate"><span class="pre">V2ColorDisplayRemapType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ColorManagementModuleType"><code class="docutils literal notranslate"><span class="pre">V2ColorManagementModuleType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ColorSpaceTransformType"><code class="docutils literal notranslate"><span class="pre">V2ColorSpaceTransformType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2CompressionType"><code class="docutils literal notranslate"><span class="pre">V2CompressionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2CustomLookupType"><code class="docutils literal notranslate"><span class="pre">V2CustomLookupType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2CylindricalProjectionType"><code class="docutils literal notranslate"><span class="pre">V2CylindricalProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2DRAHistogramOverridesType"><code class="docutils literal notranslate"><span class="pre">V2DRAHistogramOverridesType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2DRAOverrides"><code class="docutils literal notranslate"><span class="pre">V2DRAOverrides</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2DRAParameters"><code class="docutils literal notranslate"><span class="pre">V2DRAParameters</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2DigitalElevationDataType"><code class="docutils literal notranslate"><span class="pre">V2DigitalElevationDataType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2DownsamplingMethodType"><code class="docutils literal notranslate"><span class="pre">V2DownsamplingMethodType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2DownstreamReprocessingType"><code class="docutils literal notranslate"><span class="pre">V2DownstreamReprocessingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2DynamicRangeAdjustmentType"><code class="docutils literal notranslate"><span class="pre">V2DynamicRangeAdjustmentType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2EarthModelType"><code class="docutils literal notranslate"><span class="pre">V2EarthModelType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2EqualizationAlgorithmType"><code class="docutils literal notranslate"><span class="pre">V2EqualizationAlgorithmType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ExploitationFeaturesCollectionGeometryType"><code class="docutils literal notranslate"><span class="pre">V2ExploitationFeaturesCollectionGeometryType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ExploitationFeaturesCollectionInformationType"><code class="docutils literal notranslate"><span class="pre">V2ExploitationFeaturesCollectionInformationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ExploitationFeaturesCollectionPhenomenologyType"><code class="docutils literal notranslate"><span class="pre">V2ExploitationFeaturesCollectionPhenomenologyType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ExploitationFeaturesCollectionType"><code class="docutils literal notranslate"><span class="pre">V2ExploitationFeaturesCollectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ExploitationFeaturesProductType"><code class="docutils literal notranslate"><span class="pre">V2ExploitationFeaturesProductType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ExploitationFeaturesType"><code class="docutils literal notranslate"><span class="pre">V2ExploitationFeaturesType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2FilterBankCoefType"><code class="docutils literal notranslate"><span class="pre">V2FilterBankCoefType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2FilterBankType"><code class="docutils literal notranslate"><span class="pre">V2FilterBankType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2FilterDatabaseNameType"><code class="docutils literal notranslate"><span class="pre">V2FilterDatabaseNameType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2FilterKernelCoefType"><code class="docutils literal notranslate"><span class="pre">V2FilterKernelCoefType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2FilterKernelType"><code class="docutils literal notranslate"><span class="pre">V2FilterKernelType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2FilterOperationType"><code class="docutils literal notranslate"><span class="pre">V2FilterOperationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2FilterType"><code class="docutils literal notranslate"><span class="pre">V2FilterType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2GeoDataType"><code class="docutils literal notranslate"><span class="pre">V2GeoDataType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2GeographicCoordinatesType"><code class="docutils literal notranslate"><span class="pre">V2GeographicCoordinatesType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2GeographicProjectionType"><code class="docutils literal notranslate"><span class="pre">V2GeographicProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2GeometricChipType"><code class="docutils literal notranslate"><span class="pre">V2GeometricChipType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2GeometricTransformType"><code class="docutils literal notranslate"><span class="pre">V2GeometricTransformType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2GeopositioningType"><code class="docutils literal notranslate"><span class="pre">V2GeopositioningType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2GeopositioningTypeCoordinateSystemType"><code class="docutils literal notranslate"><span class="pre">V2GeopositioningTypeCoordinateSystemType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2GeopositioningTypeGeodeticDatum"><code class="docutils literal notranslate"><span class="pre">V2GeopositioningTypeGeodeticDatum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2GeopositioningTypeReferenceEllipsoid"><code class="docutils literal notranslate"><span class="pre">V2GeopositioningTypeReferenceEllipsoid</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2GeopositioningTypeSoundingDatum"><code class="docutils literal notranslate"><span class="pre">V2GeopositioningTypeSoundingDatum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2GeopositioningTypeVerticalDatum"><code class="docutils literal notranslate"><span class="pre">V2GeopositioningTypeVerticalDatum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ImageCornersType"><code class="docutils literal notranslate"><span class="pre">V2ImageCornersType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2InputROIType"><code class="docutils literal notranslate"><span class="pre">V2InputROIType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2InteractiveProcessingType"><code class="docutils literal notranslate"><span class="pre">V2InteractiveProcessingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2J2KSubtype"><code class="docutils literal notranslate"><span class="pre">V2J2KSubtype</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2J2KType"><code class="docutils literal notranslate"><span class="pre">V2J2KType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2KernelCustomType"><code class="docutils literal notranslate"><span class="pre">V2KernelCustomType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2LUTInfoType"><code class="docutils literal notranslate"><span class="pre">V2LUTInfoType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2LayerInfoType"><code class="docutils literal notranslate"><span class="pre">V2LayerInfoType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2LayerType"><code class="docutils literal notranslate"><span class="pre">V2LayerType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2Lookup3TableType"><code class="docutils literal notranslate"><span class="pre">V2Lookup3TableType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2LookupTableType"><code class="docutils literal notranslate"><span class="pre">V2LookupTableType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2MeasurableProjectionType"><code class="docutils literal notranslate"><span class="pre">V2MeasurableProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2MeasurementType"><code class="docutils literal notranslate"><span class="pre">V2MeasurementType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2MeasurementTypeARPFlag"><code class="docutils literal notranslate"><span class="pre">V2MeasurementTypeARPFlag</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2MonochromeDisplayRemapType"><code class="docutils literal notranslate"><span class="pre">V2MonochromeDisplayRemapType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2NewLookupTableType"><code class="docutils literal notranslate"><span class="pre">V2NewLookupTableType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2NonInteractiveProcessingType"><code class="docutils literal notranslate"><span class="pre">V2NonInteractiveProcessingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2Orientation"><code class="docutils literal notranslate"><span class="pre">V2Orientation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2PixelType"><code class="docutils literal notranslate"><span class="pre">V2PixelType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2PlaneProjectionType"><code class="docutils literal notranslate"><span class="pre">V2PlaneProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2PolygonType"><code class="docutils literal notranslate"><span class="pre">V2PolygonType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2PolynomialProjectionType"><code class="docutils literal notranslate"><span class="pre">V2PolynomialProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2PositionalAccuracyType"><code class="docutils literal notranslate"><span class="pre">V2PositionalAccuracyType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2PredefinedFilterType"><code class="docutils literal notranslate"><span class="pre">V2PredefinedFilterType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2PredefinedLookupType"><code class="docutils literal notranslate"><span class="pre">V2PredefinedLookupType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ProcTxRcvPolarizationType"><code class="docutils literal notranslate"><span class="pre">V2ProcTxRcvPolarizationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ProcessingEventType"><code class="docutils literal notranslate"><span class="pre">V2ProcessingEventType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ProcessingModuleType"><code class="docutils literal notranslate"><span class="pre">V2ProcessingModuleType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ProcessorInformationType"><code class="docutils literal notranslate"><span class="pre">V2ProcessorInformationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ProductClassificationType"><code class="docutils literal notranslate"><span class="pre">V2ProductClassificationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ProductCreationType"><code class="docutils literal notranslate"><span class="pre">V2ProductCreationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ProductDisplayType"><code class="docutils literal notranslate"><span class="pre">V2ProductDisplayType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ProductGenerationOptionsType"><code class="docutils literal notranslate"><span class="pre">V2ProductGenerationOptionsType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ProductPlaneType"><code class="docutils literal notranslate"><span class="pre">V2ProductPlaneType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ProductProcessingType"><code class="docutils literal notranslate"><span class="pre">V2ProductProcessingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2RRDSType"><code class="docutils literal notranslate"><span class="pre">V2RRDSType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2RangeAdjustmentAlgorithmType"><code class="docutils literal notranslate"><span class="pre">V2RangeAdjustmentAlgorithmType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2RemapChoiceType"><code class="docutils literal notranslate"><span class="pre">V2RemapChoiceType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2RenderingIntentType"><code class="docutils literal notranslate"><span class="pre">V2RenderingIntentType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2SIDD"><code class="docutils literal notranslate"><span class="pre">V2SIDD</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ScalingType"><code class="docutils literal notranslate"><span class="pre">V2ScalingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ShadowDirectionType"><code class="docutils literal notranslate"><span class="pre">V2ShadowDirectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2SharpnessEnhancementType"><code class="docutils literal notranslate"><span class="pre">V2SharpnessEnhancementType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2TxRcvPolarizationType"><code class="docutils literal notranslate"><span class="pre">V2TxRcvPolarizationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V2ValidDataType"><code class="docutils literal notranslate"><span class="pre">V2ValidDataType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3AccuracyType"><code class="docutils literal notranslate"><span class="pre">V3AccuracyType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3AcheivedResolutionType"><code class="docutils literal notranslate"><span class="pre">V3AcheivedResolutionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3AnnotationObjectType"><code class="docutils literal notranslate"><span class="pre">V3AnnotationObjectType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3AnnotationType"><code class="docutils literal notranslate"><span class="pre">V3AnnotationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3AnnotationsType"><code class="docutils literal notranslate"><span class="pre">V3AnnotationsType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3BandEqualizationType"><code class="docutils literal notranslate"><span class="pre">V3BandEqualizationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3BankCustomType"><code class="docutils literal notranslate"><span class="pre">V3BankCustomType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3BaseProjectionType"><code class="docutils literal notranslate"><span class="pre">V3BaseProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ClassificationGuidanceType"><code class="docutils literal notranslate"><span class="pre">V3ClassificationGuidanceType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ColorDisplayRemapType"><code class="docutils literal notranslate"><span class="pre">V3ColorDisplayRemapType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ColorManagementModuleType"><code class="docutils literal notranslate"><span class="pre">V3ColorManagementModuleType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ColorSpaceTransformType"><code class="docutils literal notranslate"><span class="pre">V3ColorSpaceTransformType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3CompressionType"><code class="docutils literal notranslate"><span class="pre">V3CompressionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3CustomLookupType"><code class="docutils literal notranslate"><span class="pre">V3CustomLookupType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3CylindricalProjectionType"><code class="docutils literal notranslate"><span class="pre">V3CylindricalProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3DRAHistogramOverridesType"><code class="docutils literal notranslate"><span class="pre">V3DRAHistogramOverridesType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3DRAOverrides"><code class="docutils literal notranslate"><span class="pre">V3DRAOverrides</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3DRAParameters"><code class="docutils literal notranslate"><span class="pre">V3DRAParameters</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3DigitalElevationDataType"><code class="docutils literal notranslate"><span class="pre">V3DigitalElevationDataType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3DownsamplingMethodType"><code class="docutils literal notranslate"><span class="pre">V3DownsamplingMethodType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3DownstreamReprocessingType"><code class="docutils literal notranslate"><span class="pre">V3DownstreamReprocessingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3DynamicRangeAdjustmentType"><code class="docutils literal notranslate"><span class="pre">V3DynamicRangeAdjustmentType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3EarthModelType"><code class="docutils literal notranslate"><span class="pre">V3EarthModelType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3EqualizationAlgorithmType"><code class="docutils literal notranslate"><span class="pre">V3EqualizationAlgorithmType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ExploitationFeaturesCollectionGeometryType"><code class="docutils literal notranslate"><span class="pre">V3ExploitationFeaturesCollectionGeometryType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ExploitationFeaturesCollectionInformationType"><code class="docutils literal notranslate"><span class="pre">V3ExploitationFeaturesCollectionInformationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ExploitationFeaturesCollectionPhenomenologyType"><code class="docutils literal notranslate"><span class="pre">V3ExploitationFeaturesCollectionPhenomenologyType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ExploitationFeaturesCollectionType"><code class="docutils literal notranslate"><span class="pre">V3ExploitationFeaturesCollectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ExploitationFeaturesProductType"><code class="docutils literal notranslate"><span class="pre">V3ExploitationFeaturesProductType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ExploitationFeaturesType"><code class="docutils literal notranslate"><span class="pre">V3ExploitationFeaturesType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3FilterBankCoefType"><code class="docutils literal notranslate"><span class="pre">V3FilterBankCoefType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3FilterBankType"><code class="docutils literal notranslate"><span class="pre">V3FilterBankType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3FilterDatabaseNameType"><code class="docutils literal notranslate"><span class="pre">V3FilterDatabaseNameType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3FilterKernelCoefType"><code class="docutils literal notranslate"><span class="pre">V3FilterKernelCoefType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3FilterKernelType"><code class="docutils literal notranslate"><span class="pre">V3FilterKernelType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3FilterOperationType"><code class="docutils literal notranslate"><span class="pre">V3FilterOperationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3FilterType"><code class="docutils literal notranslate"><span class="pre">V3FilterType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3GeoDataType"><code class="docutils literal notranslate"><span class="pre">V3GeoDataType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3GeographicCoordinatesType"><code class="docutils literal notranslate"><span class="pre">V3GeographicCoordinatesType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3GeographicProjectionType"><code class="docutils literal notranslate"><span class="pre">V3GeographicProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3GeometricChipType"><code class="docutils literal notranslate"><span class="pre">V3GeometricChipType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3GeometricTransformType"><code class="docutils literal notranslate"><span class="pre">V3GeometricTransformType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3GeopositioningType"><code class="docutils literal notranslate"><span class="pre">V3GeopositioningType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3GeopositioningTypeCoordinateSystemType"><code class="docutils literal notranslate"><span class="pre">V3GeopositioningTypeCoordinateSystemType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3GeopositioningTypeGeodeticDatum"><code class="docutils literal notranslate"><span class="pre">V3GeopositioningTypeGeodeticDatum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3GeopositioningTypeReferenceEllipsoid"><code class="docutils literal notranslate"><span class="pre">V3GeopositioningTypeReferenceEllipsoid</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3GeopositioningTypeSoundingDatum"><code class="docutils literal notranslate"><span class="pre">V3GeopositioningTypeSoundingDatum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3GeopositioningTypeVerticalDatum"><code class="docutils literal notranslate"><span class="pre">V3GeopositioningTypeVerticalDatum</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ImageCornersType"><code class="docutils literal notranslate"><span class="pre">V3ImageCornersType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3InputROIType"><code class="docutils literal notranslate"><span class="pre">V3InputROIType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3InteractiveProcessingType"><code class="docutils literal notranslate"><span class="pre">V3InteractiveProcessingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3J2KSubtype"><code class="docutils literal notranslate"><span class="pre">V3J2KSubtype</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3J2KType"><code class="docutils literal notranslate"><span class="pre">V3J2KType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3KernelCustomType"><code class="docutils literal notranslate"><span class="pre">V3KernelCustomType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3LUTInfoType"><code class="docutils literal notranslate"><span class="pre">V3LUTInfoType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3LayerInfoType"><code class="docutils literal notranslate"><span class="pre">V3LayerInfoType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3LayerType"><code class="docutils literal notranslate"><span class="pre">V3LayerType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3Lookup3TableType"><code class="docutils literal notranslate"><span class="pre">V3Lookup3TableType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3LookupTableType"><code class="docutils literal notranslate"><span class="pre">V3LookupTableType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3MeasurableProjectionType"><code class="docutils literal notranslate"><span class="pre">V3MeasurableProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3MeasurementType"><code class="docutils literal notranslate"><span class="pre">V3MeasurementType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3MeasurementTypeARPFlag"><code class="docutils literal notranslate"><span class="pre">V3MeasurementTypeARPFlag</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3MonochromeDisplayRemapType"><code class="docutils literal notranslate"><span class="pre">V3MonochromeDisplayRemapType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3NewLookupTableType"><code class="docutils literal notranslate"><span class="pre">V3NewLookupTableType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3NonInteractiveProcessingType"><code class="docutils literal notranslate"><span class="pre">V3NonInteractiveProcessingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3Orientation"><code class="docutils literal notranslate"><span class="pre">V3Orientation</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3PixelType"><code class="docutils literal notranslate"><span class="pre">V3PixelType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3PlaneProjectionType"><code class="docutils literal notranslate"><span class="pre">V3PlaneProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3PolygonType"><code class="docutils literal notranslate"><span class="pre">V3PolygonType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3PolynomialProjectionType"><code class="docutils literal notranslate"><span class="pre">V3PolynomialProjectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3PositionalAccuracyType"><code class="docutils literal notranslate"><span class="pre">V3PositionalAccuracyType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3PredefinedFilterType"><code class="docutils literal notranslate"><span class="pre">V3PredefinedFilterType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3PredefinedLookupType"><code class="docutils literal notranslate"><span class="pre">V3PredefinedLookupType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ProcTxRcvPolarizationType"><code class="docutils literal notranslate"><span class="pre">V3ProcTxRcvPolarizationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ProcessingEventType"><code class="docutils literal notranslate"><span class="pre">V3ProcessingEventType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ProcessingModuleType"><code class="docutils literal notranslate"><span class="pre">V3ProcessingModuleType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ProcessorInformationType"><code class="docutils literal notranslate"><span class="pre">V3ProcessorInformationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ProductClassificationType"><code class="docutils literal notranslate"><span class="pre">V3ProductClassificationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ProductCreationType"><code class="docutils literal notranslate"><span class="pre">V3ProductCreationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ProductDisplayType"><code class="docutils literal notranslate"><span class="pre">V3ProductDisplayType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ProductGenerationOptionsType"><code class="docutils literal notranslate"><span class="pre">V3ProductGenerationOptionsType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ProductPlaneType"><code class="docutils literal notranslate"><span class="pre">V3ProductPlaneType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ProductProcessingType"><code class="docutils literal notranslate"><span class="pre">V3ProductProcessingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3RRDSType"><code class="docutils literal notranslate"><span class="pre">V3RRDSType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3RangeAdjustmentAlgorithmType"><code class="docutils literal notranslate"><span class="pre">V3RangeAdjustmentAlgorithmType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3RemapChoiceType"><code class="docutils literal notranslate"><span class="pre">V3RemapChoiceType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3RenderingIntentType"><code class="docutils literal notranslate"><span class="pre">V3RenderingIntentType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3SIDD"><code class="docutils literal notranslate"><span class="pre">V3SIDD</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ScalingType"><code class="docutils literal notranslate"><span class="pre">V3ScalingType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ShadowDirectionType"><code class="docutils literal notranslate"><span class="pre">V3ShadowDirectionType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3SharpnessEnhancementType"><code class="docutils literal notranslate"><span class="pre">V3SharpnessEnhancementType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3TxRcvPolarizationType"><code class="docutils literal notranslate"><span class="pre">V3TxRcvPolarizationType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#aws.osml.formats.sidd.models.V3ValidDataType"><code class="docutils literal notranslate"><span class="pre">V3ValidDataType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="aws.osml.formats.sidd.models.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.features.imaged_feature_property_accessor &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.features.imaged_feature_property_accessor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.features.imaged_feature_property_accessor</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">geojson</span>
+<span class="kn">import</span> <span class="nn">shapely</span>
+
+
+<div class="viewcode-block" id="ImagedFeaturePropertyAccessor">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.features.imaged_feature_property_accessor.html#aws.osml.features.ImagedFeaturePropertyAccessor">[docs]</a>
+<span class="k">class</span> <span class="nc">ImagedFeaturePropertyAccessor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class contains utility functions that ensure the property names / values for features derived from imagery</span>
+<span class="sd">    are consistently implemented. These specifications are still evolving so the intent is to encapsulate all of the</span>
+<span class="sd">    names in this one class so that changes do not ripple through the rest of the software baseline.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">IMAGE_GEOMETRY</span> <span class="o">=</span> <span class="s2">&quot;imageGeometry&quot;</span>
+    <span class="n">IMAGE_BBOX</span> <span class="o">=</span> <span class="s2">&quot;imageBBox&quot;</span>
+
+    <span class="n">BOUNDS_IMCORDS</span> <span class="o">=</span> <span class="s2">&quot;bounds_imcoords&quot;</span>
+    <span class="n">GEOM_IMCOORDS</span> <span class="o">=</span> <span class="s2">&quot;geom_imcoords&quot;</span>
+    <span class="n">DETECTION</span> <span class="o">=</span> <span class="s2">&quot;detection&quot;</span>
+    <span class="n">TYPE</span> <span class="o">=</span> <span class="s2">&quot;type&quot;</span>
+    <span class="n">COORDINATES</span> <span class="o">=</span> <span class="s2">&quot;coordinates&quot;</span>
+    <span class="n">PIXEL_COORDINATES</span> <span class="o">=</span> <span class="s2">&quot;pixelCoordinates&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_deprecated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct an instance of the property accessor with configuration options.</span>
+
+<span class="sd">        :param allow_deprecated: if true the accessor will work with deprecated property names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_deprecated</span> <span class="o">=</span> <span class="n">allow_deprecated</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="ImagedFeaturePropertyAccessor.find_image_geometry">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.features.imaged_feature_property_accessor.html#aws.osml.features.ImagedFeaturePropertyAccessor.find_image_geometry">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_image_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="n">geojson</span><span class="o">.</span><span class="n">Feature</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function searches through the properties of a GeoJSON feature that are known to contain the geometry</span>
+<span class="sd">        of the feature in image coordinates. If found an appropriate 2D shape is constructed and returned. Note that</span>
+<span class="sd">        this search is conducted in priority order giving preference to the current preferred &quot;imageGeometry&quot; and</span>
+<span class="sd">        &quot;bboxGeometry&quot; properties. If neither of those is available and the accessor has been configured to search</span>
+<span class="sd">        deprecated properties then the &quot;geom_imcoords&quot;, &quot;detection&quot;, and &quot;bounds_imcoords&quot; properties are searched</span>
+<span class="sd">        in that order.</span>
+
+<span class="sd">        :param feature: a GeoJSON feature that might contain an image geometry property</span>
+<span class="sd">        :return: a 2D shape representing the image geometry or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The &quot;imageGeometry&quot; property is the current preferred encoding of image geometries for these</span>
+        <span class="c1"># features. The format follows the same type and coordinates structure used by shapely so we can</span>
+        <span class="c1"># construct the geometry directly from these values.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IMAGE_GEOMETRY</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">IMAGE_GEOMETRY</span><span class="p">])</span>
+
+        <span class="c1"># If a full image geometry is not provided we might be able to construct a Polygon boundary from the</span>
+        <span class="c1"># &quot;imageBBox&quot; property. The property contains a [minx, miny, maxx, maxy] bounding box. If available we</span>
+        <span class="c1"># can construct a Polygon boundary from those 4 corners.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IMAGE_BBOX</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">IMAGE_BBOX</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="n">minx</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">miny</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">maxx</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">maxy</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+        <span class="c1"># !!!!! ALL PROPERTIES BELOW THIS LINE ARE DEPRECATED !!!!!</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_deprecated</span><span class="p">:</span>
+            <span class="c1"># The current convention for the &quot;geom_imcoords&quot; allows a single external ring for a Polygon boundary to be</span>
+            <span class="c1"># captured as a list of coordinates.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GEOM_IMCOORDS</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">shell</span><span class="o">=</span><span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">GEOM_IMCOORDS</span><span class="p">])</span>
+
+            <span class="c1"># Some inputs may have a &quot;detection&quot; property with child &quot;type&quot; and &quot;pixelCoordinates&quot; properties. If these</span>
+            <span class="c1"># are found we can construct the appropriate shape.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTION</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">PIXEL_COORDINATES</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DETECTION</span><span class="p">]:</span>
+                <span class="n">temp_geom</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">TYPE</span><span class="p">:</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DETECTION</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">TYPE</span><span class="p">],</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">COORDINATES</span><span class="p">:</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DETECTION</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">PIXEL_COORDINATES</span><span class="p">],</span>
+                <span class="p">}</span>
+                <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">temp_geom</span><span class="p">)</span>
+
+            <span class="c1"># The current convention for &quot;bounds_imcoords&quot; is a [minx, miny, maxx, maxy] bounding box. If available we</span>
+            <span class="c1"># can construct a Polygon boundary from those 4 corners.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">BOUNDS_IMCORDS</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+                <span class="n">bbox</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BOUNDS_IMCORDS</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="n">minx</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">miny</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">maxx</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">maxy</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+        <span class="c1"># All properties that might contain the image geometry are missing. This feature does not have image</span>
+        <span class="c1"># coordinates.</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="ImagedFeaturePropertyAccessor.update_existing_image_geometries">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.features.imaged_feature_property_accessor.html#aws.osml.features.ImagedFeaturePropertyAccessor.update_existing_image_geometries">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_existing_image_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="n">geojson</span><span class="o">.</span><span class="n">Feature</span><span class="p">,</span> <span class="n">geometry</span><span class="p">:</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function searches through the properties of a GeoJSON feature that are known to contain the geometry</span>
+<span class="sd">        of the feature in image coordinates. If found each property is overwritten with information from the</span>
+<span class="sd">        geometry provided. Note that for bounding box properties the bounds of the input geometry are used.</span>
+
+<span class="sd">        :param feature: a GeoJSON feature that might contain an image geometry property</span>
+<span class="sd">        :param geometry: the geometry to set property values for.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IMAGE_GEOMETRY</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="n">ImagedFeaturePropertyAccessor</span><span class="o">.</span><span class="n">set_image_geometry</span><span class="p">(</span><span class="n">feature</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">IMAGE_BBOX</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+            <span class="n">ImagedFeaturePropertyAccessor</span><span class="o">.</span><span class="n">set_image_bbox</span><span class="p">(</span><span class="n">feature</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span>
+
+        <span class="c1"># !!!!! ALL PROPERTIES BELOW THIS LINE ARE DEPRECATED !!!!!</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_deprecated</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GEOM_IMCOORDS</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+                <span class="n">coordinates</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">mapping</span><span class="p">(</span><span class="n">geometry</span><span class="p">)[</span><span class="bp">self</span><span class="o">.</span><span class="n">COORDINATES</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Polygon</span><span class="p">):</span>
+                    <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">GEOM_IMCOORDS</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">GEOM_IMCOORDS</span><span class="p">]</span> <span class="o">=</span> <span class="n">coordinates</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">DETECTION</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">PIXEL_COORDINATES</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DETECTION</span><span class="p">]:</span>
+                <span class="n">geometry_mapping</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">mapping</span><span class="p">(</span><span class="n">geometry</span><span class="p">)</span>
+                <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DETECTION</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">TYPE</span><span class="p">]</span> <span class="o">=</span> <span class="n">geometry_mapping</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">TYPE</span><span class="p">]</span>
+                <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DETECTION</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">PIXEL_COORDINATES</span><span class="p">]</span> <span class="o">=</span> <span class="n">geometry_mapping</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">COORDINATES</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">BOUNDS_IMCORDS</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">:</span>
+                <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">BOUNDS_IMCORDS</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ImagedFeaturePropertyAccessor.get_image_geometry">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.features.imaged_feature_property_accessor.html#aws.osml.features.ImagedFeaturePropertyAccessor.get_image_geometry">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_image_geometry</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="n">geojson</span><span class="o">.</span><span class="n">Feature</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">IMAGE_GEOMETRY</span> <span class="ow">in</span> <span class="n">feature</span><span class="p">[</span><span class="s2">&quot;properties&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">IMAGE_GEOMETRY</span><span class="p">])</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="ImagedFeaturePropertyAccessor.get_image_bbox">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.features.imaged_feature_property_accessor.html#aws.osml.features.ImagedFeaturePropertyAccessor.get_image_bbox">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_image_bbox</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="n">geojson</span><span class="o">.</span><span class="n">Feature</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">IMAGE_BBOX</span> <span class="ow">in</span> <span class="n">feature</span><span class="p">[</span><span class="s2">&quot;properties&quot;</span><span class="p">]:</span>
+            <span class="n">bbox</span> <span class="o">=</span> <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">IMAGE_BBOX</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">box</span><span class="p">(</span><span class="n">minx</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">miny</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">maxx</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">maxy</span><span class="o">=</span><span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="ImagedFeaturePropertyAccessor.set_image_geometry">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.features.imaged_feature_property_accessor.html#aws.osml.features.ImagedFeaturePropertyAccessor.set_image_geometry">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">set_image_geometry</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="n">geojson</span><span class="o">.</span><span class="n">Feature</span><span class="p">,</span> <span class="n">geometry</span><span class="p">:</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add or set the &quot;imageGeometry&quot; property for a feature. This is a 2D geometry that supports a variety of</span>
+<span class="sd">        types (points, lines, polygons, etc.)</span>
+
+<span class="sd">        :param feature: a GeoJSON feature that will contain the property</span>
+<span class="sd">        :param geometry: the geometry value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">IMAGE_GEOMETRY</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">to_geojson</span><span class="p">(</span><span class="n">geometry</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ImagedFeaturePropertyAccessor.set_image_bbox">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.features.imaged_feature_property_accessor.html#aws.osml.features.ImagedFeaturePropertyAccessor.set_image_bbox">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">set_image_bbox</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">feature</span><span class="p">:</span> <span class="n">geojson</span><span class="o">.</span><span class="n">Feature</span><span class="p">,</span> <span class="n">geometry</span><span class="p">:</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add or set the &quot;imageBBox&quot; property for a feature. this is a [minx, miny, maxx, maxy] bounds for this object.</span>
+
+<span class="sd">        :param feature: a GeoJSON feature that will contain the property</span>
+<span class="sd">        :param geometry: the geometry value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">feature</span><span class="o">.</span><span class="n">properties</span><span class="p">[</span><span class="bp">cls</span><span class="o">.</span><span class="n">IMAGE_BBOX</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">geometry</span><span class="o">.</span><span class="n">bounds</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

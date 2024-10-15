@@ -1,0 +1,7 @@
+aws.osml.image\_processing 
+===========================
+
+.. automodule:: aws.osml.image_processing
+   :members:
+   :undoc-members:
+   :show-inheritance:

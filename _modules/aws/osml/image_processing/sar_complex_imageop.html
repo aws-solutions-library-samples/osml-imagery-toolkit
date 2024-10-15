@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.image_processing.sar_complex_imageop &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.image_processing.sar_complex_imageop</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.image_processing.sar_complex_imageop</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">TWO_PI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="mf">2.0</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="image_pixels_to_complex">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sar_complex_imageop.html#aws.osml.image_processing.image_pixels_to_complex">[docs]</a>
+<span class="k">def</span> <span class="nf">image_pixels_to_complex</span><span class="p">(</span>
+    <span class="n">image_pixels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">pixel_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">amplitude_table</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function converts SAR pixels from SICD imagery into complex values using equations</span>
+<span class="sd">    found in SICD Volume 1 Section 4.2.</span>
+
+<span class="sd">    :param image_pixels: the SAR image pixels</span>
+<span class="sd">    :param pixel_type: &quot;AMP8I_PHS8I&quot;, &quot;RE32F_IM32F&quot;, or &quot;RE16I_IM16I&quot;</span>
+<span class="sd">    :param amplitude_table: optional lookup table of amplitude values for AMP8I_PHS8I image pixels</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">pixel_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pixel_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;RE32F_IM32F&quot;</span><span class="p">,</span> <span class="s2">&quot;RE16I_IM16I&quot;</span><span class="p">]:</span>
+        <span class="c1"># For these pixel types the complex value is already stored in the file</span>
+        <span class="k">return</span> <span class="n">image_pixels</span>
+    <span class="k">elif</span> <span class="n">pixel_type</span> <span class="o">==</span> <span class="s2">&quot;AMP8I_PHS8I&quot;</span><span class="p">:</span>
+        <span class="c1"># If the data is 8-bit amplitude/phase with an optional amplitude lookup table need to</span>
+        <span class="c1"># convert it to the complex image value</span>
+        <span class="n">amplitude</span> <span class="o">=</span> <span class="n">image_pixels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">phase</span> <span class="o">=</span> <span class="n">image_pixels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="mf">256.0</span>
+        <span class="k">if</span> <span class="n">amplitude_table</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">amplitude_lut</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">amplitude_table</span><span class="p">)</span>
+            <span class="n">amplitude</span> <span class="o">=</span> <span class="n">amplitude_lut</span><span class="p">[</span><span class="n">amplitude</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">amplitude</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">TWO_PI</span> <span class="o">*</span> <span class="n">phase</span><span class="p">),</span> <span class="n">amplitude</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">TWO_PI</span> <span class="o">*</span> <span class="n">phase</span><span class="p">)])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown SAR Pixel Type: </span><span class="si">{</span><span class="n">pixel_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="complex_to_power_value">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sar_complex_imageop.html#aws.osml.image_processing.complex_to_power_value">[docs]</a>
+<span class="k">def</span> <span class="nf">complex_to_power_value</span><span class="p">(</span><span class="n">complex_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function converts SAR complex data into the pixel power values (sometimes</span>
+<span class="sd">    called pixel intensity) using the equation found in SICD Volume 1 Section 4.10.</span>
+
+<span class="sd">    :param complex_data: the SAR complex image signal with real and imaginary components</span>
+<span class="sd">    :return: the power values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">complex_data</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="power_value_in_decibels">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sar_complex_imageop.html#aws.osml.image_processing.power_value_in_decibels">[docs]</a>
+<span class="k">def</span> <span class="nf">power_value_in_decibels</span><span class="p">(</span><span class="n">power_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function converts SAR power values to decibels using the equation found in SICD Volume 1 Section 4.10.</span>
+
+<span class="sd">    :param power_values: the SAR power values</span>
+<span class="sd">    :return: the power values in decibels</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="mf">10.0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">power_values</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_value_bounds">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sar_complex_imageop.html#aws.osml.image_processing.get_value_bounds">[docs]</a>
+<span class="k">def</span> <span class="nf">get_value_bounds</span><span class="p">(</span><span class="n">magnitude_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function calculates the minimum and maximum of a set of values.</span>
+
+<span class="sd">    :param magnitude_values: SAR magnitude values</span>
+<span class="sd">    :return: (min value, max value)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">magnitude_values</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">magnitude_values</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="linear_mapping">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sar_complex_imageop.html#aws.osml.image_processing.linear_mapping">[docs]</a>
+<span class="k">def</span> <span class="nf">linear_mapping</span><span class="p">(</span><span class="n">magnitude_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function accepts an array of magnitude values and scales them to be in the range [0:1].</span>
+
+<span class="sd">    :param magnitude_values: SAR magnitude values</span>
+<span class="sd">    :return: the scaled values in range [0:1]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span> <span class="o">=</span> <span class="n">get_value_bounds</span><span class="p">(</span><span class="n">magnitude_values</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_value</span> <span class="o">==</span> <span class="n">min_value</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">magnitude_values</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="n">magnitude_values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span> <span class="o">-</span> <span class="n">min_value</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span> <span class="o">-</span> <span class="n">min_value</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="histogram_stretch_mag_values">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sar_complex_imageop.html#aws.osml.image_processing.histogram_stretch_mag_values">[docs]</a>
+<span class="k">def</span> <span class="nf">histogram_stretch_mag_values</span><span class="p">(</span><span class="n">magnitude_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function converts image pixel magnitudes to an 8-bit image by scaling the pixels and</span>
+<span class="sd">    cropping to the desired range. This is histogram stretching without any gamma correction.</span>
+
+<span class="sd">    :param magnitude_values: SAR magnitude values</span>
+<span class="sd">    :param scale_factor: a scale factor, default = 8.0</span>
+<span class="sd">    :return: the quantized grayscale image clipped to the range of [0:255]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mean_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">magnitude_values</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">magnitude_values</span><span class="p">)])</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">scale_factor</span> <span class="o">*</span> <span class="n">mean_value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">255.0</span> <span class="o">*</span> <span class="n">u</span> <span class="o">*</span> <span class="n">magnitude_values</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">255.0</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="quarter_power_mag_values">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sar_complex_imageop.html#aws.osml.image_processing.quarter_power_mag_values">[docs]</a>
+<span class="k">def</span> <span class="nf">quarter_power_mag_values</span><span class="p">(</span>
+    <span class="n">magnitude_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span> <span class="n">precomputed_mean</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function converts image pixel magnitudes to a Quarter-Power Image using equations</span>
+<span class="sd">    found in Section 3.2 of SAR Image Scaling, Dynamic Range, Radiometric Calibration, and Display</span>
+<span class="sd">    (SAND2019-2371).</span>
+
+<span class="sd">    :param magnitude_values: SAR magnitude values</span>
+<span class="sd">    :param scale_factor: a brightness factor that is typically between 5 and 3</span>
+<span class="sd">    :param precomputed_mean: a precomputed mean of magnitude usually taken from a larger set of pixels</span>
+<span class="sd">    :return: the quantized grayscale image clipped to the range of [0:255]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sqrt_magnitude</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">magnitude_values</span><span class="p">))</span>
+    <span class="n">mean_value</span> <span class="o">=</span> <span class="n">precomputed_mean</span>
+    <span class="k">if</span> <span class="n">mean_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">mean_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">sqrt_magnitude</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">sqrt_magnitude</span><span class="p">)])</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">scale_factor</span> <span class="o">*</span> <span class="n">mean_value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mf">255.0</span> <span class="o">*</span> <span class="n">b</span> <span class="o">*</span> <span class="n">sqrt_magnitude</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">255.0</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="histogram_stretch">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sar_complex_imageop.html#aws.osml.image_processing.histogram_stretch">[docs]</a>
+<span class="k">def</span> <span class="nf">histogram_stretch</span><span class="p">(</span>
+    <span class="n">image_pixels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pixel_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">amplitude_table</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">8.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function converts SAR image pixels to an 8-bit grayscale image by scaling the pixels and</span>
+<span class="sd">    cropping to the desired range [0:255]. This is histogram stretching without any gamma correction.</span>
+<span class="sd">    The equations are described in Section 3.1 of SAR Image Scaling, Dynamic Range, Radiometric Calibration,</span>
+<span class="sd">    and Display (SAND2019-2371).</span>
+
+<span class="sd">    :param image_pixels: the SAR image pixels</span>
+<span class="sd">    :param pixel_type: &quot;AMP8I_PHS8I&quot;, &quot;RE32F_IM32F&quot;, or &quot;RE16I_IM16I&quot;</span>
+<span class="sd">    :param amplitude_table: optional lookup table of amplitude values for AMP8I_PHS8I image pixels</span>
+<span class="sd">    :param scale_factor: a scale factor, default = 8.0</span>
+<span class="sd">    :return: the quantized grayscale image clipped to the range of [0:255]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">complex_data</span> <span class="o">=</span> <span class="n">image_pixels_to_complex</span><span class="p">(</span><span class="n">image_pixels</span><span class="p">,</span> <span class="n">pixel_type</span><span class="o">=</span><span class="n">pixel_type</span><span class="p">,</span> <span class="n">amplitude_table</span><span class="o">=</span><span class="n">amplitude_table</span><span class="p">)</span>
+    <span class="n">power_values</span> <span class="o">=</span> <span class="n">complex_to_power_value</span><span class="p">(</span><span class="n">complex_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">histogram_stretch_mag_values</span><span class="p">(</span><span class="n">power_values</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="quarter_power_image">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sar_complex_imageop.html#aws.osml.image_processing.quarter_power_image">[docs]</a>
+<span class="k">def</span> <span class="nf">quarter_power_image</span><span class="p">(</span>
+    <span class="n">image_pixels</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pixel_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">amplitude_table</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">scale_factor</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="n">precomputed_mean</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function converts SAR image pixels to an 8-bit grayscale image pixel magnitudes to a Quarter-Power</span>
+<span class="sd">    Image using equations found in Section 3.2 of SAR Image Scaling, Dynamic Range, Radiometric Calibration,</span>
+<span class="sd">    and Display (SAND2019-2371).</span>
+
+<span class="sd">    :param image_pixels: the SAR image pixels</span>
+<span class="sd">    :param pixel_type: &quot;AMP8I_PHS8I&quot;, &quot;RE32F_IM32F&quot;, or &quot;RE16I_IM16I&quot;</span>
+<span class="sd">    :param amplitude_table: optional lookup table of amplitude values for AMP8I_PHS8I image pixels</span>
+<span class="sd">    :param scale_factor: a brightness factor that is typically between 5 and 3</span>
+<span class="sd">    :param precomputed_mean: a precomputed mean of magnitude usually taken from a larger set of pixels</span>
+<span class="sd">    :return: the quantized grayscale image clipped to the range of [0:255]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">complex_data</span> <span class="o">=</span> <span class="n">image_pixels_to_complex</span><span class="p">(</span><span class="n">image_pixels</span><span class="p">,</span> <span class="n">pixel_type</span><span class="o">=</span><span class="n">pixel_type</span><span class="p">,</span> <span class="n">amplitude_table</span><span class="o">=</span><span class="n">amplitude_table</span><span class="p">)</span>
+    <span class="n">power_values</span> <span class="o">=</span> <span class="n">complex_to_power_value</span><span class="p">(</span><span class="n">complex_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">quarter_power_mag_values</span><span class="p">(</span><span class="n">power_values</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="n">scale_factor</span><span class="p">,</span> <span class="n">precomputed_mean</span><span class="o">=</span><span class="n">precomputed_mean</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

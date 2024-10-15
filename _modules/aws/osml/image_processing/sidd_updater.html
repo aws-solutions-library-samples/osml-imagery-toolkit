@@ -1,0 +1,314 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.image_processing.sidd_updater &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.image_processing.sidd_updater</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.image_processing.sidd_updater</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">xsdata.formats.dataclass.parsers</span> <span class="kn">import</span> <span class="n">XmlParser</span>
+<span class="kn">from</span> <span class="nn">xsdata.formats.dataclass.serializers</span> <span class="kn">import</span> <span class="n">XmlSerializer</span>
+<span class="kn">from</span> <span class="nn">xsdata.formats.dataclass.serializers.config</span> <span class="kn">import</span> <span class="n">SerializerConfig</span>
+
+<span class="kn">import</span> <span class="nn">aws.osml.formats.sidd.models.sidd_v1_0_0</span> <span class="k">as</span> <span class="nn">sidd100</span>
+<span class="kn">import</span> <span class="nn">aws.osml.formats.sidd.models.sidd_v2_0_0</span> <span class="k">as</span> <span class="nn">sidd200</span>
+<span class="kn">import</span> <span class="nn">aws.osml.formats.sidd.models.sidd_v3_0_0</span> <span class="k">as</span> <span class="nn">sidd300</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="SIDDUpdater">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sidd_updater.html#aws.osml.image_processing.sidd_updater.SIDDUpdater">[docs]</a>
+<span class="k">class</span> <span class="nc">SIDDUpdater</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a new instance of this class to manage a given set of SIDD metadata.</span>
+
+<span class="sd">        :param xml_str: the SIDD XML metadata to update</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xml_str</span> <span class="o">=</span> <span class="n">xml_str</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_str</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xml_str</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">parser</span> <span class="o">=</span> <span class="n">XmlParser</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xml_str</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SIDDUpdater.update_image_data_for_chip">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sidd_updater.html#aws.osml.image_processing.sidd_updater.SIDDUpdater.update_image_data_for_chip">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_image_data_for_chip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chip_bounds</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">output_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This adds or updates the SIDD GeometricChip structure so that the ChipSize and original corner coordinates</span>
+<span class="sd">        are recorded. A sample of this XML structure is shown below:</span>
+
+<span class="sd">                &lt;GeometricChip&gt;</span>
+<span class="sd">                  &lt;ChipSize&gt;</span>
+<span class="sd">                    &lt;Row xmlns:ns1=&quot;urn:SICommon:1.0&quot;&gt;512&lt;/Row&gt;</span>
+<span class="sd">                    &lt;Col xmlns:ns1=&quot;urn:SICommon:1.0&quot;&gt;512&lt;/Col&gt;</span>
+<span class="sd">                  &lt;/ChipSize&gt;</span>
+<span class="sd">                  &lt;OriginalUpperLeftCoordinate&gt;</span>
+<span class="sd">                    &lt;Row xmlns:ns1=&quot;urn:SICommon:1.0&quot;&gt;7408&lt;/Row&gt;</span>
+<span class="sd">                    &lt;Col xmlns:ns1=&quot;urn:SICommon:1.0&quot;&gt;7407&lt;/Col&gt;</span>
+<span class="sd">                  &lt;/OriginalUpperLeftCoordinate&gt;</span>
+<span class="sd">                  &lt;OriginalUpperRightCoordinate&gt;</span>
+<span class="sd">                    &lt;Row xmlns:ns1=&quot;urn:SICommon:1.0&quot;&gt;7408&lt;/Row&gt;</span>
+<span class="sd">                    &lt;Col xmlns:ns1=&quot;urn:SICommon:1.0&quot;&gt;7919&lt;/Col&gt;</span>
+<span class="sd">                  &lt;/OriginalUpperRightCoordinate&gt;</span>
+<span class="sd">                  &lt;OriginalLowerLeftCoordinate&gt;</span>
+<span class="sd">                    &lt;Row xmlns:ns1=&quot;urn:SICommon:1.0&quot;&gt;7920&lt;/Row&gt;</span>
+<span class="sd">                    &lt;Col xmlns:ns1=&quot;urn:SICommon:1.0&quot;&gt;7407&lt;/Col&gt;</span>
+<span class="sd">                  &lt;/OriginalLowerLeftCoordinate&gt;</span>
+<span class="sd">                  &lt;OriginalLowerRightCoordinate&gt;</span>
+<span class="sd">                    &lt;Row xmlns:ns1=&quot;urn:SICommon:1.0&quot;&gt;7920&lt;/Row&gt;</span>
+<span class="sd">                    &lt;Col xmlns:ns1=&quot;urn:SICommon:1.0&quot;&gt;7919&lt;/Col&gt;</span>
+<span class="sd">                  &lt;/OriginalLowerRightCoordinate&gt;</span>
+<span class="sd">                &lt;/GeometricChip&gt;</span>
+
+
+<span class="sd">        :param chip_bounds: the [col, row, width, height] of the chip boundary</span>
+<span class="sd">        :param output_size: the [width, height] of the output chip if different from the chip boundary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_size</span><span class="p">:</span>
+            <span class="n">output_size</span> <span class="o">=</span> <span class="n">chip_bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">chip_bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+        <span class="c1"># The xsdata code generators produced different types for each version of the SIDD specification.</span>
+        <span class="c1"># in this case the types are all equivalent so the logic isn&#39;t different but this piece of code</span>
+        <span class="c1"># ensures we&#39;re constructing the correct type from the right version of SIDD constructs.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="p">,</span> <span class="n">sidd100</span><span class="o">.</span><span class="n">SIDD</span><span class="p">):</span>
+            <span class="n">sidd_namespace</span> <span class="o">=</span> <span class="n">sidd100</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="p">,</span> <span class="n">sidd200</span><span class="o">.</span><span class="n">SIDD</span><span class="p">):</span>
+            <span class="n">sidd_namespace</span> <span class="o">=</span> <span class="n">sidd200</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="p">,</span> <span class="n">sidd300</span><span class="o">.</span><span class="n">SIDD</span><span class="p">):</span>
+            <span class="n">sidd_namespace</span> <span class="o">=</span> <span class="n">sidd300</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;sidd_updater.py has not been updated to support a new SIDD version. Defaulting to 3.0&quot;</span><span class="p">)</span>
+            <span class="n">sidd_namespace</span> <span class="o">=</span> <span class="n">sidd300</span>
+
+        <span class="c1"># The DownstreamReprocessing element is optional so if it is not set create it first.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span> <span class="o">=</span> <span class="n">sidd_namespace</span><span class="o">.</span><span class="n">DownstreamReprocessingType</span><span class="p">()</span>
+
+        <span class="c1"># Identify the location of the UL, UR, LR, LL corners of this chip in the full image. If the image is already</span>
+        <span class="c1"># a chip of a full image these coordinates need to be updated, so they are still the positions of the new chip</span>
+        <span class="c1"># in the original full image.</span>
+        <span class="n">full_image_chip_corners</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">chip_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">chip_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="p">(</span><span class="n">chip_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">chip_bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">chip_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="p">(</span><span class="n">chip_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">chip_bounds</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">chip_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">chip_bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">chip_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">chip_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">chip_bounds</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span><span class="p">:</span>
+            <span class="n">original_chip_size</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span><span class="o">.</span><span class="n">chip_size</span><span class="o">.</span><span class="n">col</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span><span class="o">.</span><span class="n">chip_size</span><span class="o">.</span><span class="n">row</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">original_corners</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span><span class="o">.</span><span class="n">original_upper_left_coordinate</span><span class="o">.</span><span class="n">col</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span><span class="o">.</span><span class="n">original_upper_left_coordinate</span><span class="o">.</span><span class="n">row</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span><span class="o">.</span><span class="n">original_upper_right_coordinate</span><span class="o">.</span><span class="n">col</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span><span class="o">.</span><span class="n">original_upper_right_coordinate</span><span class="o">.</span><span class="n">row</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span><span class="o">.</span><span class="n">original_lower_right_coordinate</span><span class="o">.</span><span class="n">col</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span><span class="o">.</span><span class="n">original_lower_right_coordinate</span><span class="o">.</span><span class="n">row</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span><span class="o">.</span><span class="n">original_lower_left_coordinate</span><span class="o">.</span><span class="n">col</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span><span class="o">.</span><span class="n">original_lower_left_coordinate</span><span class="o">.</span><span class="n">row</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+
+            <span class="n">full_image_chip_corners</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">SIDDUpdater</span><span class="o">.</span><span class="n">chipped_coordinate_to_full</span><span class="p">(</span><span class="n">corner</span><span class="p">,</span> <span class="n">original_chip_size</span><span class="p">,</span> <span class="n">original_corners</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">full_image_chip_corners</span>
+            <span class="p">]</span>
+
+        <span class="c1"># Create the new DownstreamReprocessing.GeometricChip element that contains the information needed to</span>
+        <span class="c1"># relate this chip to the original full image.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="o">.</span><span class="n">downstream_reprocessing</span><span class="o">.</span><span class="n">geometric_chip</span> <span class="o">=</span> <span class="n">sidd_namespace</span><span class="o">.</span><span class="n">GeometricChipType</span><span class="p">(</span>
+            <span class="n">chip_size</span><span class="o">=</span><span class="n">sidd_namespace</span><span class="o">.</span><span class="n">RowColIntType</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="n">output_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">col</span><span class="o">=</span><span class="n">output_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">original_upper_left_coordinate</span><span class="o">=</span><span class="n">sidd_namespace</span><span class="o">.</span><span class="n">RowColDoubleType</span><span class="p">(</span>
+                <span class="n">row</span><span class="o">=</span><span class="n">full_image_chip_corners</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">col</span><span class="o">=</span><span class="n">full_image_chip_corners</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">),</span>
+            <span class="n">original_upper_right_coordinate</span><span class="o">=</span><span class="n">sidd_namespace</span><span class="o">.</span><span class="n">RowColDoubleType</span><span class="p">(</span>
+                <span class="n">row</span><span class="o">=</span><span class="n">full_image_chip_corners</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">col</span><span class="o">=</span><span class="n">full_image_chip_corners</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">),</span>
+            <span class="n">original_lower_left_coordinate</span><span class="o">=</span><span class="n">sidd_namespace</span><span class="o">.</span><span class="n">RowColDoubleType</span><span class="p">(</span>
+                <span class="n">row</span><span class="o">=</span><span class="n">full_image_chip_corners</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">col</span><span class="o">=</span><span class="n">full_image_chip_corners</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">),</span>
+            <span class="n">original_lower_right_coordinate</span><span class="o">=</span><span class="n">sidd_namespace</span><span class="o">.</span><span class="n">RowColDoubleType</span><span class="p">(</span>
+                <span class="n">row</span><span class="o">=</span><span class="n">full_image_chip_corners</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">col</span><span class="o">=</span><span class="n">full_image_chip_corners</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SIDDUpdater.encode_current_xml">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sidd_updater.html#aws.osml.image_processing.sidd_updater.SIDDUpdater.encode_current_xml">[docs]</a>
+    <span class="k">def</span> <span class="nf">encode_current_xml</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a copy of the current SIDD metadata encoded in XML.</span>
+
+<span class="sd">        :return: xml encoded SIDD metadata</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">serializer</span> <span class="o">=</span> <span class="n">XmlSerializer</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">SerializerConfig</span><span class="p">(</span><span class="n">pretty_print</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+        <span class="n">updated_xml</span> <span class="o">=</span> <span class="n">serializer</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sidd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">updated_xml</span></div>
+
+
+<div class="viewcode-block" id="SIDDUpdater.chipped_coordinate_to_full">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.sidd_updater.html#aws.osml.image_processing.sidd_updater.SIDDUpdater.chipped_coordinate_to_full">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">chipped_coordinate_to_full</span><span class="p">(</span>
+        <span class="n">chip_coordinate</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+        <span class="n">chip_size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+        <span class="n">original_corner_coordinates</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function converts pixel locations in a chip to the pixel locations in a full image using a bi-linear</span>
+<span class="sd">        interpolation method described in section 5.1.1 of the Sensor Independent Derived Data (SIDD) specification</span>
+<span class="sd">        v3.0 Volume 1.</span>
+
+<span class="sd">        :param chip_coordinate: the [x, y] coordinate of the pixel in the chip</span>
+<span class="sd">        :param chip_size: the size of the chip [width, height]</span>
+<span class="sd">        :param original_corner_coordinates: the [x, y] location of the UL, UR, LR, LL corners in the original image</span>
+<span class="sd">        :return: the [x, y] coordinate of the pixel in the original image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Step 1: Normalize the chip coordinates</span>
+        <span class="n">u</span> <span class="o">=</span> <span class="n">chip_coordinate</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">chip_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">chip_coordinate</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">chip_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Step 2: Compute original full image row coordinate bi-linear coefficients</span>
+        <span class="n">a_r</span> <span class="o">=</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">b_r</span> <span class="o">=</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">d_r</span> <span class="o">=</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">f_r</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="o">-</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+            <span class="o">-</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Step 3: Compute original full image column coordinate bi-linear coefficients</span>
+        <span class="n">a_c</span> <span class="o">=</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">b_c</span> <span class="o">=</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">d_c</span> <span class="o">=</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">f_c</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="o">-</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="o">-</span> <span class="n">original_corner_coordinates</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Step 4: Compute the full image row and column coordinate</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">a_r</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="n">b_r</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">d_r</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">f_r</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">a_c</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="n">b_c</span> <span class="o">+</span> <span class="n">v</span> <span class="o">*</span> <span class="n">d_c</span> <span class="o">+</span> <span class="n">u</span> <span class="o">*</span> <span class="n">v</span> <span class="o">*</span> <span class="n">f_c</span>
+
+        <span class="k">return</span> <span class="n">c</span><span class="p">,</span> <span class="n">r</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>
