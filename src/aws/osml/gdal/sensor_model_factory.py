@@ -1,6 +1,5 @@
 #  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
 
-import base64
 import logging
 from enum import Enum
 from typing import List, Optional
@@ -188,8 +187,10 @@ class SensorModelFactory:
             xml_data_content_segments = des_accessor.get_segments_by_name("XML_DATA_CONTENT")
             if xml_data_content_segments is not None:
                 for xml_data_segment in xml_data_content_segments:
-                    xml_bytes = des_accessor.parse_field_value(xml_data_segment, "DESDATA", base64.b64decode)
-                    xml_str = xml_bytes.decode("utf-8")
+                    xml_str = des_accessor.extract_desdata_xml(xml_data_segment)
+                    if not xml_str:
+                        continue
+
                     if "SIDD" in xml_str:
                         # SIDD images will often contain SICD XML metadata as well but the SIDD should come first
                         # so we can stop processing other XML data segments

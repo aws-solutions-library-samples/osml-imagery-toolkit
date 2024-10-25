@@ -1,6 +1,5 @@
 #  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
 
-import base64
 import copy
 import logging
 from secrets import token_hex
@@ -63,16 +62,22 @@ class GDALTileFactory:
 
             xml_data_content_segments = self.des_accessor.get_segments_by_name("XML_DATA_CONTENT")
             if xml_data_content_segments is not None and len(xml_data_content_segments) > 0:
-                # This appears to be SICD or SIDD data
-                xml_data_segment = xml_data_content_segments[0]
-                xml_bytes = self.des_accessor.parse_field_value(xml_data_segment, "DESDATA", base64.b64decode)
-                xml_str = xml_bytes.decode("utf-8")
-                if "SIDD" in xml_str:
-                    self.sar_des_header = self.des_accessor.extract_des_header(xml_data_segment)
-                    self.sar_updater = SIDDUpdater(xml_str)
-                elif "SICD" in xml_str:
-                    self.sar_des_header = self.des_accessor.extract_des_header(xml_data_segment)
-                    self.sar_updater = SICDUpdater(xml_str)
+                for xml_data_segment in xml_data_content_segments:
+                    xml_str = self.des_accessor.extract_desdata_xml(xml_data_segment)
+                    if not xml_str:
+                        continue
+
+                    # Check to see if this is SICD or SIDD data
+                    if "SIDD" in xml_str:
+                        # SIDD images will often contain SICD XML metadata as well but the SIDD should come first
+                        # so we can stop processing other XML data segments if we find a SIDD segment.
+                        self.sar_des_header = self.des_accessor.extract_des_header(xml_data_segment)
+                        self.sar_updater = SIDDUpdater(xml_str)
+                        break
+                    elif "SICD" in xml_str:
+                        self.sar_des_header = self.des_accessor.extract_des_header(xml_data_segment)
+                        self.sar_updater = SICDUpdater(xml_str)
+                        break
 
         self.default_gdal_translate_kwargs = self._create_gdal_translate_kwargs()
 

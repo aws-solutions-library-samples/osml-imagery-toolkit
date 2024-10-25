@@ -1,6 +1,7 @@
 # OversightML Imagery Toolkit
 ![Build Badge](https://github.com/aws-solutions-library-samples/osml-imagery-toolkit/actions/workflows/build.yml/badge.svg)
-![Python Badge](https://img.shields.io/badge/python-3.9%2C%203.10%2C%203.11-blue)
+![Python Badge](https://img.shields.io/badge/python-3.9%2C%203.10%2C%203.11%2C%203.12%2C%203.13-blue)
+![GDAL Badge](https://img.shields.io/badge/gdal-3.7%2C%203.8%2C%203.9-blue)
 ![GitHub License](https://img.shields.io/github/license/aws-solutions-library-samples/osml-imagery-toolkit?color=blue)
 ![PyPI - Version](https://img.shields.io/pypi/v/osml-imagery-toolkit)
 
@@ -35,9 +36,12 @@ distribution.
 ```shell
 pip install .[gdal]
 ```
-Note that GDAL is listed as an extra dependency for this package. This is done to facilitate environments that either
-don't want to use GDAL or those that have their own custom installation steps for that library. Future versions of
-this package will include image IO backbones that have fewer dependencies.
+Note that GDAL is currently required but it is listed as an extra dependency for this package. This is done to facilitate
+environments that either don't want to use GDAL or those that have their own custom installation steps for that library.
+Future versions of this package will include image IO backbones that have fewer dependencies. Beware that GDAL has been
+known to introduce breaking changes on minor version numbers so testing for specific version compatability is
+recommended. The tox build has been setup to test multiple gdal/proj/python combinations and the versions
+checked by automated testing can be seen in the environment-*.yml files.
 
 ## Contributing
 
