@@ -47,8 +47,7 @@ by GDAL. This information can be accessed with the help of the NITFDESAccessor.
     xml_data_content_segments = des_accessor.get_segments_by_name("XML_DATA_CONTENT")
     if xml_data_content_segments is not None:
         for xml_data_segment in xml_data_content_segments:
-            xml_bytes = des_accessor.parse_field_value(xml_data_segment, "DESDATA", base64.b64decode)
-            xml_str = xml_bytes.decode("utf-8")
+            xml_str = des_accessor.extract_desdata_xml(xml_data_segment)
             if "SICD" in xml_str:
                 temp = xml.dom.minidom.parseString(xml_str)
                 new_xml = temp.toprettyxml()
