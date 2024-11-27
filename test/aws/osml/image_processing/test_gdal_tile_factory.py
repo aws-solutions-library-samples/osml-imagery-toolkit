@@ -459,9 +459,11 @@ class TestGDALTileFactory(TestCase):
         pixel_array = np.array([[50, 75, 100], [125, 150, 175]], dtype=np.uint8)
         band = MagicMock(spec=gdal.Band)
         band.GetHistogram.return_value = [0 for i in range(20)] + [10 for i in range(216)] + [0 for i in range(20)]
+        band.GetMinimum.return_value = 20
+        band.GetMaximum.return_value = 216
 
         normalized_pixels = gdal_tile_factory._normalize_band_dra(band, pixel_array)
-        np.testing.assert_array_equal(normalized_pixels, np.array([[35, 65, 94], [124, 154, 183]], dtype=np.uint8))
+        np.testing.assert_array_equal(normalized_pixels, np.array([[22, 61, 100], [138, 177, 216]], dtype=np.uint8))
 
 
 if __name__ == "__main__":
