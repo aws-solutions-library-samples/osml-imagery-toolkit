@@ -475,8 +475,10 @@ class GDALTileFactory:
         min_value = band.GetMinimum() if band.GetMinimum() is not None else np.min(pixel_array)
         max_value = band.GetMaximum() if band.GetMaximum() is not None else np.max(pixel_array)
 
-        hist = band.GetHistogram(min=min_value, max=max_value, buckets=256)
-        dra_parameters = DRAParameters.from_counts(hist, max_percentage=0.97)
+        hist = band.GetHistogram(min=min_value, max=max_value, buckets=max(256, int(max_value - min_value)))
+        dra_parameters = DRAParameters.from_counts(
+            hist, first_bucket_value=min_value, last_bucket_value=max_value, max_percentage=0.97
+        )
         normalized_pixel = (
             255
             * (pixel_array - dra_parameters.suggested_min_value)
