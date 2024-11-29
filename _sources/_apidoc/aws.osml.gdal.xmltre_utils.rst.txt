@@ -1,0 +1,7 @@
+aws.osml.gdal.xmltre\_utils module
+==================================
+
+.. automodule:: aws.osml.gdal.xmltre_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:

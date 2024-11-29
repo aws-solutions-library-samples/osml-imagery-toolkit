@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.photogrammetry.digital_elevation_model &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.photogrammetry.digital_elevation_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.photogrammetry.digital_elevation_model</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="c1"># TODO: Add typing for ArrayLike once Numpy upgraded to 1.20+</span>
+<span class="c1"># from numpy.typing import ArrayLike</span>
+
+<span class="kn">import</span> <span class="nn">operator</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">cachetools</span> <span class="kn">import</span> <span class="n">LRUCache</span><span class="p">,</span> <span class="n">cachedmethod</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">RectBivariateSpline</span>
+
+<span class="kn">from</span> <span class="nn">.coordinates</span> <span class="kn">import</span> <span class="n">GeodeticWorldCoordinate</span>
+<span class="kn">from</span> <span class="nn">.elevation_model</span> <span class="kn">import</span> <span class="n">ElevationModel</span><span class="p">,</span> <span class="n">ElevationRegionSummary</span>
+<span class="kn">from</span> <span class="nn">.sensor_model</span> <span class="kn">import</span> <span class="n">SensorModel</span>
+
+
+<div class="viewcode-block" id="DigitalElevationModelTileSet">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.digital_elevation_model.html#aws.osml.photogrammetry.DigitalElevationModelTileSet">[docs]</a>
+<span class="k">class</span> <span class="nc">DigitalElevationModelTileSet</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class defines an abstraction that is capable of identifying which elevation tile in a</span>
+<span class="sd">    DEM contains the elevations for a given world coordinate. It is common to split a DEM with</span>
+<span class="sd">    global coverage up into a collection of files with well understood coverage areas. Those files</span>
+<span class="sd">    may follow a simple naming convention but could be cataloged in an external spatial index. This</span>
+<span class="sd">    class abstracts those details away from the DigitalElevationModel allowing us to easily extend</span>
+<span class="sd">    this design to various tile sets.</span>
+
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="DigitalElevationModelTileSet.find_tile_id">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.digital_elevation_model.html#aws.osml.photogrammetry.DigitalElevationModelTileSet.find_tile_id">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">find_tile_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geodetic_world_coordinate</span><span class="p">:</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts the latitude, longitude of the world coordinate into a tile path.</span>
+
+<span class="sd">        :param geodetic_world_coordinate: GeodeticWorldCoordinate = the world coordinate of interest</span>
+
+<span class="sd">        :return: the tile path or None if the DEM does not have coverage for this location</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DigitalElevationModelTileFactory">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.digital_elevation_model.html#aws.osml.photogrammetry.DigitalElevationModelTileFactory">[docs]</a>
+<span class="k">class</span> <span class="nc">DigitalElevationModelTileFactory</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class defines an abstraction that is able to load a tile and convert it to a Numpy array</span>
+<span class="sd">    of elevation data along with a SensorModel that can be used to identify the grid locations</span>
+<span class="sd">    associated with a latitude, longitude.</span>
+
+<span class="sd">    :return: None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="DigitalElevationModelTileFactory.get_tile">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.digital_elevation_model.html#aws.osml.photogrammetry.DigitalElevationModelTileFactory.get_tile">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_tile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SensorModel</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ElevationRegionSummary</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a numpy array of elevation values and a sensor model.</span>
+
+<span class="sd">        TODO: Replace Any with numpy.typing.ArrayLike once we move to numpy &gt;1.20</span>
+
+<span class="sd">        :param tile_path: the location of the tile to load</span>
+
+<span class="sd">        :return: an array of elevation values, a sensor model, and a summary</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DigitalElevationModel">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.digital_elevation_model.html#aws.osml.photogrammetry.DigitalElevationModel">[docs]</a>
+<span class="k">class</span> <span class="nc">DigitalElevationModel</span><span class="p">(</span><span class="n">ElevationModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Digital Elevation Model (DEM) is a representation of the topographic surface of the Earth. Theoretically</span>
+<span class="sd">    these representations exclude trees, buildings, and any other surface objects but in practice elevations</span>
+<span class="sd">    from those objects are likely captured by the sensors use to capture the elevation data.</span>
+
+<span class="sd">    These datasets are normally stored as a pre-tiled collection of images with a well established resolution and</span>
+<span class="sd">    coverage.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">tile_set</span><span class="p">:</span> <span class="n">DigitalElevationModelTileSet</span><span class="p">,</span>
+        <span class="n">tile_factory</span><span class="p">:</span> <span class="n">DigitalElevationModelTileFactory</span><span class="p">,</span>
+        <span class="n">raster_cache_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This constructor accepts a tile set and a tile factory which specify how to index into and</span>
+<span class="sd">        load elevations from a TBD collection of elevation tiles that make up a DEM. This inversion of</span>
+<span class="sd">        control pattern isolates the generic processing of interpolating elevation values from a regular</span>
+<span class="sd">        grid away from the details of how the elevation tiles are stored and accessed.</span>
+
+<span class="sd">        :param tile_set: DigitalElevationModelTileSet = a class used to identify the DEM tile associated with a location</span>
+<span class="sd">        :param tile_factory: DigitalElevationModelTileFactory = a class used to load DEM tile and convert to numpy array</span>
+<span class="sd">        :param raster_cache_size: int = the number of DEM arrays to store in memory preventing frequent loading</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_set</span> <span class="o">=</span> <span class="n">tile_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_factory</span> <span class="o">=</span> <span class="n">tile_factory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raster_cache</span><span class="p">:</span> <span class="n">LRUCache</span> <span class="o">=</span> <span class="n">LRUCache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="n">raster_cache_size</span><span class="p">)</span>
+        <span class="c1"># TODO: Think about raster_cache_size parameter. This is the number of rasters we will keep open at any</span>
+        <span class="c1">#       one time. Look at the size of those tiles and add a comment about how much memory will be used by this</span>
+        <span class="c1">#       setting. Pick a default that is reasonable and also likely to cover most images</span>
+
+<div class="viewcode-block" id="DigitalElevationModel.set_elevation">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.digital_elevation_model.html#aws.osml.photogrammetry.DigitalElevationModel.set_elevation">[docs]</a>
+    <span class="k">def</span> <span class="nf">set_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geodetic_world_coordinate</span><span class="p">:</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method updates the elevation component of a geodetic world coordinate to match the surface</span>
+<span class="sd">        elevation at the provided latitude and longitude. Note that if the DEM does not have elevation</span>
+<span class="sd">        values for this region or if there is an error loading the associated image the elevation will</span>
+<span class="sd">        be unchanged.</span>
+
+<span class="sd">        :param geodetic_world_coordinate: the coordinate to update</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tile_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_set</span><span class="o">.</span><span class="n">find_tile_id</span><span class="p">(</span><span class="n">geodetic_world_coordinate</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tile_id</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">interpolation_grid</span><span class="p">,</span> <span class="n">sensor_model</span><span class="p">,</span> <span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_interpolation_grid</span><span class="p">(</span><span class="n">tile_id</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">interpolation_grid</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sensor_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">image_coordinate</span> <span class="o">=</span> <span class="n">sensor_model</span><span class="o">.</span><span class="n">world_to_image</span><span class="p">(</span><span class="n">geodetic_world_coordinate</span><span class="p">)</span>
+            <span class="n">geodetic_world_coordinate</span><span class="o">.</span><span class="n">elevation</span> <span class="o">=</span> <span class="n">interpolation_grid</span><span class="p">(</span><span class="n">image_coordinate</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">image_coordinate</span><span class="o">.</span><span class="n">y</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="DigitalElevationModel.describe_region">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.digital_elevation_model.html#aws.osml.photogrammetry.DigitalElevationModel.describe_region">[docs]</a>
+    <span class="k">def</span> <span class="nf">describe_region</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geodetic_world_coordinate</span><span class="p">:</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ElevationRegionSummary</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a summary of the region near the provided world coordinate</span>
+
+<span class="sd">        :param geodetic_world_coordinate: the coordinate at the center of the region of interest</span>
+<span class="sd">        :return: a summary of the elevation data in this tile</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">tile_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_set</span><span class="o">.</span><span class="n">find_tile_id</span><span class="p">(</span><span class="n">geodetic_world_coordinate</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tile_id</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">interpolation_grid</span><span class="p">,</span> <span class="n">sensor_model</span><span class="p">,</span> <span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_interpolation_grid</span><span class="p">(</span><span class="n">tile_id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">summary</span></div>
+
+
+<div class="viewcode-block" id="DigitalElevationModel.get_interpolation_grid">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.digital_elevation_model.html#aws.osml.photogrammetry.DigitalElevationModel.get_interpolation_grid">[docs]</a>
+    <span class="nd">@cachedmethod</span><span class="p">(</span><span class="n">operator</span><span class="o">.</span><span class="n">attrgetter</span><span class="p">(</span><span class="s2">&quot;raster_cache&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">get_interpolation_grid</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">tile_path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">RectBivariateSpline</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SensorModel</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ElevationRegionSummary</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method loads and converts an array of elevation values into a class that can</span>
+<span class="sd">        interpolate values that lie between measured elevations. The sensor model is also</span>
+<span class="sd">        returned to allow us to precisely identify the location in the grid of a</span>
+<span class="sd">        world coordinate.</span>
+
+<span class="sd">        Note that the results of this method are cached by tile_id. It is very common for</span>
+<span class="sd">        the set_elevation() method to be called multiple times for locations that are in a</span>
+<span class="sd">        narrow region of interest. This will prevent unnecessary repeated loading of tiles.</span>
+
+<span class="sd">        :param tile_path: the location of the tile to load</span>
+
+<span class="sd">        :return: the cached interpolation object, sensor model, and summary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">elevations_array</span><span class="p">,</span> <span class="n">sensor_model</span><span class="p">,</span> <span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_factory</span><span class="o">.</span><span class="n">get_tile</span><span class="p">(</span><span class="n">tile_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">elevations_array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">sensor_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">height</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">elevations_array</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">RectBivariateSpline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">elevations_array</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">kx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ky</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">sensor_model</span><span class="p">,</span> <span class="n">summary</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

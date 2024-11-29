@@ -1,0 +1,7 @@
+aws.osml.formats.sidd.models.sidd\_v2\_0\_0 module
+==================================================
+
+.. automodule:: aws.osml.formats.sidd.models.sidd_v2_0_0
+   :members:
+   :undoc-members:
+   :show-inheritance:

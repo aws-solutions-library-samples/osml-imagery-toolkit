@@ -1,0 +1,368 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.photogrammetry.rpc_sensor_model &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.photogrammetry.rpc_sensor_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.photogrammetry.rpc_sensor_model</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">degrees</span><span class="p">,</span> <span class="n">radians</span><span class="p">,</span> <span class="n">sqrt</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ConstantElevationModel</span><span class="p">,</span> <span class="n">ElevationModel</span><span class="p">,</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">,</span> <span class="n">ImageCoordinate</span><span class="p">,</span> <span class="n">WorldCoordinate</span>
+<span class="kn">from</span> <span class="nn">.math_utils</span> <span class="kn">import</span> <span class="n">equilateral_triangle</span>
+<span class="kn">from</span> <span class="nn">.sensor_model</span> <span class="kn">import</span> <span class="n">SensorModel</span><span class="p">,</span> <span class="n">SensorModelOptions</span>
+
+
+<div class="viewcode-block" id="RPCPolynomial">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.rpc_sensor_model.html#aws.osml.photogrammetry.RPCPolynomial">[docs]</a>
+<span class="k">class</span> <span class="nc">RPCPolynomial</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coefficients</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The order of terms in the coefficients is defined to match the RPC00B specification as defined in STDI-0002</span>
+<span class="sd">        Volume 1 Appendix E Section E.2.4. Note that the order of terms for coefficients taken from other TREs (e.g.</span>
+<span class="sd">        RPC00A is different).</span>
+
+<span class="sd">        :param coefficients: the polynomial coefficients</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span> <span class="o">=</span> <span class="n">coefficients</span>
+
+<div class="viewcode-block" id="RPCPolynomial.evaluate">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.rpc_sensor_model.html#aws.osml.photogrammetry.RPCPolynomial.evaluate">[docs]</a>
+    <span class="k">def</span> <span class="nf">evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalized_world_coordinate</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function evaluates the polynomial for the given world coordinate by summing up the result of applying</span>
+<span class="sd">        each coefficient to the world coordinate components. Note that these polynomials are usually defined with</span>
+<span class="sd">        the assumption that the world coordinate has been normalized.</span>
+
+<span class="sd">        :param normalized_world_coordinate: the world coordinate</span>
+
+<span class="sd">        :return: the resulting value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The equations in the RPC00B definition use L, P, H to denote the normalized longitude, latitude, and</span>
+        <span class="c1"># elevation components respectively.</span>
+        <span class="n">l_val</span> <span class="o">=</span> <span class="n">normalized_world_coordinate</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">p_val</span> <span class="o">=</span> <span class="n">normalized_world_coordinate</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">h_val</span> <span class="o">=</span> <span class="n">normalized_world_coordinate</span><span class="o">.</span><span class="n">z</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># constant</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">l_val</span>  <span class="c1"># L</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">p_val</span>  <span class="c1"># P</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">h_val</span>  <span class="c1"># H</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">p_val</span>  <span class="c1"># LP</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">h_val</span>  <span class="c1"># LH</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="o">*</span> <span class="n">p_val</span> <span class="o">*</span> <span class="n">h_val</span>  <span class="c1"># PH</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">l_val</span>  <span class="c1"># LL</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">*</span> <span class="n">p_val</span> <span class="o">*</span> <span class="n">p_val</span>  <span class="c1"># PP</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">*</span> <span class="n">h_val</span> <span class="o">*</span> <span class="n">h_val</span>  <span class="c1"># HH</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">p_val</span> <span class="o">*</span> <span class="n">h_val</span>  <span class="c1"># LPH</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">l_val</span>  <span class="c1"># LLL</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">p_val</span> <span class="o">*</span> <span class="n">p_val</span>  <span class="c1"># LPP</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">h_val</span> <span class="o">*</span> <span class="n">h_val</span>  <span class="c1"># LHH</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">p_val</span>  <span class="c1"># LLP</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span> <span class="o">*</span> <span class="n">p_val</span> <span class="o">*</span> <span class="n">p_val</span> <span class="o">*</span> <span class="n">p_val</span>  <span class="c1"># PPP</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span> <span class="o">*</span> <span class="n">p_val</span> <span class="o">*</span> <span class="n">h_val</span> <span class="o">*</span> <span class="n">h_val</span>  <span class="c1"># PHH</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">17</span><span class="p">]</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">l_val</span> <span class="o">*</span> <span class="n">h_val</span>  <span class="c1"># LLH</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">18</span><span class="p">]</span> <span class="o">*</span> <span class="n">p_val</span> <span class="o">*</span> <span class="n">p_val</span> <span class="o">*</span> <span class="n">h_val</span>  <span class="c1"># PPH</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficients</span><span class="p">[</span><span class="mi">19</span><span class="p">]</span> <span class="o">*</span> <span class="n">h_val</span> <span class="o">*</span> <span class="n">h_val</span> <span class="o">*</span> <span class="n">h_val</span>  <span class="c1"># HHH</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This makes the polynomial object callable such that it can be applied to a world coordinate directly e.g.</span>
+<span class="sd">        result = polynomial(coordinate).</span>
+
+<span class="sd">        :param args: the world coordinate</span>
+<span class="sd">        :param kwargs: no keyword arguments are accepted but this is required for the Callable interface</span>
+<span class="sd">        :return: the result of the evaluation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="RPCSensorModel">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.rpc_sensor_model.html#aws.osml.photogrammetry.RPCSensorModel">[docs]</a>
+<span class="k">class</span> <span class="nc">RPCSensorModel</span><span class="p">(</span><span class="n">SensorModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Rational Polynomial Camera (RPC) sensor model is one where the world to image transform is approximated using</span>
+<span class="sd">    a ratio of polynomials. The polynomials capture specific relationships between the latitude, longitude, and</span>
+<span class="sd">    elevation and the image pixels.</span>
+
+<span class="sd">    These cameras were common approximations for many years but started to be phased out in 2014 in favor of the</span>
+<span class="sd">    more general Replacement Sensor Model (RSM). It is not uncommon to find historical imagery or imagery from</span>
+<span class="sd">    older sensors still operating today that contain the metadata for these sensor models.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">err_bias</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">err_rand</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">line_off</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">samp_off</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">lat_off</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">long_off</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">height_off</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">line_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">samp_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">lat_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">long_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">height_scale</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">line_num_poly</span><span class="p">:</span> <span class="n">RPCPolynomial</span><span class="p">,</span>
+        <span class="n">line_den_poly</span><span class="p">:</span> <span class="n">RPCPolynomial</span><span class="p">,</span>
+        <span class="n">samp_num_poly</span><span class="p">:</span> <span class="n">RPCPolynomial</span><span class="p">,</span>
+        <span class="n">samp_den_poly</span><span class="p">:</span> <span class="n">RPCPolynomial</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This constructs the sensor model using parameters normally found in the NITF RPC00B TRE. Note that there also</span>
+<span class="sd">        exists RPC00A, and RPC00C tags that contain the same information. Be careful and check the specifications. The</span>
+<span class="sd">        order of the polynomial coefficients is different even though the structure of the TRE is the same.</span>
+
+<span class="sd">        :param err_bias: non time-varying error estimate assumes correlated images</span>
+<span class="sd">        :param err_rand: time-varying error estimate assumes uncorrelated images</span>
+<span class="sd">        :param line_off: offset used to normalize/denormalize image y components</span>
+<span class="sd">        :param samp_off: offset used to normalize/denormalize image x components</span>
+<span class="sd">        :param lat_off: offset used to normalize/denormalize world y components</span>
+<span class="sd">        :param long_off: offset used to normalize/denormalize world x components</span>
+<span class="sd">        :param height_off: offset used to normalize/denormalize world z components</span>
+<span class="sd">        :param line_scale: scale used to normalize/denormalize image y components</span>
+<span class="sd">        :param samp_scale: scale used to normalize/denormalize image x components</span>
+<span class="sd">        :param lat_scale: scale used to normalize/denormalize world y components</span>
+<span class="sd">        :param long_scale: scale used to normalize/denormalize world x components</span>
+<span class="sd">        :param height_scale: scale used to normalize/denormalize world z components</span>
+<span class="sd">        :param line_num_poly: polynomial used as the numerator in line (row) calculations</span>
+<span class="sd">        :param line_den_poly: polynomial used as the denominator in line (row) calculations</span>
+<span class="sd">        :param samp_num_poly: polynomial used as the numerator in sample (column) calculations</span>
+<span class="sd">        :param samp_den_poly: polynomial used as the denominator in sample (column) calculations</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_bias</span> <span class="o">=</span> <span class="n">err_bias</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">err_rand</span> <span class="o">=</span> <span class="n">err_rand</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line_off</span> <span class="o">=</span> <span class="n">line_off</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samp_off</span> <span class="o">=</span> <span class="n">samp_off</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lat_off</span> <span class="o">=</span> <span class="n">lat_off</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">long_off</span> <span class="o">=</span> <span class="n">long_off</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height_off</span> <span class="o">=</span> <span class="n">height_off</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line_scale</span> <span class="o">=</span> <span class="n">line_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samp_scale</span> <span class="o">=</span> <span class="n">samp_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lat_scale</span> <span class="o">=</span> <span class="n">lat_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">long_scale</span> <span class="o">=</span> <span class="n">long_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height_scale</span> <span class="o">=</span> <span class="n">height_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line_numerator_poly</span> <span class="o">=</span> <span class="n">line_num_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line_denominator_poly</span> <span class="o">=</span> <span class="n">line_den_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samp_numerator_poly</span> <span class="o">=</span> <span class="n">samp_num_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">samp_denominator_poly</span> <span class="o">=</span> <span class="n">samp_den_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_elevation_model</span> <span class="o">=</span> <span class="n">ConstantElevationModel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height_off</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RPCSensorModel.world_to_image">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.rpc_sensor_model.html#aws.osml.photogrammetry.RPCSensorModel.world_to_image">[docs]</a>
+    <span class="k">def</span> <span class="nf">world_to_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geodetic_coordinate</span><span class="p">:</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function transforms a geodetic world coordinate (longitude, latitude, elevation) into an image coordinate</span>
+<span class="sd">        (x, y).</span>
+
+<span class="sd">        :param geodetic_coordinate: the world coordinate (longitude, latitude, elevation)</span>
+
+<span class="sd">        :return: the resulting image coordinate (x,y)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># The RPC spec assumes the ground coordinates are latitude and longitude in units of decimal degrees and</span>
+        <span class="c1"># the geodetic elevation in units of meters. The ground coordinates are referenced to WGS-84. The</span>
+        <span class="c1"># GeodeticWorldCoordinate is assumed to be in radians with meters elevation. Convert the coordinate to</span>
+        <span class="c1"># degrees before normalizing the values.</span>
+        <span class="c1"># TODO: Check that GeodeticWorldCoordinate in RSM is meters elevation</span>
+        <span class="n">l_val</span> <span class="o">=</span> <span class="p">(</span><span class="n">degrees</span><span class="p">(</span><span class="n">geodetic_coordinate</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_off</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">long_scale</span>
+        <span class="n">p_val</span> <span class="o">=</span> <span class="p">(</span><span class="n">degrees</span><span class="p">(</span><span class="n">geodetic_coordinate</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">lat_off</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">lat_scale</span>
+        <span class="n">h_val</span> <span class="o">=</span> <span class="p">(</span><span class="n">geodetic_coordinate</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">height_off</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">height_scale</span>
+        <span class="n">norm_domain_coordinate</span> <span class="o">=</span> <span class="n">WorldCoordinate</span><span class="p">([</span><span class="n">l_val</span><span class="p">,</span> <span class="n">p_val</span><span class="p">,</span> <span class="n">h_val</span><span class="p">])</span>
+
+        <span class="c1"># Evaluate the rational polynomials</span>
+        <span class="n">cn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">samp_numerator_poly</span><span class="p">(</span><span class="n">norm_domain_coordinate</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">samp_denominator_poly</span><span class="p">(</span><span class="n">norm_domain_coordinate</span><span class="p">)</span>
+        <span class="n">rn</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_numerator_poly</span><span class="p">(</span><span class="n">norm_domain_coordinate</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_denominator_poly</span><span class="p">(</span><span class="n">norm_domain_coordinate</span><span class="p">)</span>
+
+        <span class="c1"># Denormalize the rational polynomial results to get the actual x,y of the image coordinate</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">cn</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">samp_scale</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">samp_off</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">rn</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_scale</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">line_off</span>
+        <span class="k">return</span> <span class="n">ImageCoordinate</span><span class="p">([</span><span class="n">col</span><span class="p">,</span> <span class="n">row</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="RPCSensorModel.image_to_world">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.rpc_sensor_model.html#aws.osml.photogrammetry.RPCSensorModel.image_to_world">[docs]</a>
+    <span class="k">def</span> <span class="nf">image_to_world</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_coordinate</span><span class="p">:</span> <span class="n">ImageCoordinate</span><span class="p">,</span>
+        <span class="n">elevation_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ElevationModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function implements the image to world transform by iteratively invoking world to image within a</span>
+<span class="sd">        minimization routine to find a matching image coordinate. The longitude and latitude parameters are searched</span>
+<span class="sd">        independently while the elevation of the world coordinate comes from the elevation model.</span>
+
+<span class="sd">        :param image_coordinate: the image coordinate (x, y)</span>
+<span class="sd">        :param elevation_model: an optional elevation model used to transform the coordinate</span>
+<span class="sd">        :param options: optional hints, supports initial_guess and initial_search_distance</span>
+
+<span class="sd">        :return: the corresponding world coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># This is the function we will be minimizing. Given an x,y coordinate in the ground domain we use invoke the</span>
+        <span class="c1"># ground_domain_to_image function to get a projection of that location in the image. Then we compute the</span>
+        <span class="c1"># distance between that new image location and the input image location. When those locations match then</span>
+        <span class="c1"># we know we have the ground domain coordinate that corresponds to the input.</span>
+        <span class="k">def</span> <span class="nf">distance_to_target_coordinate</span><span class="p">(</span><span class="n">lonlat_coord</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="n">ground_domain_coordinate</span> <span class="o">=</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">([</span><span class="n">lonlat_coord</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">lonlat_coord</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mf">0.0</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">default_elevation_model</span><span class="o">.</span><span class="n">set_elevation</span><span class="p">(</span><span class="n">ground_domain_coordinate</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">elevation_model</span><span class="p">:</span>
+                <span class="n">elevation_model</span><span class="o">.</span><span class="n">set_elevation</span><span class="p">(</span><span class="n">ground_domain_coordinate</span><span class="p">)</span>
+            <span class="n">new_image_coordinate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">world_to_image</span><span class="p">(</span><span class="n">ground_domain_coordinate</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">sqrt</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">image_coordinate</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">new_image_coordinate</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">image_coordinate</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">new_image_coordinate</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Select an initial guess using the normalization offsets for this camera model. Normally these are values</span>
+        <span class="c1"># near an image corner or the center</span>
+        <span class="n">initial_guess</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SensorModelOptions</span><span class="o">.</span><span class="n">INITIAL_GUESS</span><span class="p">)</span> <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">initial_guess</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">initial_guess</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">long_off</span><span class="p">),</span> <span class="n">radians</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lat_off</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">,</span> <span class="n">List</span><span class="p">):</span>
+            <span class="n">initial_guess</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">initial_guess</span><span class="p">)</span>
+
+        <span class="n">initial_search_distance</span> <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">SensorModelOptions</span><span class="o">.</span><span class="n">INITIAL_SEARCH_DISTANCE</span><span class="p">)</span> <span class="k">if</span> <span class="n">options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">initial_search_distance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">initial_search_distance</span> <span class="o">=</span> <span class="n">radians</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="c1"># Iteratively adjust the initial guess to minimize the distance to the target image coordinate. We are only</span>
+        <span class="c1"># allowing the x,y components to vary here and the z is fixed to the elevation model. The starting simplex</span>
+        <span class="c1"># is estimated as a triangle centered on the normalization offsets for this RPC.</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span>
+            <span class="n">distance_to_target_coordinate</span><span class="p">,</span>
+            <span class="n">initial_guess</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="s2">&quot;Nelder-Mead&quot;</span><span class="p">,</span>
+            <span class="n">options</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;xatol&quot;</span><span class="p">:</span> <span class="n">radians</span><span class="p">(</span><span class="mf">0.000001</span><span class="p">),</span>
+                <span class="s2">&quot;fatol&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                <span class="s2">&quot;initial_simplex&quot;</span><span class="p">:</span> <span class="n">equilateral_triangle</span><span class="p">(</span><span class="n">initial_guess</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">initial_search_distance</span><span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="c1"># The minimization result is an (x,y) tuple, so we need to expand it to x,y,z and replace the z component with</span>
+        <span class="c1"># the height from the elevation model. Note that the units of this are radians, radians, meters</span>
+        <span class="n">world_coordinate</span> <span class="o">=</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_elevation_model</span><span class="o">.</span><span class="n">set_elevation</span><span class="p">(</span><span class="n">world_coordinate</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">elevation_model</span><span class="p">:</span>
+            <span class="n">elevation_model</span><span class="o">.</span><span class="n">set_elevation</span><span class="p">(</span><span class="n">world_coordinate</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">world_coordinate</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>
