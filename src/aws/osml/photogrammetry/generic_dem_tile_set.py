@@ -1,6 +1,6 @@
 #  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.
 
-from math import degrees, floor
+from math import degrees, floor, radians
 from typing import Optional
 
 from .coordinates import GeodeticWorldCoordinate
@@ -22,10 +22,10 @@ class GenericDEMTileSet(DigitalElevationModelTileSet):
     ) -> None:
         """
         Construct a tile set from a limited collection of configurable parameters. This implementation uses the
-        custom formatting directives supplied with GeodeticWorldCoordinate to allow users to create tile IDs
-        that match a variety of situations. For example the default format_spec of '%od%oh/%ld%lh.dt2' will
-        generate tile ids like: '115e/45s.dt2' which would match some common 1-degree cell based DEM file
-        hierarchies.
+        custom formatting directives %od (longitude degrees), %oh (longitude hemisphere), %ld (latitude degrees),
+        and %lh (latitude hemisphere) to allow users to create tile IDs that match a variety of situations.
+        For example the default format_spec of '%od%oh/%ld%lh.dt2' will generate tile ids like: '115e/45s.dt2'
+        which would match some common 1-degree cell based DEM file hierarchies.
 
         :param format_spec: the format specification for the GeodeteticWorldCoordinate
 
@@ -60,4 +60,5 @@ class GenericDEMTileSet(DigitalElevationModelTileSet):
         ):
             return None
 
-        return f"{geodetic_world_coordinate:{self.format_string}}"
+        ul_coordinate = GeodeticWorldCoordinate([radians(longitude_degrees), radians(latitude_degrees), 0.0])
+        return f"{ul_coordinate:{self.format_string}}"
