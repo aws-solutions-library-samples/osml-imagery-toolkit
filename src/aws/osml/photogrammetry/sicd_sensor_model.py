@@ -742,7 +742,7 @@ class HAERRDotSurfaceProjection(RRDotSurfaceProjection):
                 np.sin(self.scp_lle.latitude),
             ]
         )
-        gref = self.scp_ecf.coordinate + (self.hae - self.scp_ecf.z) * u_gpn
+        gref = self.scp_ecf.coordinate + (self.hae - self.scp_lle.z) * u_gpn
 
         cont = True
         n = 1
