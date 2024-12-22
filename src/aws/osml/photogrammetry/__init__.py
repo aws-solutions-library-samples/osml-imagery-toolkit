@@ -20,7 +20,7 @@ options. These features will be added in a future release.*
    :width: 400
    :alt: Photogrammetry Class Diagram
 
-    Class diagram of the aws.osml.photogrammetry package showing public and private classes.
+   Class diagram of the aws.osml.photogrammetry package showing public and private classes.
 
 Geolocating Image Pixels: Basic Examples
 ****************************************
@@ -77,9 +77,12 @@ available we assume a constant surface with elevation provided in the image meta
     :caption: Example showing use of an external SRTM DEM to provide elevation data for image center
 
     ds, sensor_model = load_gdal_dataset("./imagery/sample.nitf")
+
+    # This sets up an external elevation model assuming terrain data is named something like:
+    # ./SRTM/dted/w044/s23.dt2.
     elevation_model = DigitalElevationModel(
-        SRTMTileSet(version="1arc_v3"),
-        GDALDigitalElevationModelTileFactory("./local-SRTM-tiles"))
+        GenericDEMTileSet(format_spec="format_spec="dted/%oh%od/%lh%ld.dt2"),
+        GDALDigitalElevationModelTileFactory("./SRTM"))
 
     # Note the order of ImageCoordinate is (x, y) and the resulting geodetic coordinate is
     # (longitude, latitude, elevation) with longitude and latitude in **radians** and elevation in meters.
