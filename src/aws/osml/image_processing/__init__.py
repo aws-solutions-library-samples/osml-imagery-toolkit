@@ -105,14 +105,14 @@ Calibration, and Display (SAND2019-2371).
    :width: 400
    :alt: Histogram Stretch Applied to Sample SICD Image
 
-    Example of applying histogram_stretch to a sample SICD image.
+   Example of applying histogram_stretch to a sample SICD image.
 
 
 .. figure:: ../images/SAR-QuarterPowerImage.png
    :width: 400
    :alt: Quarter Power Image Applied to Sample SICD Image
 
-    Example of applying quarter_power_image to a sample SICD image.
+   Example of applying quarter_power_image to a sample SICD image.
 
 
 -------------------------
