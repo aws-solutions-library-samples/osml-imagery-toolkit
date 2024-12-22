@@ -1,0 +1,467 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.photogrammetry.coordinates &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.photogrammetry.coordinates</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.photogrammetry.coordinates</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
+<span class="kn">import</span> <span class="nn">pyproj</span>
+<span class="kn">from</span> <span class="nn">pyproj.enums</span> <span class="kn">import</span> <span class="n">TransformDirection</span>
+
+
+<div class="viewcode-block" id="WorldCoordinate">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.WorldCoordinate">[docs]</a>
+<span class="k">class</span> <span class="nc">WorldCoordinate</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A world coordinate is a vector representing a position in 3D space. Note that this type is a simple value with</span>
+<span class="sd">    3 components that does not distinguish between geodetic or other cartesian coordinate systems (e.g. geocentric</span>
+<span class="sd">    Earth-Centered Earth-Fixed or coordinates based on a local tangent plane).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a world coordinate from an x, y, z triple. The triple can be expressed as a List or any other</span>
+<span class="sd">        structure that can be used to construct a Numpy array.</span>
+
+<span class="sd">        :param coordinate: the x,y,z components</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">coordinate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coordinate</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;WorldCoordinates must have 3 components (x,y,z)&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="nd">@z</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">z</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;WorldCoordinate(coordinate=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">array_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="GeodeticWorldCoordinate">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.GeodeticWorldCoordinate">[docs]</a>
+<span class="k">class</span> <span class="nc">GeodeticWorldCoordinate</span><span class="p">(</span><span class="n">WorldCoordinate</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A GeodeticWorldCoordinate is an WorldCoordinate where the x,y,z components can be interpreted as longitude,</span>
+<span class="sd">    latitude, and elevation. It is important to note that longitude, and latitude are in radians while elevation</span>
+<span class="sd">    is meters above the ellipsoid.</span>
+
+<span class="sd">    This class uses a custom format specification for a geodetic coordinate uses % directives similar to datetime.</span>
+<span class="sd">    These custom directives can be combined as needed with literal values to produce a wide</span>
+<span class="sd">    range of output formats. For example, &#39;%ld%lm%ls%lH%od%om%os%oH&#39; will produce a ddmmssXdddmmssY formatted</span>
+<span class="sd">    coordinate. The first half, ddmmssX, represents degrees, minutes, and seconds of latitude with X representing</span>
+<span class="sd">    North or South (N for North, S for South). The second half, dddmmssY, represents degrees, minutes, and seconds</span>
+<span class="sd">    of longitude with Y representing East or West (E for East, W for West), respectively.</span>
+
+
+<span class="sd">    ========= ================================================ =====</span>
+<span class="sd">    Directive Meaning                                          Notes</span>
+<span class="sd">    ========= ================================================ =====</span>
+<span class="sd">    %L        latitude in decimal radians                       1</span>
+<span class="sd">    %l        latitude in decimal degrees                       1</span>
+<span class="sd">    %ld       latitute degrees                                  2</span>
+<span class="sd">    %lm       latitude minutes</span>
+<span class="sd">    %ls       latitude seconds</span>
+<span class="sd">    %lh       latitude hemisphere (n or s)</span>
+<span class="sd">    %lH       latitude hemisphere uppercase (N or S)</span>
+<span class="sd">    %O        longitude in decimal radians                      1</span>
+<span class="sd">    %o        longitude in decimal degrees                      1</span>
+<span class="sd">    %od       longitude degrees                                 2</span>
+<span class="sd">    %om       longitude minutes</span>
+<span class="sd">    %os       longitude seconds</span>
+<span class="sd">    %oh       longitude hemisphere (e or w)</span>
+<span class="sd">    %oH       longitude hemisphere uppercase (E or W)</span>
+<span class="sd">    %E        elevation in meters</span>
+<span class="sd">    %%        used to represent a literal % in the output</span>
+<span class="sd">    ========= ================================================ =====</span>
+
+<span class="sd">    Notes:</span>
+
+<span class="sd">    #. Formatting in decimal degrees or radians will be signed values</span>
+<span class="sd">    #. Formatting for the degrees, minutes, seconds will always be unsigned assuming hemisphere will be included</span>
+<span class="sd">    #. Any unknown directives will be ignored</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a geodetic world coordinate from a longitude, latitude, elevation triple. The longitude and</span>
+<span class="sd">        latitude components are in radians. The triple can be expressed as a List or any other structure that can</span>
+<span class="sd">        be used to construct a Numpy array.</span>
+
+<span class="sd">        :param coordinate: the longitude, latitude, elevation components</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">coordinate</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">longitude</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span>
+
+    <span class="nd">@longitude</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">longitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">latitude</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span>
+
+    <span class="nd">@latitude</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">latitude</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span>
+
+    <span class="nd">@elevation</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="GeodeticWorldCoordinate.to_dms_string">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.GeodeticWorldCoordinate.to_dms_string">[docs]</a>
+    <span class="k">def</span> <span class="nf">to_dms_string</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Outputs this coordinate in a format ddmmssXdddmmssY. The first half, ddmmssX, represents degrees, minutes, and</span>
+<span class="sd">        seconds of latitude with X representing North or South (N for North, S for South). The second half, dddmmssY,</span>
+<span class="sd">        represents degrees, minutes, and seconds of longitude with Y representing East or West (E for East, W for West),</span>
+<span class="sd">        respectively.</span>
+
+<span class="sd">        :return: the formatted coordinate string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="si">:</span><span class="s2">%ld%lm%ls%lH%od%om%os%oH</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;GeodeticWorldCoordinate(coordinate=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">array_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__format__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">format_spec</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">format_spec</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">format_spec</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%ld</span><span class="s2">%lm</span><span class="si">%ls</span><span class="s2">%lH </span><span class="si">%o</span><span class="s2">d</span><span class="si">%o</span><span class="s2">m</span><span class="si">%o</span><span class="s2">s</span><span class="si">%o</span><span class="s2">H </span><span class="si">%E</span><span class="s2">&quot;</span>
+
+        <span class="n">lat_degrees</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span>
+        <span class="n">lh</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span>
+        <span class="k">if</span> <span class="n">lat_degrees</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">lat_degrees</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+            <span class="n">lh</span> <span class="o">=</span> <span class="s2">&quot;S&quot;</span>
+        <span class="n">ld</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lat_degrees</span><span class="p">)</span>
+        <span class="n">lm</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">lat_degrees</span> <span class="o">-</span> <span class="n">ld</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">lat_degrees</span> <span class="o">-</span> <span class="n">ld</span> <span class="o">-</span> <span class="n">lm</span> <span class="o">/</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">)</span>
+
+        <span class="n">lon_degrees</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+        <span class="n">oh</span> <span class="o">=</span> <span class="s2">&quot;E&quot;</span>
+        <span class="k">if</span> <span class="n">lon_degrees</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">lon_degrees</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+            <span class="n">oh</span> <span class="o">=</span> <span class="s2">&quot;W&quot;</span>
+        <span class="n">od</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">lon_degrees</span><span class="p">)</span>
+        <span class="n">om</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">lon_degrees</span> <span class="o">-</span> <span class="n">od</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="n">os</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">lon_degrees</span> <span class="o">-</span> <span class="n">od</span> <span class="o">-</span> <span class="n">om</span> <span class="o">/</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span> <span class="o">*</span> <span class="mi">3600</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">format_spec</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">format_spec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;%&quot;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">format_spec</span><span class="p">):</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">directive</span> <span class="o">=</span> <span class="n">format_spec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">directive</span> <span class="o">==</span> <span class="s2">&quot;L&quot;</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latitude</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">directive</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">longitude</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">directive</span> <span class="o">==</span> <span class="s2">&quot;l&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">format_spec</span><span class="p">)</span> <span class="ow">and</span> <span class="n">format_spec</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">]:</span>
+                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">part</span> <span class="o">=</span> <span class="n">format_spec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">part</span> <span class="o">==</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">ld</span><span class="p">,</span> <span class="s2">&quot;02d&quot;</span><span class="p">))</span>
+                        <span class="k">elif</span> <span class="n">part</span> <span class="o">==</span> <span class="s2">&quot;m&quot;</span><span class="p">:</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">lm</span><span class="p">,</span> <span class="s2">&quot;02d&quot;</span><span class="p">))</span>
+                        <span class="k">elif</span> <span class="n">part</span> <span class="o">==</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">ls</span><span class="p">,</span> <span class="s2">&quot;02d&quot;</span><span class="p">))</span>
+                        <span class="k">elif</span> <span class="n">part</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lh</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1"># part must equal &#39;H&#39;</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lh</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">lat_degrees</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">directive</span> <span class="o">==</span> <span class="s2">&quot;o&quot;</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">format_spec</span><span class="p">)</span> <span class="ow">and</span> <span class="n">format_spec</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;d&quot;</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;H&quot;</span><span class="p">]:</span>
+                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">part</span> <span class="o">=</span> <span class="n">format_spec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">part</span> <span class="o">==</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">od</span><span class="p">,</span> <span class="s2">&quot;03d&quot;</span><span class="p">))</span>
+                        <span class="k">elif</span> <span class="n">part</span> <span class="o">==</span> <span class="s2">&quot;m&quot;</span><span class="p">:</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">om</span><span class="p">,</span> <span class="s2">&quot;02d&quot;</span><span class="p">))</span>
+                        <span class="k">elif</span> <span class="n">part</span> <span class="o">==</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">os</span><span class="p">,</span> <span class="s2">&quot;02d&quot;</span><span class="p">))</span>
+                        <span class="k">elif</span> <span class="n">part</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oh</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1"># part must equal &#39;H&#39;</span>
+                            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oh</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">lon_degrees</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">directive</span> <span class="o">==</span> <span class="s2">&quot;E&quot;</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elevation</span><span class="p">))</span>
+                <span class="k">elif</span> <span class="n">directive</span> <span class="o">==</span> <span class="s2">&quot;%&quot;</span><span class="p">:</span>
+                    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;%&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">format_spec</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># These are common definitions of projections used by Pyproj. They are used when converting between an Earth Centered</span>
+<span class="c1"># Earth Fixed (ECEF or geocentric) coordinate system that uses cartesian coordinates and a longitude, latitude based</span>
+<span class="c1"># geographic coordinate system. Both of these systems use the WGS84 datum which is a widely used standard among our</span>
+<span class="c1"># customers</span>
+<span class="n">ECEF_PROJ</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s2">&quot;geocent&quot;</span><span class="p">,</span> <span class="n">ellps</span><span class="o">=</span><span class="s2">&quot;WGS84&quot;</span><span class="p">,</span> <span class="n">datum</span><span class="o">=</span><span class="s2">&quot;WGS84&quot;</span><span class="p">)</span>
+<span class="n">LLA_PROJ</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="n">proj</span><span class="o">=</span><span class="s2">&quot;latlong&quot;</span><span class="p">,</span> <span class="n">ellps</span><span class="o">=</span><span class="s2">&quot;WGS84&quot;</span><span class="p">,</span> <span class="n">datum</span><span class="o">=</span><span class="s2">&quot;WGS84&quot;</span><span class="p">)</span>
+<span class="n">GEODETIC_TO_GEOCENTRIC_TRANSFORM</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Transformer</span><span class="o">.</span><span class="n">from_proj</span><span class="p">(</span><span class="n">LLA_PROJ</span><span class="p">,</span> <span class="n">ECEF_PROJ</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="geocentric_to_geodetic">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.geocentric_to_geodetic">[docs]</a>
+<span class="k">def</span> <span class="nf">geocentric_to_geodetic</span><span class="p">(</span><span class="n">ecef_world_coordinate</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a ECEF world coordinate (x, y, z) in meters into a (longitude, latitude, elevation) geodetic coordinate</span>
+<span class="sd">    with units of radians, radians, meters.</span>
+
+<span class="sd">    :param ecef_world_coordinate: the geocentric coordinate</span>
+
+<span class="sd">    :return: the geodetic coordinate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">(</span>
+        <span class="n">GEODETIC_TO_GEOCENTRIC_TRANSFORM</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+            <span class="n">ecef_world_coordinate</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">ecef_world_coordinate</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">ecef_world_coordinate</span><span class="o">.</span><span class="n">z</span><span class="p">,</span>
+            <span class="n">radians</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">direction</span><span class="o">=</span><span class="n">TransformDirection</span><span class="o">.</span><span class="n">INVERSE</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="geodetic_to_geocentric">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.geodetic_to_geocentric">[docs]</a>
+<span class="k">def</span> <span class="nf">geodetic_to_geocentric</span><span class="p">(</span><span class="n">geodetic_coordinate</span><span class="p">:</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorldCoordinate</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a geodetic world coordinate (longitude, latitude, elevation) with units of radians, radians, meters into</span>
+<span class="sd">    a ECEF / geocentric world coordinate (x, y, z) in meters.</span>
+
+<span class="sd">    :param geodetic_coordinate: the geodetic coordinate</span>
+
+<span class="sd">    :return: the geocentric coordinate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">WorldCoordinate</span><span class="p">(</span>
+        <span class="n">GEODETIC_TO_GEOCENTRIC_TRANSFORM</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+            <span class="n">geodetic_coordinate</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+            <span class="n">geodetic_coordinate</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+            <span class="n">geodetic_coordinate</span><span class="o">.</span><span class="n">elevation</span><span class="p">,</span>
+            <span class="n">radians</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">direction</span><span class="o">=</span><span class="n">TransformDirection</span><span class="o">.</span><span class="n">FORWARD</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ImageCoordinate">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.ImageCoordinate">[docs]</a>
+<span class="k">class</span> <span class="nc">ImageCoordinate</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This image coordinate system convention is defined as follows. The upper left corner of the upper left pixel</span>
+<span class="sd">    of the original full image has continuous image coordinates (pixel position) (r, c) = (0.0,0.0) , and the center</span>
+<span class="sd">    of the upper left pixel has continuous image coordinates (r, c) = (0.5,0.5) . The first row of the original full</span>
+<span class="sd">    image has discrete image row coordinate R = 0 , and corresponds to a range of continuous image row coordinates of</span>
+<span class="sd">    r = [0,1) . The first column of the original full image has discrete image column coordinate C = 0 , and</span>
+<span class="sd">    corresponds to a range of continuous image column coordinates of c = [0,1) . Thus, for example, continuous image</span>
+<span class="sd">    coordinates (r, c) = (5.6,8.3) correspond to the sixth row and ninth column of the original full image, and</span>
+<span class="sd">    discrete image coordinates (R,C) = (5,8).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinate</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs an image coordinate from an x, y tuple. The tuple can be expressed as a List or any other</span>
+<span class="sd">        structure that can be used to construct a Numpy array.</span>
+
+<span class="sd">        :param coordinate: the x, y components</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">coordinate</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">coordinate</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">coordinate</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;ImageCoordinates must have 2 components (x,y)&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">c</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@c</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">c</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">r</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@r</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">r</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">c</span>
+
+    <span class="nd">@x</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">r</span>
+
+    <span class="nd">@y</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ImageCoordinate(coordinate=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">array_repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

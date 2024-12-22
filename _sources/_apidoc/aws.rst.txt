@@ -1,0 +1,4 @@
+aws namespace
+=============
+
+.. py:module:: aws

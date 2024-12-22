@@ -1,0 +1,235 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.features.imaged_feature_property_accessor module &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">aws.osml.features.imaged_feature_property_accessor module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_apidoc/aws.osml.features.imaged_feature_property_accessor.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-aws.osml.features.imaged_feature_property_accessor">
+<span id="aws-osml-features-imaged-feature-property-accessor-module"></span><h1>aws.osml.features.imaged_feature_property_accessor module<a class="headerlink" href="#module-aws.osml.features.imaged_feature_property_accessor" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.features.imaged_feature_property_accessor.</span></span><span class="sig-name descname"><span class="pre">ImagedFeaturePropertyAccessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">allow_deprecated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/features/imaged_feature_property_accessor.html#ImagedFeaturePropertyAccessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This class contains utility functions that ensure the property names / values for features derived from imagery
+are consistently implemented. These specifications are still evolving so the intent is to encapsulate all of the
+names in this one class so that changes do not ripple through the rest of the software baseline.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.IMAGE_GEOMETRY">
+<span class="sig-name descname"><span class="pre">IMAGE_GEOMETRY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'imageGeometry'</span></em><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.IMAGE_GEOMETRY" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.IMAGE_BBOX">
+<span class="sig-name descname"><span class="pre">IMAGE_BBOX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'imageBBox'</span></em><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.IMAGE_BBOX" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.BOUNDS_IMCORDS">
+<span class="sig-name descname"><span class="pre">BOUNDS_IMCORDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'bounds_imcoords'</span></em><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.BOUNDS_IMCORDS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.GEOM_IMCOORDS">
+<span class="sig-name descname"><span class="pre">GEOM_IMCOORDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'geom_imcoords'</span></em><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.GEOM_IMCOORDS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.DETECTION">
+<span class="sig-name descname"><span class="pre">DETECTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'detection'</span></em><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.DETECTION" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.TYPE">
+<span class="sig-name descname"><span class="pre">TYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'type'</span></em><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.TYPE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.COORDINATES">
+<span class="sig-name descname"><span class="pre">COORDINATES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'coordinates'</span></em><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.COORDINATES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.PIXEL_COORDINATES">
+<span class="sig-name descname"><span class="pre">PIXEL_COORDINATES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'pixelCoordinates'</span></em><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.PIXEL_COORDINATES" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.find_image_geometry">
+<span class="sig-name descname"><span class="pre">find_image_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Feature</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Geometry</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/features/imaged_feature_property_accessor.html#ImagedFeaturePropertyAccessor.find_image_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.find_image_geometry" title="Link to this definition"></a></dt>
+<dd><p>This function searches through the properties of a GeoJSON feature that are known to contain the geometry
+of the feature in image coordinates. If found an appropriate 2D shape is constructed and returned. Note that
+this search is conducted in priority order giving preference to the current preferred “imageGeometry” and
+“bboxGeometry” properties. If neither of those is available and the accessor has been configured to search
+deprecated properties then the “geom_imcoords”, “detection”, and “bounds_imcoords” properties are searched
+in that order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>feature</strong> – a GeoJSON feature that might contain an image geometry property</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a 2D shape representing the image geometry or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.update_existing_image_geometries">
+<span class="sig-name descname"><span class="pre">update_existing_image_geometries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/features/imaged_feature_property_accessor.html#ImagedFeaturePropertyAccessor.update_existing_image_geometries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.update_existing_image_geometries" title="Link to this definition"></a></dt>
+<dd><p>This function searches through the properties of a GeoJSON feature that are known to contain the geometry
+of the feature in image coordinates. If found each property is overwritten with information from the
+geometry provided. Note that for bounding box properties the bounds of the input geometry are used.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature</strong> – a GeoJSON feature that might contain an image geometry property</p></li>
+<li><p><strong>geometry</strong> – the geometry to set property values for.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.get_image_geometry">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_image_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Feature</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Geometry</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/features/imaged_feature_property_accessor.html#ImagedFeaturePropertyAccessor.get_image_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.get_image_geometry" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.get_image_bbox">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_image_bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Feature</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Geometry</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/features/imaged_feature_property_accessor.html#ImagedFeaturePropertyAccessor.get_image_bbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.get_image_bbox" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.set_image_geometry">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_image_geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/features/imaged_feature_property_accessor.html#ImagedFeaturePropertyAccessor.set_image_geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.set_image_geometry" title="Link to this definition"></a></dt>
+<dd><p>Add or set the “imageGeometry” property for a feature. This is a 2D geometry that supports a variety of
+types (points, lines, polygons, etc.)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature</strong> – a GeoJSON feature that will contain the property</p></li>
+<li><p><strong>geometry</strong> – the geometry value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.set_image_bbox">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_image_bbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/features/imaged_feature_property_accessor.html#ImagedFeaturePropertyAccessor.set_image_bbox"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.features.imaged_feature_property_accessor.ImagedFeaturePropertyAccessor.set_image_bbox" title="Link to this definition"></a></dt>
+<dd><p>Add or set the “imageBBox” property for a feature. this is a [minx, miny, maxx, maxy] bounds for this object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature</strong> – a GeoJSON feature that will contain the property</p></li>
+<li><p><strong>geometry</strong> – the geometry value</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

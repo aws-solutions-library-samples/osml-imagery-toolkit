@@ -1,0 +1,7 @@
+aws.osml.gdal.gdal\_config module
+=================================
+
+.. automodule:: aws.osml.gdal.gdal_config
+   :members:
+   :undoc-members:
+   :show-inheritance:

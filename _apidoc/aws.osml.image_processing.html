@@ -1,0 +1,471 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.image_processing &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="aws.osml.features" href="aws.osml.features.html" />
+    <link rel="prev" title="aws.osml.gdal" href="aws.osml.gdal.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">aws.osml.image_processing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#image-tiling-tiling-with-updated-image-metadata">Image Tiling: Tiling With Updated Image Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#image-tiling-tiles-for-display">Image Tiling: Tiles for Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#image-tiling-map-tiles-orthophotos">Image Tiling: Map Tiles / Orthophotos</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#complex-sar-data-display">Complex SAR Data Display</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#apis">APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.image_processing.GDALTileFactory"><code class="docutils literal notranslate"><span class="pre">GDALTileFactory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.image_processing.MapTile"><code class="docutils literal notranslate"><span class="pre">MapTile</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.image_processing.MapTileId"><code class="docutils literal notranslate"><span class="pre">MapTileId</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.image_processing.MapTileSet"><code class="docutils literal notranslate"><span class="pre">MapTileSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.image_processing.MapTileSetFactory"><code class="docutils literal notranslate"><span class="pre">MapTileSetFactory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.image_processing.WellKnownMapTileSet"><code class="docutils literal notranslate"><span class="pre">WellKnownMapTileSet</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.image_processing.histogram_stretch"><code class="docutils literal notranslate"><span class="pre">histogram_stretch()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.image_processing.quarter_power_image"><code class="docutils literal notranslate"><span class="pre">quarter_power_image()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">aws.osml.image_processing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_apidoc/aws.osml.image_processing.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-aws.osml.image_processing">
+<span id="aws-osml-image-processing"></span><h1>aws.osml.image_processing<a class="headerlink" href="#module-aws.osml.image_processing" title="Link to this heading"></a></h1>
+<p>The image_processing package contains various utilities for manipulating overhead imagery.</p>
+<section id="image-tiling-tiling-with-updated-image-metadata">
+<h2>Image Tiling: Tiling With Updated Image Metadata<a class="headerlink" href="#image-tiling-tiling-with-updated-image-metadata" title="Link to this heading"></a></h2>
+<p>Many applications break large remote sensing images into smaller chips or tiles for distributed processing or
+dissemination. GDAL’s Translate function provides basic capabilities, but it does not correctly update geospatial
+metadata to reflect the new image extent. These utilities provide those functions so tile consumers can correctly
+interpret the pixel information they have been provided.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Example showing creation of a NITF tile from the upper left corner of an image</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load the image and create a sensor model</span>
+<span class="n">ds</span><span class="p">,</span> <span class="n">sensor_model</span> <span class="o">=</span> <span class="n">load_gdal_dataset</span><span class="p">(</span><span class="s2">&quot;./imagery/sample.nitf&quot;</span><span class="p">)</span>
+<span class="n">tile_factory</span> <span class="o">=</span> <span class="n">GDALTileFactory</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span>
+                               <span class="n">sensor_model</span><span class="p">,</span>
+                               <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">NITF</span><span class="p">,</span>
+                               <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">NONE</span>
+                               <span class="p">)</span>
+
+<span class="c1"># Bounds are [left_x, top_y, width, height]</span>
+<span class="n">nitf_encoded_tile_bytes</span> <span class="o">=</span> <span class="n">tile_factory</span><span class="o">.</span><span class="n">create_encoded_tile</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="image-tiling-tiles-for-display">
+<h2>Image Tiling: Tiles for Display<a class="headerlink" href="#image-tiling-tiles-for-display" title="Link to this heading"></a></h2>
+<p>Some images, for example 11-bit panchromatic images or SAR imagery with floating point complex data, can not be
+displayed directly without remapping the pixels into an 8-bit per pixel grayscale or RGB color model. The TileFactory
+supports creation of tiles suitable for human review by setting both the output_type and range_adjustment options.
+Note that the output_size parameter can be used to generate lower resolution tiles. This operation will make use of
+GDAL generated overviews if they are available to the dataset.</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Example showing creation of a PNG tile scaled down from the full resolution image</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">viz_tile_factory</span> <span class="o">=</span> <span class="n">GDALTileFactory</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span>
+                                   <span class="n">sensor_model</span><span class="p">,</span>
+                                   <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">PNG</span><span class="p">,</span>
+                                   <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+                                   <span class="n">output_type</span><span class="o">=</span><span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Byte</span><span class="p">,</span>
+                                   <span class="n">range_adjustment</span><span class="o">=</span><span class="n">RangeAdjustmentType</span><span class="o">.</span><span class="n">DRA</span><span class="p">)</span>
+
+<span class="n">viz_tile</span> <span class="o">=</span> <span class="n">viz_tile_factory</span><span class="o">.</span><span class="n">create_encoded_tile</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">1024</span><span class="p">],</span> <span class="n">output_size</span><span class="o">=</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span> <span class="mi">512</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="image-tiling-map-tiles-orthophotos">
+<h2>Image Tiling: Map Tiles / Orthophotos<a class="headerlink" href="#image-tiling-map-tiles-orthophotos" title="Link to this heading"></a></h2>
+<p>The TileFactory supports creation of tiles suitable for use by geographic information systems (GIS) or map-based
+visualization tools. Given a north-east aligned bounding box in geographic coordinates the tile factory can use
+the sensor models to orthorectify imagery to remove the perspective and terrain effects.</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Example showing creation of a map tile from the WebMercatorQuad tile set</span><a class="headerlink" href="#id3" title="Link to this code"></a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Look up the tile boundary for a tile in a well known tile set</span>
+<span class="n">tile_set</span> <span class="o">=</span> <span class="n">MapTileSetFactory</span><span class="o">.</span><span class="n">get_for_id</span><span class="p">(</span><span class="s2">&quot;WebMercatorQuad&quot;</span><span class="p">)</span>
+<span class="n">tile_id</span> <span class="o">=</span> <span class="n">MapTileId</span><span class="p">(</span><span class="n">tile_matrix</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">tile_row</span><span class="o">=</span><span class="mi">37025</span><span class="p">,</span> <span class="n">tile_col</span><span class="o">=</span><span class="mi">54816</span><span class="p">)</span>
+<span class="n">tile</span> <span class="o">=</span> <span class="n">tile_set</span><span class="o">.</span><span class="n">get_tile</span><span class="p">(</span><span class="n">tile_id</span><span class="p">)</span>
+
+<span class="c1"># Create an orthophoto for this tile</span>
+<span class="n">image_bytes</span> <span class="o">=</span> <span class="n">viz_tile_factory</span><span class="o">.</span><span class="n">create_orthophoto_tile</span><span class="p">(</span><span class="n">geo_bbox</span><span class="o">=</span><span class="n">tile</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span> <span class="n">tile_size</span><span class="o">=</span><span class="n">tile</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<figure class="align-default" id="id4">
+<a class="reference internal image-reference" href="../_images/MapTileExample-BeforeAfter.png"><img alt="Original image with perspective effects and same area after orthorectification" src="../_images/MapTileExample-BeforeAfter.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Example showing original image with perspective effects and same area after orthorectification.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id5">
+<a class="reference internal image-reference" href="../_images/MapTileExample-MapOverlay.png"><img alt="Orthophoto tile overlaid on Google Maps" src="../_images/MapTileExample-MapOverlay.png" style="width: 400px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Example showing map tile overlaid on Google Maps</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="complex-sar-data-display">
+<h2>Complex SAR Data Display<a class="headerlink" href="#complex-sar-data-display" title="Link to this heading"></a></h2>
+<p>There are a variety of different techniques to convert complex SAR data to a simple image suitable for human display.
+The toolkit contains two helper functions that can convert complex image data into an 8-bit grayscle representation
+The equations implemented are described in Sections 3.1 and 3.2 of SAR Image Scaling, Dynamic Range, Radiometric
+Calibration, and Display (SAND2019-2371).</p>
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">Example converting complex SAR data into a 8-bit per pixel image for display</span><a class="headerlink" href="#id6" title="Link to this code"></a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">aws.osml.image_processing</span> <span class="kn">import</span> <span class="n">histogram_stretch</span><span class="p">,</span> <span class="n">quarter_power_image</span>
+
+<span class="n">sicd_dataset</span><span class="p">,</span> <span class="n">sensor_model</span> <span class="o">=</span> <span class="n">load_gdal_dataset</span><span class="p">(</span><span class="s2">&quot;./sample-sicd.nitf&quot;</span><span class="p">)</span>
+<span class="n">complex_pixels</span> <span class="o">=</span> <span class="n">sicd_dataset</span><span class="o">.</span><span class="n">ReadAsArray</span><span class="p">()</span>
+
+<span class="n">histo_stretch_pixels</span> <span class="o">=</span> <span class="n">histogram_stretch</span><span class="p">(</span><span class="n">complex_pixels</span><span class="p">)</span>
+<span class="n">quarter_power_pixels</span> <span class="o">=</span> <span class="n">quarter_power_image</span><span class="p">(</span><span class="n">complex_pixels</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="../_images/SAR-HistogramStretchImage.png"><img alt="Histogram Stretch Applied to Sample SICD Image" src="../_images/SAR-HistogramStretchImage.png" style="width: 400px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Example of applying histogram_stretch to a sample SICD image.</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../_images/SAR-QuarterPowerImage.png"><img alt="Quarter Power Image Applied to Sample SICD Image" src="../_images/SAR-QuarterPowerImage.png" style="width: 400px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Example of applying quarter_power_image to a sample SICD image.</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<hr class="docutils" />
+<section id="apis">
+<h2>APIs<a class="headerlink" href="#apis" title="Link to this heading"></a></h2>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.image_processing.GDALTileFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.image_processing.</span></span><span class="sig-name descname"><span class="pre">GDALTileFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raster_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensor_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.sensor_model.html#aws.osml.photogrammetry.sensor_model.SensorModel" title="aws.osml.photogrammetry.sensor_model.SensorModel"><span class="pre">SensorModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.gdal.typing.html#aws.osml.gdal.typing.GDALImageFormats" title="aws.osml.gdal.typing.GDALImageFormats"><span class="pre">GDALImageFormats</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">GDALImageFormats.NITF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_compression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.gdal.typing.html#aws.osml.gdal.typing.GDALCompressionOptions" title="aws.osml.gdal.typing.GDALCompressionOptions"><span class="pre">GDALCompressionOptions</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">GDALCompressionOptions.NONE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_adjustment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.gdal.typing.html#aws.osml.gdal.typing.RangeAdjustmentType" title="aws.osml.gdal.typing.RangeAdjustmentType"><span class="pre">RangeAdjustmentType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">RangeAdjustmentType.NONE</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/image_processing/gdal_tile_factory.html#GDALTileFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.GDALTileFactory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This class creates tiles from a larger image on request. Image metadata is retained whenever possible but updated
+as necessary to account for the new raster bounds.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.image_processing.GDALTileFactory.create_encoded_tile">
+<span class="sig-name descname"><span class="pre">create_encoded_tile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_window</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytearray" title="(in Python v3.13)"><span class="pre">bytearray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/gdal_tile_factory.html#GDALTileFactory.create_encoded_tile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.GDALTileFactory.create_encoded_tile" title="Link to this definition"></a></dt>
+<dd><p>This method cuts a tile from the full image, updates the metadata as needed, and finally compresses/encodes
+the result in the output format requested.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_window</strong> – the [left_x, top_y, width, height] bounds of this tile</p></li>
+<li><p><strong>output_size</strong> – an optional size of the output tile (width, height)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the encoded image tile or None if one could not be produced</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.image_processing.GDALTileFactory.create_orthophoto_tile">
+<span class="sig-name descname"><span class="pre">create_orthophoto_tile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geo_bbox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytearray" title="(in Python v3.13)"><span class="pre">bytearray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/gdal_tile_factory.html#GDALTileFactory.create_orthophoto_tile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.GDALTileFactory.create_orthophoto_tile" title="Link to this definition"></a></dt>
+<dd><p>This method creates an orthorectified tile from an image assuming there is overlap in the coverage.</p>
+<p>IMPORTANT: This is an experimental API that may change in future minor releases of the toolkit. This
+early release is subject to the following limitations:
+- All tiles are returned in PNG format
+- An 8-bit conversion and dynamic range mapping is automatically applied using the statistics of the tile</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>geo_bbox</strong> – the geographic bounding box of the tile in the form (min_lon, min_lat, max_lon, max_lat)</p></li>
+<li><p><strong>tile_size</strong> – the shape of the output tile (width, height)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the encoded image tile or None if one could not be produced</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTile">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.image_processing.</span></span><span class="sig-name descname"><span class="pre">MapTile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TildId</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.map_tileset.MapTileSize" title="aws.osml.image_processing.map_tileset.MapTileSize"><span class="pre">MapTileSize</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.map_tileset.MapTileBounds" title="aws.osml.image_processing.map_tileset.MapTileBounds"><span class="pre">MapTileBounds</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/image_processing/map_tileset.html#MapTile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.MapTile" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This dataclass provides a description of a map tile that is part of a well known tile set.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTile.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">TildId</span></em><a class="headerlink" href="#aws.osml.image_processing.MapTile.id" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTile.size">
+<span class="sig-name descname"><span class="pre">size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.map_tileset.MapTileSize" title="aws.osml.image_processing.map_tileset.MapTileSize"><span class="pre">MapTileSize</span></a></em><a class="headerlink" href="#aws.osml.image_processing.MapTile.size" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTile.bounds">
+<span class="sig-name descname"><span class="pre">bounds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.map_tileset.MapTileBounds" title="aws.osml.image_processing.map_tileset.MapTileBounds"><span class="pre">MapTileBounds</span></a></em><a class="headerlink" href="#aws.osml.image_processing.MapTile.bounds" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTileId">
+<span class="sig-prename descclassname"><span class="pre">aws.osml.image_processing.</span></span><span class="sig-name descname"><span class="pre">MapTileId</span></span><a class="headerlink" href="#aws.osml.image_processing.MapTileId" title="Link to this definition"></a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">TildId</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTileSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.image_processing.</span></span><span class="sig-name descname"><span class="pre">MapTileSet</span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/map_tileset.html#MapTileSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.MapTileSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>This class provides an abstract interface to a well known set of map tiles.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTileSet.tile_matrix_set_id">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">tile_matrix_set_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></em><a class="headerlink" href="#aws.osml.image_processing.MapTileSet.tile_matrix_set_id" title="Link to this definition"></a></dt>
+<dd><p>Get the identifier for this map tile set. This is the tile matrix set ID in the OGC definitions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the tile matrix set ID</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTileSet.get_tile">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_tile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tile_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TildId</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.map_tileset.MapTile" title="aws.osml.image_processing.map_tileset.MapTile"><span class="pre">MapTile</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/map_tileset.html#MapTileSet.get_tile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.MapTileSet.get_tile" title="Link to this definition"></a></dt>
+<dd><p>Get a description of the tile identified by a specific map tile ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tile_id</strong> – the tile ID</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the tile description</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTileSet.get_tile_for_location">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_tile_for_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">world_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.map_tileset.MapTile" title="aws.osml.image_processing.map_tileset.MapTile"><span class="pre">MapTile</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/map_tileset.html#MapTileSet.get_tile_for_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.MapTileSet.get_tile_for_location" title="Link to this definition"></a></dt>
+<dd><p>Get a description of the tile containing a specific world location.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>world_coordinate</strong> – the location in the world</p></li>
+<li><p><strong>tile_matrix</strong> – the tile_matrix or zoom level of interest</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the tile description</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTileSet.get_tile_matrix_limits_for_area">
+<span class="sig-name descname"><span class="pre">get_tile_matrix_limits_for_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tile_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/map_tileset.html#MapTileSet.get_tile_matrix_limits_for_area"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.MapTileSet.get_tile_matrix_limits_for_area" title="Link to this definition"></a></dt>
+<dd><p>Get a list of all tiles that intersect a specific area.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>boundary_coordinates</strong> – the boundary of the area</p></li>
+<li><p><strong>tile_matrix</strong> – the tile_matrix or zoom level of interest</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the (min_col, min_row, max_col, max_row) limits of tiles containing all points</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTileSetFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.image_processing.</span></span><span class="sig-name descname"><span class="pre">MapTileSetFactory</span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/map_tileset_factory.html#MapTileSetFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.MapTileSetFactory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This class provides a means to construct / access the implementation of well known tile sets using their
+name. It allows clients to easily work with the TileSet abstraction independent of any implementation details
+associated with specific tile sets.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.image_processing.MapTileSetFactory.get_for_id">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_for_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tile_matrix_set_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.map_tileset.MapTileSet" title="aws.osml.image_processing.map_tileset.MapTileSet"><span class="pre">MapTileSet</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/map_tileset_factory.html#MapTileSetFactory.get_for_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.MapTileSetFactory.get_for_id" title="Link to this definition"></a></dt>
+<dd><p>Constructs a tile set matching the requested id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tile_matrix_set_id</strong> – the tile set id</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the TileSet or None if not available</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.image_processing.WellKnownMapTileSet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.image_processing.</span></span><span class="sig-name descname"><span class="pre">WellKnownMapTileSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/image_processing/map_tileset_factory.html#WellKnownMapTileSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.WellKnownMapTileSet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>A partial list of well known tile sets used by this library.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.image_processing.WellKnownMapTileSet.WEB_MERCATOR_QUAD">
+<span class="sig-name descname"><span class="pre">WEB_MERCATOR_QUAD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WebMercatorQuad'</span></em><a class="headerlink" href="#aws.osml.image_processing.WellKnownMapTileSet.WEB_MERCATOR_QUAD" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.image_processing.WellKnownMapTileSet.WEB_MERCATOR_QUAD_X2">
+<span class="sig-name descname"><span class="pre">WEB_MERCATOR_QUAD_X2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WebMercatorQuadx2'</span></em><a class="headerlink" href="#aws.osml.image_processing.WellKnownMapTileSet.WEB_MERCATOR_QUAD_X2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aws.osml.image_processing.histogram_stretch">
+<span class="sig-prename descclassname"><span class="pre">aws.osml.image_processing.</span></span><span class="sig-name descname"><span class="pre">histogram_stretch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_pixels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude_table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SupportsArray</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_NestedSequence</span><span class="p"><span class="pre">[</span></span><span class="pre">_SupportsArray</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.13)"><span class="pre">complex</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_NestedSequence</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.13)"><span class="pre">complex</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/sar_complex_imageop.html#histogram_stretch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.histogram_stretch" title="Link to this definition"></a></dt>
+<dd><p>This function converts SAR image pixels to an 8-bit grayscale image by scaling the pixels and
+cropping to the desired range [0:255]. This is histogram stretching without any gamma correction.
+The equations are described in Section 3.1 of SAR Image Scaling, Dynamic Range, Radiometric Calibration,
+and Display (SAND2019-2371).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_pixels</strong> – the SAR image pixels</p></li>
+<li><p><strong>pixel_type</strong> – “AMP8I_PHS8I”, “RE32F_IM32F”, or “RE16I_IM16I”</p></li>
+<li><p><strong>amplitude_table</strong> – optional lookup table of amplitude values for AMP8I_PHS8I image pixels</p></li>
+<li><p><strong>scale_factor</strong> – a scale factor, default = 8.0</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the quantized grayscale image clipped to the range of [0:255]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aws.osml.image_processing.quarter_power_image">
+<span class="sig-prename descclassname"><span class="pre">aws.osml.image_processing.</span></span><span class="sig-name descname"><span class="pre">quarter_power_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_pixels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude_table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_SupportsArray</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_NestedSequence</span><span class="p"><span class="pre">[</span></span><span class="pre">_SupportsArray</span><span class="p"><span class="pre">[</span></span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.13)"><span class="pre">complex</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><span class="pre">bytes</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">_NestedSequence</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#complex" title="(in Python v3.13)"><span class="pre">complex</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.13)"><span class="pre">bytes</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precomputed_mean</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/aws/osml/image_processing/sar_complex_imageop.html#quarter_power_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.image_processing.quarter_power_image" title="Link to this definition"></a></dt>
+<dd><p>This function converts SAR image pixels to an 8-bit grayscale image pixel magnitudes to a Quarter-Power
+Image using equations found in Section 3.2 of SAR Image Scaling, Dynamic Range, Radiometric Calibration,
+and Display (SAND2019-2371).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_pixels</strong> – the SAR image pixels</p></li>
+<li><p><strong>pixel_type</strong> – “AMP8I_PHS8I”, “RE32F_IM32F”, or “RE16I_IM16I”</p></li>
+<li><p><strong>amplitude_table</strong> – optional lookup table of amplitude values for AMP8I_PHS8I image pixels</p></li>
+<li><p><strong>scale_factor</strong> – a brightness factor that is typically between 5 and 3</p></li>
+<li><p><strong>precomputed_mean</strong> – a precomputed mean of magnitude usually taken from a larger set of pixels</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the quantized grayscale image clipped to the range of [0:255]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="aws.osml.gdal.html" class="btn btn-neutral float-left" title="aws.osml.gdal" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="aws.osml.features.html" class="btn btn-neutral float-right" title="aws.osml.features" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

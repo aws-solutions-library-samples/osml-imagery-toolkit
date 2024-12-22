@@ -1,0 +1,7 @@
+aws.osml.gdal.nitf\_des\_accessor module
+========================================
+
+.. automodule:: aws.osml.gdal.nitf_des_accessor
+   :members:
+   :undoc-members:
+   :show-inheritance:

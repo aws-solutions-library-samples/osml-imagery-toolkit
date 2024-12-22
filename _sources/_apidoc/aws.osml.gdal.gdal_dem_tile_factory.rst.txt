@@ -1,0 +1,7 @@
+aws.osml.gdal.gdal\_dem\_tile\_factory module
+=============================================
+
+.. automodule:: aws.osml.gdal.gdal_dem_tile_factory
+   :members:
+   :undoc-members:
+   :show-inheritance:

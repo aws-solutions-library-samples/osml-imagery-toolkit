@@ -1,0 +1,699 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.image_processing.gdal_tile_factory &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.image_processing.gdal_tile_factory</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.image_processing.gdal_tile_factory</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">secrets</span> <span class="kn">import</span> <span class="n">token_hex</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">osgeo</span> <span class="kn">import</span> <span class="n">gdal</span><span class="p">,</span> <span class="n">gdalconst</span>
+<span class="kn">from</span> <span class="nn">scipy.interpolate</span> <span class="kn">import</span> <span class="n">RectBivariateSpline</span>
+
+<span class="kn">from</span> <span class="nn">aws.osml.gdal</span> <span class="kn">import</span> <span class="n">GDALCompressionOptions</span><span class="p">,</span> <span class="n">GDALImageFormats</span><span class="p">,</span> <span class="n">NITFDESAccessor</span><span class="p">,</span> <span class="n">RangeAdjustmentType</span><span class="p">,</span> <span class="n">get_type_and_scales</span>
+<span class="kn">from</span> <span class="nn">aws.osml.gdal.dynamic_range_adjustment</span> <span class="kn">import</span> <span class="n">DRAParameters</span>
+<span class="kn">from</span> <span class="nn">aws.osml.photogrammetry</span> <span class="kn">import</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">,</span> <span class="n">ImageCoordinate</span><span class="p">,</span> <span class="n">SensorModel</span>
+
+<span class="kn">from</span> <span class="nn">.sar_complex_imageop</span> <span class="kn">import</span> <span class="n">quarter_power_image</span>
+<span class="kn">from</span> <span class="nn">.sicd_updater</span> <span class="kn">import</span> <span class="n">SICDUpdater</span>
+<span class="kn">from</span> <span class="nn">.sidd_updater</span> <span class="kn">import</span> <span class="n">SIDDUpdater</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="GDALTileFactory">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.gdal_tile_factory.html#aws.osml.image_processing.GDALTileFactory">[docs]</a>
+<span class="k">class</span> <span class="nc">GDALTileFactory</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class creates tiles from a larger image on request. Image metadata is retained whenever possible but updated</span>
+<span class="sd">    as necessary to account for the new raster bounds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">raster_dataset</span><span class="p">:</span> <span class="n">gdal</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+        <span class="n">sensor_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SensorModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tile_format</span><span class="p">:</span> <span class="n">GDALImageFormats</span> <span class="o">=</span> <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">NITF</span><span class="p">,</span>
+        <span class="n">tile_compression</span><span class="p">:</span> <span class="n">GDALCompressionOptions</span> <span class="o">=</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+        <span class="n">output_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">range_adjustment</span><span class="p">:</span> <span class="n">RangeAdjustmentType</span> <span class="o">=</span> <span class="n">RangeAdjustmentType</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a new factory capable of producing tiles from a given GDAL raster dataset.</span>
+
+<span class="sd">        :param raster_dataset: the original raster dataset to create tiles from</span>
+<span class="sd">        :param sensor_model: the sensor model providing mensuration support for this image</span>
+<span class="sd">        :param tile_format: the output tile format</span>
+<span class="sd">        :param tile_compression: the output tile compression</span>
+<span class="sd">        :param output_type: the GDAL pixel type in the output tile</span>
+<span class="sd">        :param range_adjustment: the type of scaling used to convert raw pixel values to the output range</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span> <span class="o">=</span> <span class="n">tile_format</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">=</span> <span class="n">tile_compression</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span> <span class="o">=</span> <span class="n">raster_dataset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sensor_model</span> <span class="o">=</span> <span class="n">sensor_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sar_des_header</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range_adjustment</span> <span class="o">=</span> <span class="n">range_adjustment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_type</span> <span class="o">=</span> <span class="n">output_type</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">GetDriver</span><span class="p">()</span><span class="o">.</span><span class="n">ShortName</span> <span class="o">==</span> <span class="s2">&quot;NITF&quot;</span><span class="p">:</span>
+            <span class="n">xml_des</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">GetMetadata</span><span class="p">(</span><span class="s2">&quot;xml:DES&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span> <span class="o">=</span> <span class="n">NITFDESAccessor</span><span class="p">(</span><span class="n">xml_des</span><span class="p">)</span>
+
+            <span class="n">xml_data_content_segments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span><span class="o">.</span><span class="n">get_segments_by_name</span><span class="p">(</span><span class="s2">&quot;XML_DATA_CONTENT&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">xml_data_content_segments</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">xml_data_content_segments</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">xml_data_segment</span> <span class="ow">in</span> <span class="n">xml_data_content_segments</span><span class="p">:</span>
+                    <span class="n">xml_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span><span class="o">.</span><span class="n">extract_desdata_xml</span><span class="p">(</span><span class="n">xml_data_segment</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">xml_str</span><span class="p">:</span>
+                        <span class="k">continue</span>
+
+                    <span class="c1"># Check to see if this is SICD or SIDD data</span>
+                    <span class="k">if</span> <span class="s2">&quot;SIDD&quot;</span> <span class="ow">in</span> <span class="n">xml_str</span><span class="p">:</span>
+                        <span class="c1"># SIDD images will often contain SICD XML metadata as well but the SIDD should come first</span>
+                        <span class="c1"># so we can stop processing other XML data segments if we find a SIDD segment.</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">sar_des_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span><span class="o">.</span><span class="n">extract_des_header</span><span class="p">(</span><span class="n">xml_data_segment</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span> <span class="o">=</span> <span class="n">SIDDUpdater</span><span class="p">(</span><span class="n">xml_str</span><span class="p">)</span>
+                        <span class="k">break</span>
+                    <span class="k">elif</span> <span class="s2">&quot;SICD&quot;</span> <span class="ow">in</span> <span class="n">xml_str</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">sar_des_header</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">des_accessor</span><span class="o">.</span><span class="n">extract_des_header</span><span class="p">(</span><span class="n">xml_data_segment</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span> <span class="o">=</span> <span class="n">SICDUpdater</span><span class="p">(</span><span class="n">xml_str</span><span class="p">)</span>
+                        <span class="k">break</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_gdal_translate_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_gdal_translate_kwargs</span><span class="p">()</span>
+
+<div class="viewcode-block" id="GDALTileFactory.create_encoded_tile">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.gdal_tile_factory.html#aws.osml.image_processing.GDALTileFactory.create_encoded_tile">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_encoded_tile</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">src_window</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">output_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytearray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method cuts a tile from the full image, updates the metadata as needed, and finally compresses/encodes</span>
+<span class="sd">        the result in the output format requested.</span>
+
+<span class="sd">        :param src_window: the [left_x, top_y, width, height] bounds of this tile</span>
+<span class="sd">        :param output_size: an optional size of the output tile (width, height)</span>
+<span class="sd">        :return: the encoded image tile or None if one could not be produced</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">temp_ds_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;/vsimem/</span><span class="si">{</span><span class="n">token_hex</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Use the request and metadata from the raster dataset to create a set of keyword</span>
+        <span class="c1"># arguments for the gdal.Translate() function. This will configure that function to</span>
+        <span class="c1"># create image tiles using the format, compression, etc. requested by the client.</span>
+        <span class="n">gdal_translate_kwargs</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_gdal_translate_kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">output_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Create a new IGEOLO value based on the corner points of this tile</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensor_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span> <span class="o">==</span> <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">NITF</span><span class="p">:</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ICORDS=G&quot;</span><span class="p">)</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IGEOLO=&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_new_igeolo</span><span class="p">(</span><span class="n">src_window</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span> <span class="o">==</span> <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">NITF</span><span class="p">:</span>
+            <span class="c1"># If we&#39;re outputting a SICD or SIDD tile we need to update the XML metadata to include the new chip</span>
+            <span class="c1"># origin and size. This will allow applications using the tile to correctly interpret the remaining</span>
+            <span class="c1"># image metadata.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span><span class="o">.</span><span class="n">update_image_data_for_chip</span><span class="p">(</span><span class="n">src_window</span><span class="p">,</span> <span class="n">output_size</span><span class="p">)</span>
+            <span class="n">updated_sar_des</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sar_des_header</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">sar_updater</span><span class="o">.</span><span class="n">encode_current_xml</span><span class="p">()</span>
+
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ICAT=SAR&quot;</span><span class="p">)</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IREP=NODISPLY&quot;</span><span class="p">)</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IREPBAND= , &quot;</span><span class="p">)</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;ISUBCAT=I,Q&quot;</span><span class="p">)</span>
+            <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;DES=XML_DATA_CONTENT=&quot;</span> <span class="o">+</span> <span class="n">updated_sar_des</span><span class="p">)</span>
+
+        <span class="c1"># Use GDAL to create an encoded tile of the image region</span>
+        <span class="c1"># From GDAL documentation:</span>
+        <span class="c1">#   srcWin --- subwindow in pixels to extract:</span>
+        <span class="c1">#               [left_x, top_y, width, height]</span>
+        <span class="n">gdal</span><span class="o">.</span><span class="n">Translate</span><span class="p">(</span>
+            <span class="n">temp_ds_name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="p">,</span>
+            <span class="n">srcWin</span><span class="o">=</span><span class="n">src_window</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">gdal_translate_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Read the VSIFile</span>
+        <span class="n">vsifile_handle</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">vsifile_handle</span> <span class="o">=</span> <span class="n">gdal</span><span class="o">.</span><span class="n">VSIFOpenL</span><span class="p">(</span><span class="n">temp_ds_name</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">vsifile_handle</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="n">stat</span> <span class="o">=</span> <span class="n">gdal</span><span class="o">.</span><span class="n">VSIStatL</span><span class="p">(</span><span class="n">temp_ds_name</span><span class="p">,</span> <span class="n">gdal</span><span class="o">.</span><span class="n">VSI_STAT_SIZE_FLAG</span><span class="p">)</span>
+            <span class="n">vsibuf</span> <span class="o">=</span> <span class="n">gdal</span><span class="o">.</span><span class="n">VSIFReadL</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">stat</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">vsifile_handle</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">vsibuf</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">vsifile_handle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">gdal</span><span class="o">.</span><span class="n">VSIFCloseL</span><span class="p">(</span><span class="n">vsifile_handle</span><span class="p">)</span>
+            <span class="n">gdal</span><span class="o">.</span><span class="n">GetDriverByName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span><span class="p">)</span><span class="o">.</span><span class="n">Delete</span><span class="p">(</span><span class="n">temp_ds_name</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="GDALTileFactory.create_orthophoto_tile">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.gdal_tile_factory.html#aws.osml.image_processing.GDALTileFactory.create_orthophoto_tile">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_orthophoto_tile</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">geo_bbox</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">tile_size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bytearray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method creates an orthorectified tile from an image assuming there is overlap in the coverage.</span>
+
+<span class="sd">        IMPORTANT: This is an experimental API that may change in future minor releases of the toolkit. This</span>
+<span class="sd">        early release is subject to the following limitations:</span>
+<span class="sd">        - All tiles are returned in PNG format</span>
+<span class="sd">        - An 8-bit conversion and dynamic range mapping is automatically applied using the statistics of the tile</span>
+
+<span class="sd">        :param geo_bbox: the geographic bounding box of the tile in the form (min_lon, min_lat, max_lon, max_lat)</span>
+<span class="sd">        :param tile_size: the shape of the output tile (width, height)</span>
+<span class="sd">        :return: the encoded image tile or None if one could not be produced</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">min_lon</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lon</span><span class="p">,</span> <span class="n">max_lat</span> <span class="o">=</span> <span class="n">geo_bbox</span>
+
+        <span class="c1"># Setup 2 grids of the same size, the first is for longitude/latitude coordinates and the second is pixel</span>
+        <span class="c1"># coordinates. These grids are evenly spaced across the map tile. Note that the latitude and pixel row</span>
+        <span class="c1"># grids have been adjusted because the 0, 0 pixel is in the upper left corner of the map tile and as the</span>
+        <span class="c1"># image row increases the latitude should decrease. That is why the world_y grid ranges from max to min</span>
+        <span class="c1"># while all other grids range from min to max.</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="n">world_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">min_lon</span><span class="p">,</span> <span class="n">max_lon</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
+        <span class="n">world_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">max_lat</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
+        <span class="n">world_xv</span><span class="p">,</span> <span class="n">world_yv</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">world_x</span><span class="p">,</span> <span class="n">world_y</span><span class="p">)</span>
+
+        <span class="n">pixel_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">tile_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nx</span><span class="p">)</span>
+        <span class="n">pixel_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">tile_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">ny</span><span class="p">)</span>
+
+        <span class="c1"># Use the sensor model to compute the image pixel location that corresponds to each</span>
+        <span class="c1"># world coordinate in the map tile grid. Separate those results into arrays of the x, y</span>
+        <span class="c1"># component. Note that if an external elevation model is not provided this code will</span>
+        <span class="c1"># use a default elevation provided by the sensor model for a location at the center of</span>
+        <span class="c1"># the image.</span>
+        <span class="n">center_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterXSize</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">center_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterYSize</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">geo_image_center</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensor_model</span><span class="o">.</span><span class="n">image_to_world</span><span class="p">(</span><span class="n">ImageCoordinate</span><span class="p">([</span><span class="n">center_y</span><span class="p">,</span> <span class="n">center_x</span><span class="p">]))</span>
+
+        <span class="k">def</span> <span class="nf">world_to_image_func</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+            <span class="c1"># TODO: Assign the elevation from a DEM</span>
+            <span class="n">default_elevation</span> <span class="o">=</span> <span class="n">geo_image_center</span><span class="o">.</span><span class="n">elevation</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensor_model</span><span class="o">.</span><span class="n">world_to_image</span><span class="p">(</span><span class="n">GeodeticWorldCoordinate</span><span class="p">([</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">default_elevation</span><span class="p">]))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">world_to_image_func_vectorized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="n">world_to_image_func</span><span class="p">)</span>
+            <span class="n">src_coords</span> <span class="o">=</span> <span class="n">world_to_image_func_vectorized</span><span class="p">(</span><span class="n">world_xv</span><span class="p">,</span> <span class="n">world_yv</span><span class="p">)</span>
+            <span class="n">src_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">image_coord</span><span class="p">:</span> <span class="n">image_coord</span><span class="o">.</span><span class="n">x</span><span class="p">)(</span><span class="n">src_coords</span><span class="p">)</span>
+            <span class="n">src_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span><span class="k">lambda</span> <span class="n">image_coord</span><span class="p">:</span> <span class="n">image_coord</span><span class="o">.</span><span class="n">y</span><span class="p">)(</span><span class="n">src_coords</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Unable to convert the map tile coordinates to image coordinates using the sensor model.</span>
+            <span class="c1"># This usually means at least one coordinate isn&#39;t near the image and fell outside the range</span>
+            <span class="c1"># of values the sensor model could create. No map tile can be created from this image.</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Unable to convert map tile coordinates to image coordinates.&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Find min/max x and y for this grid and check to make sure it actually overlaps the image.</span>
+        <span class="n">src_bbox</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">src_x</span><span class="p">))),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">src_y</span><span class="p">))),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">src_x</span><span class="p">))),</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">src_y</span><span class="p">))),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">src_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterXSize</span>
+            <span class="ow">or</span> <span class="n">src_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterYSize</span>
+            <span class="ow">or</span> <span class="n">src_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span>
+            <span class="ow">or</span> <span class="n">src_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="c1"># Source bbox does not intersect the image, no tile to create</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Requested map tile does not overlap with image: map bbox: </span><span class="si">{</span><span class="n">src_bbox</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; image bbox: </span><span class="si">{</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterXSize</span><span class="p">,</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterYSize</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Select the image overview level that most closely matches the ground sample distance of the</span>
+        <span class="c1"># requested map tile. Note that this must be done before the source bounding box is clipped to the</span>
+        <span class="c1"># actual image extend otherwise tiles that only overlap on the edge of the image may be read from a</span>
+        <span class="c1"># very different resolution level than the other tiles at a similar map zoom level.</span>
+        <span class="k">def</span> <span class="nf">find_appropriate_r_level</span><span class="p">(</span><span class="n">src_bbox</span><span class="p">,</span> <span class="n">tile_width</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+            <span class="n">src_dim</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">src_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">src_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">src_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">src_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">src_dim</span> <span class="o">/</span> <span class="n">tile_width</span><span class="p">)))]))</span>
+
+        <span class="n">num_overviews</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">GetRasterBand</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">GetOverviewCount</span><span class="p">()</span>
+        <span class="n">r_level</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">find_appropriate_r_level</span><span class="p">(</span><span class="n">src_bbox</span><span class="p">,</span> <span class="n">tile_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">num_overviews</span><span class="p">)</span>
+
+        <span class="n">src_bbox</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">max</span><span class="p">(</span><span class="n">src_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="nb">max</span><span class="p">(</span><span class="n">src_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="nb">min</span><span class="p">(</span><span class="n">src_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterXSize</span><span class="p">),</span>
+            <span class="nb">min</span><span class="p">(</span><span class="n">src_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterYSize</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;After Clip to Image Bounds src_bbox = </span><span class="si">{</span><span class="n">src_bbox</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">overview_bbox</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="n">r_level</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">src_bbox</span><span class="p">])</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using r-level: </span><span class="si">{</span><span class="n">r_level</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;overview_bbox = </span><span class="si">{</span><span class="n">overview_bbox</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataset size = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterXSize</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterYSize</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Read pixels from the selected resolution level that match the region of the image needed to create the</span>
+        <span class="c1"># map tile. This data becomes the &quot;src&quot; in the cv2.remap transformation.</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_from_rlevel_as_array</span><span class="p">(</span><span class="n">overview_bbox</span><span class="p">,</span> <span class="n">r_level</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;src.shape = </span><span class="si">{</span><span class="n">src</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Convert the raw image pixels into a 8-bit per pixel image suitable for human review. These transformations</span>
+        <span class="c1"># are applied before the remapping because the remapping itself may alter the distribution of pixel values</span>
+        <span class="c1"># and the normalization itself may rely on precomputed pixel statistics/histograms that were calculated</span>
+        <span class="c1"># based on the raw pixel values.</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_image_for_display</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+
+        <span class="c1"># Add a replicate border around the source image to handle out-of-bound coordinates during remapping.</span>
+        <span class="c1"># When using cv2.remap, some coordinates may fall outside the boundaries of the source image.</span>
+        <span class="c1"># Using cv2.BORDER_CONSTANT or setting scalar values will assign a default color (such as black)</span>
+        <span class="c1"># to pixels around the border, leading to unwanted uniform-colored edges.</span>
+        <span class="c1"># By using cv2.BORDER_REPLICATE, the edge pixels of the source image are repeated in the border region,</span>
+        <span class="c1"># allowing remap to use valid pixel values for out-of-bound coordinates, avoiding default color (black lines)</span>
+        <span class="c1"># around the output image.</span>
+        <span class="n">border_size</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">src_bordered</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">copyMakeBorder</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">border_size</span><span class="p">,</span> <span class="n">border_size</span><span class="p">,</span> <span class="n">border_size</span><span class="p">,</span> <span class="n">border_size</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">BORDER_REPLICATE</span><span class="p">)</span>
+
+        <span class="c1"># Update the src_x and src_y coordinates because we cropped the image and pulled it from a different</span>
+        <span class="c1"># resolution level. The original coordinates assumed the image origin at 0,0 in a full resolution</span>
+        <span class="c1"># image and adjusted the remapping coordinates to account for the added border</span>
+        <span class="n">src_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">src_x</span> <span class="o">-</span> <span class="n">src_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="n">r_level</span> <span class="o">+</span> <span class="n">border_size</span>
+        <span class="n">src_y</span> <span class="o">=</span> <span class="p">(</span><span class="n">src_y</span> <span class="o">-</span> <span class="n">src_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="n">r_level</span> <span class="o">+</span> <span class="n">border_size</span>
+
+        <span class="c1"># Create 2D linear interpolators that map the pixels in the map tile to x and y values in the source image.</span>
+        <span class="c1"># This will allow us to efficiently generate the maps needed by the opencv::remap function for every pixel</span>
+        <span class="c1"># in the destination image.</span>
+        <span class="n">src_x_interpolator</span> <span class="o">=</span> <span class="n">RectBivariateSpline</span><span class="p">(</span><span class="n">pixel_x</span><span class="p">,</span> <span class="n">pixel_y</span><span class="p">,</span> <span class="n">src_x</span><span class="p">,</span> <span class="n">kx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ky</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">src_y_interpolator</span> <span class="o">=</span> <span class="n">RectBivariateSpline</span><span class="p">(</span><span class="n">pixel_x</span><span class="p">,</span> <span class="n">pixel_y</span><span class="p">,</span> <span class="n">src_y</span><span class="p">,</span> <span class="n">kx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ky</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Create the map1 and map2 arrays that capture the non-linear relationship between each pixel in the map tile</span>
+        <span class="c1"># (dst) to pixels in the original image (src). See opencv::remap documentation for definitions of these</span>
+        <span class="c1"># parameters.</span>
+        <span class="n">dst_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">tile_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tile_size</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">dst_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">tile_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">tile_size</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">map1</span> <span class="o">=</span> <span class="n">src_x_interpolator</span><span class="p">(</span><span class="n">dst_x</span><span class="p">,</span> <span class="n">dst_y</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">map2</span> <span class="o">=</span> <span class="n">src_y_interpolator</span><span class="p">(</span><span class="n">dst_x</span><span class="p">,</span> <span class="n">dst_y</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Sanity check remap array sizes. They should match the desired map tile size </span><span class="si">{</span><span class="n">tile_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">tile_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;map1.shape = </span><span class="si">{</span><span class="n">map1</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;map2.shape = </span><span class="si">{</span><span class="n">map2</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Transform image</span>
+        <span class="n">dst</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">remap</span><span class="p">(</span><span class="n">src_bordered</span><span class="p">,</span> <span class="n">map1</span><span class="p">,</span> <span class="n">map2</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">INTER_LINEAR</span><span class="p">)</span>
+
+        <span class="c1"># Create alpha layer mask</span>
+        <span class="n">alpha_mask</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">dst</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># 1-band grayscale</span>
+            <span class="n">all_channel_pixels_mask</span> <span class="o">=</span> <span class="n">dst</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="n">alpha_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">alpha_mask</span><span class="p">[</span><span class="n">all_channel_pixels_mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="k">elif</span> <span class="n">dst</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>  <span class="c1"># multi band image e.g. RGB, complex SAR, MSI, etc.</span>
+            <span class="n">all_channel_pixels_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dst</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">alpha_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">dst</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+            <span class="n">alpha_mask</span><span class="p">[</span><span class="n">all_channel_pixels_mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+        <span class="k">if</span> <span class="n">alpha_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># arrays with zeros/zero size can be falsy so explicitly check None</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;alpha_mask.shape = </span><span class="si">{</span><span class="n">alpha_mask</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">dst</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;alpha_mask = None.  Image has </span><span class="si">{</span><span class="n">dst</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2"> dimensions and </span><span class="si">{</span><span class="n">dst</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2"> bands.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;alpha_mask = None.  Image has </span><span class="si">{</span><span class="n">dst</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2"> dimensions.&quot;</span><span class="p">)</span>
+
+        <span class="n">output_tile_pixels</span> <span class="o">=</span> <span class="n">dst</span>
+        <span class="k">if</span> <span class="n">alpha_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># imencode does not support 2-band (grayscale + alpha) so the workaround is to convert to 3-band</span>
+            <span class="k">if</span> <span class="n">output_tile_pixels</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">output_tile_pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">output_tile_pixels</span><span class="p">,</span> <span class="n">output_tile_pixels</span><span class="p">,</span> <span class="n">output_tile_pixels</span><span class="p">))</span>
+            <span class="c1"># add alpha mask</span>
+            <span class="n">output_tile_pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">output_tile_pixels</span><span class="p">,</span> <span class="n">alpha_mask</span><span class="p">))</span>
+
+        <span class="c1"># TODO: Formats other than PNG?</span>
+        <span class="n">is_success</span><span class="p">,</span> <span class="n">image_bytes</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imencode</span><span class="p">(</span><span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="n">output_tile_pixels</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">image_bytes</span> <span class="k">if</span> <span class="n">is_success</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_read_from_rlevel_as_array</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">scaled_bbox</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">r_level</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">band_numbers</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method reads a region of the image from a specific image resolution level (r-level). The bounding box</span>
+<span class="sd">        must be scaled to match the resolution level.</span>
+
+<span class="sd">        :param scaled_bbox: a [minx, miny, maxx, maxy] bbox in the pixel coordinate system of the r_level</span>
+<span class="sd">        :param r_level: the selected resolution level, r0 = full resolution image, r1 = first overview, ...</span>
+<span class="sd">        :param band_numbers: the bands to select, if None all bands will be read. Note band numbers start at 1</span>
+<span class="sd">        :return: a NumPy array of shape [r, c, b] for images with multiple bands or [r, c] for images with just 1 band</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If no bands are specified we will read them all.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">band_numbers</span><span class="p">:</span>
+            <span class="n">band_numbers</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterCount</span><span class="p">)]</span>
+
+        <span class="c1"># Loop through the bands of this image and retrieve the relevant pixels</span>
+        <span class="n">band_pixels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">band_num</span> <span class="ow">in</span> <span class="n">band_numbers</span><span class="p">:</span>
+            <span class="n">ds_band</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">GetRasterBand</span><span class="p">(</span><span class="n">band_num</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">r_level</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">overview</span> <span class="o">=</span> <span class="n">ds_band</span><span class="o">.</span><span class="n">GetOverview</span><span class="p">(</span><span class="n">r_level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">overview</span> <span class="o">=</span> <span class="n">ds_band</span>
+
+            <span class="n">band_pixels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">overview</span><span class="o">.</span><span class="n">ReadAsArray</span><span class="p">(</span>
+                    <span class="n">scaled_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">scaled_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">scaled_bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">scaled_bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">scaled_bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">-</span> <span class="n">scaled_bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># If the image has multiple bands then we can stack the results with the band being the 3rd dimension</span>
+        <span class="c1"># in the array. This aligns to how OpenCV wants to work with imagery. If the image doesn&#39;t have multiple</span>
+        <span class="c1"># bands then return a 2-dimensional grayscale image.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterCount</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">band_pixels</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">band_pixels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">_normalize_image_for_display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pixel_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method applies the specified range adjustment to the requested image and returns the adjusted pixels. If</span>
+<span class="sd">        the range adjustment is set to NONE it returns the original pixels.</span>
+
+<span class="sd">        :param pixel_array: the input image pixels</span>
+<span class="sd">        :return: a range adjusted 8-bit per pixel image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_adjustment</span> <span class="o">==</span> <span class="n">RangeAdjustmentType</span><span class="o">.</span><span class="n">DRA</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_bands</span><span class="p">(</span><span class="n">pixel_array</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_band_dra</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_adjustment</span> <span class="o">==</span> <span class="n">RangeAdjustmentType</span><span class="o">.</span><span class="n">MINMAX</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_bands</span><span class="p">(</span><span class="n">pixel_array</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_band_minmax</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pixel_array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_normalize_bands</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">pixel_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">normalize_band_func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">gdal</span><span class="o">.</span><span class="n">Band</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method determines if the input pixel array is grayscale or multiband.  If it is multiband it selects</span>
+<span class="sd">        the first 3 bands to process.  The appropriate bands are passed to the normalized_band_func to perform the</span>
+<span class="sd">        actual transform.</span>
+
+<span class="sd">        :param pixel_array: the input image pixels</span>
+<span class="sd">        :param normalize_band_func: function to use to normalize the pixels</span>
+<span class="sd">        :return: the range adjusted 8-bit per pixel image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pixel_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># 1-band grayscale image</span>
+            <span class="n">band</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">GetRasterBand</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">normalized_pixels</span> <span class="o">=</span> <span class="n">normalize_band_func</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="n">pixel_array</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pixel_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">pixel_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="c1"># Multiband image, select the first 3 bands</span>
+            <span class="n">pixel_array</span> <span class="o">=</span> <span class="n">pixel_array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">band_count</span> <span class="o">=</span> <span class="mi">3</span>
+            <span class="n">normalized_bands</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">band_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">band_count</span><span class="p">):</span>
+                <span class="n">band</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">GetRasterBand</span><span class="p">(</span><span class="n">band_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">normalized_bands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">normalize_band_func</span><span class="p">(</span><span class="n">band</span><span class="p">,</span> <span class="n">pixel_array</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">band_idx</span><span class="p">]))</span>
+
+            <span class="c1"># Combine the normalized bands into a single image</span>
+            <span class="n">normalized_pixels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">normalized_bands</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">pixel_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">pixel_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># TODO: Better checks to ensure this is a Complex SAR image and not an arbitrary 2-band image</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Complex SAR Image Pixels. Computing quarter power image for visualization&quot;</span><span class="p">)</span>
+            <span class="n">normalized_pixels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalize_complex_sar</span><span class="p">(</span><span class="n">pixel_array</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Skipping normalization.&quot;</span><span class="p">)</span>
+            <span class="n">normalized_pixels</span> <span class="o">=</span> <span class="n">pixel_array</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">normalized_pixels</span>
+
+    <span class="k">def</span> <span class="nf">_normalize_complex_sar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pixel_array</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method combines the 2-band complex SAR pixels into a single power image and then adjusts the histogram</span>
+<span class="sd">        to fit neatly into a 0-255 range.</span>
+
+<span class="sd">        :param pixel_array: the input image pixels</span>
+<span class="sd">        :return: a visualization ready quarter power image of the SAR complex values (1 band, 8-bit per pixel)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">precomputed_mean</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">approx_abs_band_means</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">band_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterCount</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">band_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="o">.</span><span class="n">GetRasterBand</span><span class="p">(</span><span class="n">band_num</span><span class="p">)</span><span class="o">.</span><span class="n">GetStatistics</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">band_stats</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">band_stats</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">mean_value</span><span class="p">,</span> <span class="n">std_value</span> <span class="o">=</span> <span class="n">band_stats</span>
+                <span class="n">approx_abs_band_means</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">std_value</span> <span class="o">*</span> <span class="mi">50</span> <span class="o">/</span> <span class="mi">68</span> <span class="o">+</span> <span class="n">mean_value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">approx_abs_band_means</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">precomputed_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">approx_abs_band_means</span><span class="p">)))</span>
+
+        <span class="n">band_first</span> <span class="o">=</span> <span class="n">pixel_array</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">normalized_pixels</span> <span class="o">=</span> <span class="n">quarter_power_image</span><span class="p">(</span><span class="n">band_first</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">precomputed_mean</span><span class="o">=</span><span class="n">precomputed_mean</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">normalized_pixels</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_normalize_band_minmax</span><span class="p">(</span><span class="n">band</span><span class="p">:</span> <span class="n">gdal</span><span class="o">.</span><span class="n">Band</span><span class="p">,</span> <span class="n">pixel_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method applies Min-Max normalization to an individual band. It attempts to us the min-max values from the</span>
+<span class="sd">        image but if they are none it reverts to using values from the individual tile.</span>
+
+<span class="sd">        :param pixel_array: the input image pixels</span>
+<span class="sd">        :return: a Min-Max normalized 8-bit per pixel image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the minimum and maximum values from the entire GDAL dataset. If the minimum and maximum values are</span>
+        <span class="c1"># not available, calculate them from the tile.</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="n">band</span><span class="o">.</span><span class="n">GetMinimum</span><span class="p">()</span> <span class="k">if</span> <span class="n">band</span><span class="o">.</span><span class="n">GetMinimum</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">pixel_array</span><span class="p">)</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="n">band</span><span class="o">.</span><span class="n">GetMaximum</span><span class="p">()</span> <span class="k">if</span> <span class="n">band</span><span class="o">.</span><span class="n">GetMaximum</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">pixel_array</span><span class="p">)</span>
+
+        <span class="c1"># Apply the Min-Max normalization</span>
+        <span class="n">normalized_pixel</span> <span class="o">=</span> <span class="p">(</span><span class="n">pixel_array</span> <span class="o">-</span> <span class="n">min_value</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">255.0</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_value</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+        <span class="n">normalized_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">normalized_pixel</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">255.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">normalized_pixel</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_normalize_band_dra</span><span class="p">(</span><span class="n">band</span><span class="p">:</span> <span class="n">gdal</span><span class="o">.</span><span class="n">Band</span><span class="p">,</span> <span class="n">pixel_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method performs DRA on an input pixel_array using gdal Band data. Normalization is performed with</span>
+<span class="sd">        respect to the entire image using the GDAL histogram.</span>
+
+<span class="sd">        :param pixel_array: the input image pixels</span>
+<span class="sd">        :return: a range adjusted 8-bit per pixel image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the minimum and maximum values from the entire GDAL dataset. If the minimum and maximum values are</span>
+        <span class="c1"># not available, calculate them from the tile.</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="n">band</span><span class="o">.</span><span class="n">GetMinimum</span><span class="p">()</span> <span class="k">if</span> <span class="n">band</span><span class="o">.</span><span class="n">GetMinimum</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">pixel_array</span><span class="p">)</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="n">band</span><span class="o">.</span><span class="n">GetMaximum</span><span class="p">()</span> <span class="k">if</span> <span class="n">band</span><span class="o">.</span><span class="n">GetMaximum</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">pixel_array</span><span class="p">)</span>
+
+        <span class="n">hist</span> <span class="o">=</span> <span class="n">band</span><span class="o">.</span><span class="n">GetHistogram</span><span class="p">(</span><span class="nb">min</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span> <span class="n">buckets</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_value</span> <span class="o">-</span> <span class="n">min_value</span><span class="p">)))</span>
+        <span class="n">dra_parameters</span> <span class="o">=</span> <span class="n">DRAParameters</span><span class="o">.</span><span class="n">from_counts</span><span class="p">(</span>
+            <span class="n">hist</span><span class="p">,</span> <span class="n">first_bucket_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span> <span class="n">last_bucket_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span> <span class="n">max_percentage</span><span class="o">=</span><span class="mf">0.97</span>
+        <span class="p">)</span>
+        <span class="n">normalized_pixel</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="mi">255</span>
+            <span class="o">*</span> <span class="p">(</span><span class="n">pixel_array</span> <span class="o">-</span> <span class="n">dra_parameters</span><span class="o">.</span><span class="n">suggested_min_value</span><span class="p">)</span>
+            <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">dra_parameters</span><span class="o">.</span><span class="n">suggested_max_value</span> <span class="o">-</span> <span class="n">dra_parameters</span><span class="o">.</span><span class="n">suggested_min_value</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">normalized_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">normalized_pixel</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">255.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">normalized_pixel</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_new_igeolo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_window</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new 60 character string representing the corner coordinates of this tile. The string conforms to</span>
+<span class="sd">        the geographic &quot;G&quot; choice for the ICORDS field as specified in MIL-STD-2500C Table A-3 NITF Image Subheader.</span>
+
+<span class="sd">        The locations of the four corners of are encoded image coordinate order:</span>
+<span class="sd">        (0,0), (Max X, 0), (Max X, Max Y), (0, Max Y) with each corner represented as a ddmmssXdddmmssY string</span>
+<span class="sd">        representing latitude and longitude. The first half, ddmmssX, represents degrees, minutes, and seconds of</span>
+<span class="sd">        latitude with X representing North or South (N for North, S for South). The second half, dddmmssY, represents</span>
+<span class="sd">        degrees, minutes, and seconds of longitude with Y representing East or West (E for East, W for West),</span>
+<span class="sd">        respectively.</span>
+
+<span class="sd">        :param src_window: the [left_x, top_y, width, height] bounds of this tile</span>
+<span class="sd">        :return: the 60 character IGEOLO geographic coordinate string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tile_corners</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">[</span><span class="n">src_window</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">src_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">src_window</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
+            <span class="p">[</span><span class="n">src_window</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">src_window</span><span class="p">[</span><span class="mi">3</span><span class="p">]],</span>
+        <span class="p">]</span>
+        <span class="n">dms_coords</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">tile_corners</span><span class="p">:</span>
+            <span class="n">geodetic_tile_corner</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sensor_model</span><span class="o">.</span><span class="n">image_to_world</span><span class="p">(</span><span class="n">ImageCoordinate</span><span class="p">(</span><span class="n">coord</span><span class="p">))</span>
+            <span class="n">dms_coords</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">geodetic_tile_corner</span><span class="o">.</span><span class="n">to_dms_string</span><span class="p">())</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dms_coords</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_create_gdal_translate_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method creates a set of keyword arguments suitable for passing to the gdal.Translate</span>
+<span class="sd">        function. The values for these options are derived from the region processing request and</span>
+<span class="sd">        the raster dataset itself.</span>
+
+<span class="sd">        See: https://gdal.org/python/osgeo.gdal-module.html#Translate</span>
+<span class="sd">        See: https://gdal.org/python/osgeo.gdal-module.html#TranslateOptions</span>
+
+<span class="sd">        :return: Dict[str, any] = the dictionary of translate keyword arguments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Figure out what type of image this is and calculate a scale to map input pixels to the output type</span>
+        <span class="n">output_type</span><span class="p">,</span> <span class="n">scale_params</span> <span class="o">=</span> <span class="n">get_type_and_scales</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">raster_dataset</span><span class="p">,</span> <span class="n">desired_output_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">output_type</span><span class="p">,</span> <span class="n">range_adjustment</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">range_adjustment</span>
+        <span class="p">)</span>
+
+        <span class="n">gdal_translate_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;scaleParams&quot;</span><span class="p">:</span> <span class="n">scale_params</span><span class="p">,</span>
+            <span class="s2">&quot;outputType&quot;</span><span class="p">:</span> <span class="n">output_type</span><span class="p">,</span>
+            <span class="s2">&quot;format&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">creation_options</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span> <span class="o">==</span> <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">NITF</span><span class="p">:</span>
+            <span class="c1"># Creation options specific to the NITF raster driver.</span>
+            <span class="c1"># See: https://gdal.org/drivers/raster/nitf.html</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">J2K</span><span class="p">:</span>
+                <span class="c1"># Default NITF tiles to JPEG2000 compression if not specified</span>
+                <span class="c1"># The OpenJPEG library does not currently support floating point pixel types. If J2K compression</span>
+                <span class="c1"># was requested we need to fall back to no compression to avoid a failure. This update can be</span>
+                <span class="c1"># removed if compression of floating points is supported or if we move to an alternate J2K library.</span>
+                <span class="k">if</span> <span class="n">output_type</span> <span class="ow">in</span> <span class="p">[</span><span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Float32</span><span class="p">,</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Float64</span><span class="p">]:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="s2">&quot;OpenJPEG J2K library does not support floating point pixel values. &quot;</span>
+                        <span class="s2">&quot;Outputs will not be compressed.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IC=NC&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IC=C8&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">JPEG</span><span class="p">:</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IC=C3&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IC=NC&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid compress specified for NITF image defaulting to JPEG2000!&quot;</span><span class="p">)</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;IC=C8&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_format</span> <span class="o">==</span> <span class="n">GDALImageFormats</span><span class="o">.</span><span class="n">GTIFF</span><span class="p">:</span>
+            <span class="c1"># Creation options specific to the GeoTIFF raster driver.</span>
+            <span class="c1"># See: https://gdal.org/drivers/raster/nitf.html</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Default GeoTiff tiles to LZQ compression if not specified</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;COMPRESS=LZW&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">LZW</span><span class="p">:</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;COMPRESS=LZW&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">JPEG</span><span class="p">:</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;COMPRESS=JPEG&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_compression</span> <span class="o">==</span> <span class="n">GDALCompressionOptions</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;COMPRESS=NONE&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Invalid compress specified for GTIFF image defaulting to LZW!&quot;</span><span class="p">)</span>
+                <span class="n">creation_options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;COMPRESS=LZW&quot;</span><span class="p">)</span>
+
+        <span class="n">gdal_translate_kwargs</span><span class="p">[</span><span class="s2">&quot;creationOptions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">creation_options</span>
+
+        <span class="k">return</span> <span class="n">gdal_translate_kwargs</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

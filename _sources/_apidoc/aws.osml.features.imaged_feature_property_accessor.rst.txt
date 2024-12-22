@@ -1,0 +1,7 @@
+aws.osml.features.imaged\_feature\_property\_accessor module
+============================================================
+
+.. automodule:: aws.osml.features.imaged_feature_property_accessor
+   :members:
+   :undoc-members:
+   :show-inheritance:

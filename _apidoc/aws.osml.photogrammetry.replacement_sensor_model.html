@@ -1,0 +1,478 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.photogrammetry.replacement_sensor_model module &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">aws.osml.photogrammetry.replacement_sensor_model module</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_apidoc/aws.osml.photogrammetry.replacement_sensor_model.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-aws.osml.photogrammetry.replacement_sensor_model">
+<span id="aws-osml-photogrammetry-replacement-sensor-model-module"></span><h1>aws.osml.photogrammetry.replacement_sensor_model module<a class="headerlink" href="#module-aws.osml.photogrammetry.replacement_sensor_model" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMImageDomain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.replacement_sensor_model.</span></span><span class="sig-name descname"><span class="pre">RSMImageDomain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_column</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMImageDomain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMImageDomain" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This RSM image domain is a rectangle defined by the minimum and maximum discrete row coordinate values, and the
+minimum and maximum discrete column coordinate values. It is typically constructed from values in the NITF RSMID
+TRE. For more information see section 5.5 of STDI-0002 Volume 1 Appendix U.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomainForm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.replacement_sensor_model.</span></span><span class="sig-name descname"><span class="pre">RSMGroundDomainForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMGroundDomainForm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomainForm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>The RSMGroundDomainForm defines how world coordinates (x, y, z) should be interpreted in this sensor model.</p>
+<p>If geodetic, X, Y, and Z, correspond to longitude, latitude, and height above the ellipsoid, respectively.
+Longitude is specified east of the prime meridian, and latitude is specified north of the equator. Units for X, Y,
+and Z, are radians, radians, and meters, respectively. The range for Y is (-pi/2 to pi/2). The range for X is
+(-pi to pi) when GEODETIC, and (0 to 2pi) when GEODETIC_2PI. The latter is specified when the RSM ground domain
+contains a longitude value near pi radians.</p>
+<p>If RECTANGULAR, X, Y, and Z correspond to a coordinate system that is defined as an offset from and rotation
+about the WGS 84 Rectangular coordinate system.</p>
+<p>For more information see the GRNDD TRE field definition in section 5.9 of STDI-0002 Volume 1 Appendix U.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomainForm.GEODETIC">
+<span class="sig-name descname"><span class="pre">GEODETIC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'G'</span></em><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomainForm.GEODETIC" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomainForm.GEODETIC_2PI">
+<span class="sig-name descname"><span class="pre">GEODETIC_2PI</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'H'</span></em><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomainForm.GEODETIC_2PI" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomainForm.RECTANGULAR">
+<span class="sig-name descname"><span class="pre">RECTANGULAR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'R'</span></em><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomainForm.RECTANGULAR" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomain">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.replacement_sensor_model.</span></span><span class="sig-name descname"><span class="pre">RSMGroundDomain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ground_domain_form</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomainForm" title="aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomainForm"><span class="pre">RSMGroundDomainForm</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_domain_vertices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rectangular_coordinate_origin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rectangular_coordinate_unit_vectors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_reference_point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMGroundDomain"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomain" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>The RSM ground domain is an approximation of the ground area where the RSM representation is valid. It is a solid
+in three-dimensional space bounded by a hexahedron with quadrilateral faces specified using eight
+three-dimensional vertices.</p>
+<p>It is typically constructed from values in the NITF RSMID TRE. For more information see section 5.6 of
+STDI-0002 Volume 1 Appendix U.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomain.geodetic_to_ground_domain_coordinate">
+<span class="sig-name descname"><span class="pre">geodetic_to_ground_domain_coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geodetic_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMGroundDomain.geodetic_to_ground_domain_coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomain.geodetic_to_ground_domain_coordinate" title="Link to this definition"></a></dt>
+<dd><p>This function converts WGS-84 geodetic world coordinate into a world coordinate that uses the domain
+coordinate system for this sensor model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>geodetic_coordinate</strong> – the WGS-84 longitude, latitude, elevation</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the x, y, z domain coordinate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomain.ground_domain_coordinate_to_geodetic">
+<span class="sig-name descname"><span class="pre">ground_domain_coordinate_to_geodetic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ground_domain_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMGroundDomain.ground_domain_coordinate_to_geodetic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomain.ground_domain_coordinate_to_geodetic" title="Link to this definition"></a></dt>
+<dd><p>This function converts an x, y, z coordinate defined in the ground domain of this sensor model into a WGS-84
+longitude, latitude, elevation coordinate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ground_domain_coordinate</strong> – the x, y, z domain coordinate</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the WGS-84 longitude, latitude, elevation coordinate</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMContext">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.replacement_sensor_model.</span></span><span class="sig-name descname"><span class="pre">RSMContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ground_domain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomain" title="aws.osml.photogrammetry.replacement_sensor_model.RSMGroundDomain"><span class="pre">RSMGroundDomain</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_domain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMImageDomain" title="aws.osml.photogrammetry.replacement_sensor_model.RSMImageDomain"><span class="pre">RSMImageDomain</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMContext" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>The RSM context contains information necessary to apply and interpret results from the sensor models on an image.</p>
+<p>This current implementation only covers the ground domain and image domains necessary for georeferencing but it
+can be expanded as needed to support other RSM functions.</p>
+<p>TODO: Implement the TimeContext which can be used to identify the collection time of any x, y image coordinate
+TODO: Implement the IlluminationContext which can be used to predict shadow information on an image
+TODO: Implement the TrajectoryModel which captures the sensors 3D position in relation to the image</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.replacement_sensor_model.</span></span><span class="sig-name descname"><span class="pre">RSMPolynomial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_power_x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_power_y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_power_z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This is an implementation of a general polynomial that can be applied to a world coordinate (i.e. an x,y,z vector).
+For additional information see Section 7.2 of STDI-0002 Volume 1 Appendix U or Section 10.3.3.1.1 of the Manual of
+Photogrammetry Sixth Edition.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">normalized_world_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomial.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial.evaluate" title="Link to this definition"></a></dt>
+<dd><p>This function evaluates the polynomial for the given world coordinate by summing up the result of applying
+each coefficient to the world coordinate components. Note that these polynomials are usually defined with
+the assumption that the world coordinate has been normalized.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>normalized_world_coordinate</strong> – the world coordinate</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the resulting value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMLowOrderPolynomial">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.replacement_sensor_model.</span></span><span class="sig-name descname"><span class="pre">RSMLowOrderPolynomial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coefficients</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMLowOrderPolynomial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMLowOrderPolynomial" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This is an implementation of a “low order” polynomial used when generating coarse image row and column coordinates
+from a world coordinate. For additional information see Section 6.2 of STDI-0002 Volume 1 Appendix U.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMLowOrderPolynomial.evaluate">
+<span class="sig-name descname"><span class="pre">evaluate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">world_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMLowOrderPolynomial.evaluate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMLowOrderPolynomial.evaluate" title="Link to this definition"></a></dt>
+<dd><p>This function evaluates the polynomial for the given world coordinate by summing up the result of applying
+each coefficient to the world coordinate components.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>world_coordinate</strong> – the world coordinate</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the resulting value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMSensorModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.replacement_sensor_model.</span></span><span class="sig-name descname"><span class="pre">RSMSensorModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMContext" title="aws.osml.photogrammetry.replacement_sensor_model.RSMContext"><span class="pre">RSMContext</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMSensorModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMSensorModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="aws.osml.photogrammetry.sensor_model.html#aws.osml.photogrammetry.sensor_model.SensorModel" title="aws.osml.photogrammetry.sensor_model.SensorModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">SensorModel</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
+<p>This is an abstract base for all sensor models that use the RSM context information.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.replacement_sensor_model.</span></span><span class="sig-name descname"><span class="pre">RSMPolynomialSensorModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMContext" title="aws.osml.photogrammetry.replacement_sensor_model.RSMContext"><span class="pre">RSMContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_col</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_norm_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_norm_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_norm_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_norm_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_norm_offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_norm_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_norm_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_norm_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_norm_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_norm_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_numerator_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial" title="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial"><span class="pre">RSMPolynomial</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_denominator_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial" title="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial"><span class="pre">RSMPolynomial</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_numerator_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial" title="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial"><span class="pre">RSMPolynomial</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_denominator_poly</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial" title="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomial"><span class="pre">RSMPolynomial</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomialSensorModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMSensorModel" title="aws.osml.photogrammetry.replacement_sensor_model.RSMSensorModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">RSMSensorModel</span></code></a></p>
+<p>This is an implementation of a Rational Polynomial Camera as defined in section 10.3.3.1.1 of the Manual of
+Photogrammetry Sixth Edition.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.world_to_image">
+<span class="sig-name descname"><span class="pre">world_to_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geodetic_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomialSensorModel.world_to_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.world_to_image" title="Link to this definition"></a></dt>
+<dd><p>This function transforms a geodetic world coordinate (longitude, latitude, elevation) into an image coordinate
+(x, y).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>geodetic_coordinate</strong> – the world coordinate (longitude, latitude, elevation)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the resulting image coordinate (x,y)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.image_to_world">
+<span class="sig-name descname"><span class="pre">image_to_world</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevation_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.elevation_model.html#aws.osml.photogrammetry.elevation_model.ElevationModel" title="aws.osml.photogrammetry.elevation_model.ElevationModel"><span class="pre">ElevationModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomialSensorModel.image_to_world"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.image_to_world" title="Link to this definition"></a></dt>
+<dd><p>This function implements the image to world transform by iteratively invoking world to image within a
+minimization routine to find a matching image coordinate. The longitude and latitude parameters are searched
+independently while the elevation of the world coordinate comes from the surface provided with the ground
+domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_coordinate</strong> – the image coordinate (x, y)</p></li>
+<li><p><strong>elevation_model</strong> – an optional elevation model used transform the coordinate</p></li>
+<li><p><strong>options</strong> – optional hints, supports initial_guess and initial_search_distance</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the corresponding world coordinate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.ground_domain_to_image">
+<span class="sig-name descname"><span class="pre">ground_domain_to_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">domain_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomialSensorModel.ground_domain_to_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.ground_domain_to_image" title="Link to this definition"></a></dt>
+<dd><p>This function implements the polynomial ground-to-image transform as defined by section 10.3.3.1.1 of the
+Manual of Photogrammetry sixth edition. The world coordinate is first normalized using the offsets and scale
+factors provided. Then the rational polynomial equations are run to produce an x,y image coordinate. Those
+components are then denormalized to find the final image coordinate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>domain_coordinate</strong> – the ground domain coordinate (x, y, z)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the image coordinate (x, y)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.normalize_world_coordinate">
+<span class="sig-name descname"><span class="pre">normalize_world_coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">world_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomialSensorModel.normalize_world_coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.normalize_world_coordinate" title="Link to this definition"></a></dt>
+<dd><p>This is a helper function used to normalize a world coordinate for use with the polynomials in this sensor
+model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>world_coordinate</strong> – the world coordinate (longitude, latitude, elevation)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a world coordinate where each component has been normalized</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.denormalize_world_coordinate">
+<span class="sig-name descname"><span class="pre">denormalize_world_coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">world_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.WorldCoordinate" title="aws.osml.photogrammetry.coordinates.WorldCoordinate"><span class="pre">WorldCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomialSensorModel.denormalize_world_coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.denormalize_world_coordinate" title="Link to this definition"></a></dt>
+<dd><p>This is a helper function used to denormalize a world coordinate for use with the polynomials in this sensor
+model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>world_coordinate</strong> – the normalized world coordinate (longitude, latitude, elevation)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a world coordinate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.normalize_image_coordinate">
+<span class="sig-name descname"><span class="pre">normalize_image_coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomialSensorModel.normalize_image_coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.normalize_image_coordinate" title="Link to this definition"></a></dt>
+<dd><p>This is a helper function used to normalize an image coordinate for use in these polynomials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_coordinate</strong> – the image coordinate (x, y)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the normalized image coordinate (x, y)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.denormalize_image_coordinate">
+<span class="sig-name descname"><span class="pre">denormalize_image_coordinate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomialSensorModel.denormalize_image_coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.denormalize_image_coordinate" title="Link to this definition"></a></dt>
+<dd><p>This is a helper function to denormalize an image coordinate after it has been processed by the polynomials.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_coordinate</strong> – the normalized image coordinate (x, y)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the image coordinate (x, y)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.normalize">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">normalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomialSensorModel.normalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.normalize" title="Link to this definition"></a></dt>
+<dd><p>This function normalizes a value using an offset and scale using the equations defined in Section 7.2 of
+STDI-0002 Volume 1 Appendix U.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the value to be normalized</p></li>
+<li><p><strong>offset</strong> – the normalization offset</p></li>
+<li><p><strong>scale</strong> – the normalization scale</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the normalized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.denormalize">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">denormalize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMPolynomialSensorModel.denormalize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMPolynomialSensorModel.denormalize" title="Link to this definition"></a></dt>
+<dd><p>This function denormalizes a value using an offset and scale using the equations defined in Section 7.2 of
+STDI-0002 Volume 1 Appendix U.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – the normalized value</p></li>
+<li><p><strong>offset</strong> – the normalization offset</p></li>
+<li><p><strong>scale</strong> – the normalization scale</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the denormalized value</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMSectionedPolynomialSensorModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.photogrammetry.replacement_sensor_model.</span></span><span class="sig-name descname"><span class="pre">RSMSectionedPolynomialSensorModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMContext" title="aws.osml.photogrammetry.replacement_sensor_model.RSMContext"><span class="pre">RSMContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_num_image_sections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_num_image_sections</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_section_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_section_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">row_polynomial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMLowOrderPolynomial" title="aws.osml.photogrammetry.replacement_sensor_model.RSMLowOrderPolynomial"><span class="pre">RSMLowOrderPolynomial</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_polynomial</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMLowOrderPolynomial" title="aws.osml.photogrammetry.replacement_sensor_model.RSMLowOrderPolynomial"><span class="pre">RSMLowOrderPolynomial</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">section_sensor_models</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="aws.osml.photogrammetry.sensor_model.html#aws.osml.photogrammetry.sensor_model.SensorModel" title="aws.osml.photogrammetry.sensor_model.SensorModel"><span class="pre">SensorModel</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMSectionedPolynomialSensorModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMSectionedPolynomialSensorModel" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMSensorModel" title="aws.osml.photogrammetry.replacement_sensor_model.RSMSensorModel"><code class="xref py py-class docutils literal notranslate"><span class="pre">RSMSensorModel</span></code></a></p>
+<p>This is an implementation of a sectioned sensor model that splits overall RSM domain into multiple regions each
+serviced by a dedicated sensor model. A low complexity sensor model covering the entire domain is used to first
+identify the general region of the image associated with a world coordinate then the final coordinate transform
+is delegated to a sensor model associated with that section.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMSectionedPolynomialSensorModel.world_to_image">
+<span class="sig-name descname"><span class="pre">world_to_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geodetic_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMSectionedPolynomialSensorModel.world_to_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMSectionedPolynomialSensorModel.world_to_image" title="Link to this definition"></a></dt>
+<dd><p>This function transforms a geodetic world coordinate (longitude, latitude, elevation) into an image coordinate
+(x, y).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>geodetic_coordinate</strong> – the world coordinate (longitude, latitude, elevation)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the resulting image coordinate (x,y)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMSectionedPolynomialSensorModel.image_to_world">
+<span class="sig-name descname"><span class="pre">image_to_world</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">elevation_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.elevation_model.html#aws.osml.photogrammetry.elevation_model.ElevationModel" title="aws.osml.photogrammetry.elevation_model.ElevationModel"><span class="pre">ElevationModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate" title="aws.osml.photogrammetry.coordinates.GeodeticWorldCoordinate"><span class="pre">GeodeticWorldCoordinate</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMSectionedPolynomialSensorModel.image_to_world"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMSectionedPolynomialSensorModel.image_to_world" title="Link to this definition"></a></dt>
+<dd><p>This function implements the image to world transform by selecting the sensor model responsible for coordinates
+in the image section and then delegating the image to world calculations to that sensor model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>image_coordinate</strong> – the image coordinate (x, y)</p></li>
+<li><p><strong>elevation_model</strong> – optional elevation model used to transform the coordinate</p></li>
+<li><p><strong>options</strong> – optional dictionary of hints passed on to the section sensor models</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the corresponding world coordinate (longitude, latitude, elevation)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.photogrammetry.replacement_sensor_model.RSMSectionedPolynomialSensorModel.get_section_index">
+<span class="sig-name descname"><span class="pre">get_section_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_coordinate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.photogrammetry.coordinates.html#aws.osml.photogrammetry.coordinates.ImageCoordinate" title="aws.osml.photogrammetry.coordinates.ImageCoordinate"><span class="pre">ImageCoordinate</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/aws/osml/photogrammetry/replacement_sensor_model.html#RSMSectionedPolynomialSensorModel.get_section_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.photogrammetry.replacement_sensor_model.RSMSectionedPolynomialSensorModel.get_section_index" title="Link to this definition"></a></dt>
+<dd><p>Use the equations from STDO-0002 Volume 1 Appendix U Section 6.3 to calculate the section of this image
+containing the rough x, y. Note that these equations are slightly different from the documentation since
+those equations produce section numbers that start with 1, and we’re starting with 0 to more naturally
+index into the array of sensor models. Note that if the value is outside the normal sections it is clamped
+to use the sensor model from the closest section available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_coordinate</strong> – the image coordinate (x, y)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>section index (x, y)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

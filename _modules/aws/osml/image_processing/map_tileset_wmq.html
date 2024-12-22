@@ -1,0 +1,280 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.image_processing.map_tileset_wmq &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.image_processing.map_tileset_wmq</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.image_processing.map_tileset_wmq</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">pyproj</span>
+<span class="kn">from</span> <span class="nn">pyproj.enums</span> <span class="kn">import</span> <span class="n">TransformDirection</span>
+
+<span class="kn">from</span> <span class="nn">..photogrammetry</span> <span class="kn">import</span> <span class="n">GeodeticWorldCoordinate</span>
+<span class="kn">from</span> <span class="nn">.map_tileset</span> <span class="kn">import</span> <span class="n">MapTile</span><span class="p">,</span> <span class="n">MapTileId</span><span class="p">,</span> <span class="n">MapTileSet</span>
+
+<span class="c1"># Axis Info: X[east], Y[north]</span>
+<span class="n">WEB_MERCATOR_PROJ</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="s2">&quot;EPSG:3857&quot;</span><span class="p">)</span>
+
+<span class="c1"># Axis Info: Lat[north], Lon[east]</span>
+<span class="n">LLE_PROJ</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Proj</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+<span class="n">LLE_TO_WEB_MERCATOR</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">Transformer</span><span class="o">.</span><span class="n">from_proj</span><span class="p">(</span><span class="n">LLE_PROJ</span><span class="p">,</span> <span class="n">WEB_MERCATOR_PROJ</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="WebMercatorQuadMapTileSet">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.map_tileset_wmq.html#aws.osml.image_processing.map_tileset_wmq.WebMercatorQuadMapTileSet">[docs]</a>
+<span class="k">class</span> <span class="nc">WebMercatorQuadMapTileSet</span><span class="p">(</span><span class="n">MapTileSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tile matrix set definition for WebMercatorQuad, expressed in http://www.opengis.net/def/crs/EPSG/0/3857 This tile</span>
+<span class="sd">    matrix set is the most used tile matrix set in the mass market.(Google Maps, Microsoft Bing Maps, and Open Street</span>
+<span class="sd">    Map tiles all use this projection). Note that this class should not be imported / used directly; it is an</span>
+<span class="sd">    implementation detail of the abstract MapTileSet class. The correct way to utilize this class is to get an</span>
+<span class="sd">    implementation from the MapTileSetFactory using a value from the WellKnownTileSet enumeration.</span>
+
+<span class="sd">    It has been long criticized because it is a based on a spherical Mercator instead of an ellipsoid. The use of</span>
+<span class="sd">    WebMercatorQuad should be limited to visualization. Any additional use (including distance measurements, routing,</span>
+<span class="sd">    etc.) needs to use the Mercator spherical expressions to transform the coordinate to an appropriate CRS first. The</span>
+<span class="sd">    risks caused by imprecision in the use of Web Mercator have been noted by the US National Geospatial-Intelligence</span>
+<span class="sd">    Agency (NGA). NGA has issued an Advisory Notice on web Mercator noting its risks and limiting approved usage to</span>
+<span class="sd">    visualizations: https://nsgreg.nga.mil/doc/view?i=4478</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">256</span><span class="p">,</span> <span class="n">tile_matrix_set_id</span><span class="o">=</span><span class="s2">&quot;WebMercatorQuad&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a spherical web mercator map tile set.</span>
+
+<span class="sd">        :param tile_size: the tile size, defaults to 256 to align with the WebMercatorQuad well known tile set</span>
+<span class="sd">        :param tile_matrix_set_id: name of the tile set, defaults to &quot;WebMercatorQuad&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span> <span class="o">=</span> <span class="n">tile_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tile_matrix_set_id</span> <span class="o">=</span> <span class="n">tile_matrix_set_id</span>
+
+        <span class="n">spherical_circumference</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">WEB_MERCATOR_PROJ</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">ellipsoid</span><span class="o">.</span><span class="n">semi_major_metre</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_resolution</span> <span class="o">=</span> <span class="n">spherical_circumference</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">origin_shift</span> <span class="o">=</span> <span class="n">spherical_circumference</span> <span class="o">/</span> <span class="mf">2.0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tile_matrix_set_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the identifier for this map tile set. This is the tile matrix set ID in the OGC definitions.</span>
+
+<span class="sd">        :return: the tile matrix set ID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tile_matrix_set_id</span>
+
+<div class="viewcode-block" id="WebMercatorQuadMapTileSet.get_tile">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.map_tileset_wmq.html#aws.osml.image_processing.map_tileset_wmq.WebMercatorQuadMapTileSet.get_tile">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_tile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_id</span><span class="p">:</span> <span class="n">MapTileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MapTile</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a description of the tile identified by a specific map tile ID.</span>
+
+<span class="sd">        :param tile_id: the tile ID</span>
+<span class="sd">        :return: the tile description</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">MapTile</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">tile_id</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span><span class="p">),</span> <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_calculate_tile_bounds_lle</span><span class="p">(</span><span class="n">tile_id</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="WebMercatorQuadMapTileSet.get_tile_for_location">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.map_tileset_wmq.html#aws.osml.image_processing.map_tileset_wmq.WebMercatorQuadMapTileSet.get_tile_for_location">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_tile_for_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world_coordinate</span><span class="p">:</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">,</span> <span class="n">tile_matrix</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MapTile</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a description of the tile containing a specific world location.</span>
+
+<span class="sd">        :param world_coordinate: the location in the world</span>
+<span class="sd">        :param tile_matrix: the tile_matrix or zoom level of interest</span>
+<span class="sd">        :return: the tile description</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x_meters</span><span class="p">,</span> <span class="n">y_meters</span> <span class="o">=</span> <span class="n">LLE_TO_WEB_MERCATOR</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+            <span class="n">world_coordinate</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+            <span class="n">world_coordinate</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+            <span class="n">radians</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">direction</span><span class="o">=</span><span class="n">TransformDirection</span><span class="o">.</span><span class="n">FORWARD</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">x_pixels</span><span class="p">,</span> <span class="n">y_pixels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meters_to_pixels</span><span class="p">(</span><span class="n">x_meters</span><span class="p">,</span> <span class="n">y_meters</span><span class="p">,</span> <span class="n">tile_matrix</span><span class="p">)</span>
+        <span class="n">tile_col</span><span class="p">,</span> <span class="n">tile_row</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixels_to_tile</span><span class="p">(</span><span class="n">x_pixels</span><span class="p">,</span> <span class="n">y_pixels</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tile</span><span class="p">(</span><span class="n">MapTileId</span><span class="p">(</span><span class="n">tile_matrix</span><span class="o">=</span><span class="n">tile_matrix</span><span class="p">,</span> <span class="n">tile_row</span><span class="o">=</span><span class="n">tile_row</span><span class="p">,</span> <span class="n">tile_col</span><span class="o">=</span><span class="n">tile_col</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_matrix</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the resolution of pixels in meters for a given zoom level in this tile set.</span>
+
+<span class="sd">        :param tile_matrix: the zoom level</span>
+<span class="sd">        :return: the resolution in meters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_resolution</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">tile_matrix</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_pixels_to_meters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_pixels</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y_pixels</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">tile_matrix</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert an x, y location in pixels to x (east), y (north) location in meters. This includes shifting the</span>
+<span class="sd">        origin for the image pixels (0, 0) in upper left corner to the origin in meters (0, 0) in the center of the</span>
+<span class="sd">        image.</span>
+
+<span class="sd">        :param x_pixels: the x location in pixels</span>
+<span class="sd">        :param y_pixels: the y location in pixels</span>
+<span class="sd">        :param tile_matrix: the zoom level</span>
+<span class="sd">        :return: the (x, y) tuple in meters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tile_matrix_resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span><span class="p">(</span><span class="n">tile_matrix</span><span class="p">)</span>
+        <span class="n">x_meters</span> <span class="o">=</span> <span class="n">x_pixels</span> <span class="o">*</span> <span class="n">tile_matrix_resolution</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_shift</span>
+        <span class="n">y_meters</span> <span class="o">=</span> <span class="n">y_pixels</span> <span class="o">*</span> <span class="n">tile_matrix_resolution</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_shift</span>
+        <span class="k">return</span> <span class="n">x_meters</span><span class="p">,</span> <span class="n">y_meters</span>
+
+    <span class="k">def</span> <span class="nf">_meters_to_pixels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_meters</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y_meters</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">tile_matrix</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert an x (east), y (north) location in meters to x, y location in pixels. This includes shifting the (0, 0)</span>
+<span class="sd">        origin in meters from the center of the image to the upper left corner (0, 0) in image pixels.</span>
+
+<span class="sd">        :param x_meters: the x location in meters</span>
+<span class="sd">        :param y_meters: the y location in meters</span>
+<span class="sd">        :param tile_matrix: the zoom level</span>
+<span class="sd">        :return: the (x, y) tuple in pixels</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tile_matrix_resolution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span><span class="p">(</span><span class="n">tile_matrix</span><span class="p">)</span>
+        <span class="n">x_pixels</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_meters</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_shift</span><span class="p">)</span> <span class="o">/</span> <span class="n">tile_matrix_resolution</span>
+        <span class="n">y_pixels</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_meters</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">origin_shift</span><span class="p">)</span> <span class="o">/</span> <span class="n">tile_matrix_resolution</span>
+        <span class="k">return</span> <span class="n">x_pixels</span><span class="p">,</span> <span class="n">y_pixels</span>
+
+    <span class="k">def</span> <span class="nf">_pixels_to_tile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_pixels</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y_pixels</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function converts x, y pixel coordinates to col, row tile indexes.</span>
+
+<span class="sd">        :param x_pixels: the x location in pixels</span>
+<span class="sd">        :param y_pixels: the y location in pixels</span>
+<span class="sd">        :return: the col, row tuple for the corresponding tile index</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tile_col</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">x_pixels</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">tile_row</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">y_pixels</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span><span class="p">))</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tile_col</span><span class="p">,</span> <span class="n">tile_row</span>
+
+    <span class="k">def</span> <span class="nf">_calculate_tile_bounds_meters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_id</span><span class="p">:</span> <span class="n">MapTileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function calculates the boundary of a tile in meters.</span>
+
+<span class="sd">        :param tile_id: the requested tile id</span>
+<span class="sd">        :return: the [min_x, min_y, max_x, max_y] bounding box in EPSG:3587</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">min_x</span><span class="p">,</span> <span class="n">min_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixels_to_meters</span><span class="p">(</span>
+            <span class="n">tile_id</span><span class="o">.</span><span class="n">tile_col</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span><span class="p">,</span> <span class="n">tile_id</span><span class="o">.</span><span class="n">tile_row</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span><span class="p">,</span> <span class="n">tile_id</span><span class="o">.</span><span class="n">tile_matrix</span>
+        <span class="p">)</span>
+        <span class="n">max_x</span><span class="p">,</span> <span class="n">max_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pixels_to_meters</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">tile_id</span><span class="o">.</span><span class="n">tile_col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span><span class="p">,</span> <span class="p">(</span><span class="n">tile_id</span><span class="o">.</span><span class="n">tile_row</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tile_size</span><span class="p">,</span> <span class="n">tile_id</span><span class="o">.</span><span class="n">tile_matrix</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">min_x</span><span class="p">,</span> <span class="n">min_y</span><span class="p">,</span> <span class="n">max_x</span><span class="p">,</span> <span class="n">max_y</span>
+
+    <span class="k">def</span> <span class="nf">_calculate_tile_bounds_lle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_id</span><span class="p">:</span> <span class="n">MapTileId</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function calculates the boundary of a tile in latitude, longitude</span>
+
+<span class="sd">        :param tile_id: the requested tile id</span>
+<span class="sd">        :return: the [min_lon, min_lat, max_lon, max_lat] bounding box in EPSG:4326</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">min_x</span><span class="p">,</span> <span class="n">min_y</span><span class="p">,</span> <span class="n">max_x</span><span class="p">,</span> <span class="n">max_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_tile_bounds_meters</span><span class="p">(</span><span class="n">tile_id</span><span class="p">)</span>
+        <span class="n">min_lat</span><span class="p">,</span> <span class="n">min_lon</span> <span class="o">=</span> <span class="n">LLE_TO_WEB_MERCATOR</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">min_x</span><span class="p">,</span> <span class="n">min_y</span><span class="p">,</span> <span class="n">radians</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">TransformDirection</span><span class="o">.</span><span class="n">INVERSE</span><span class="p">)</span>
+        <span class="n">max_lat</span><span class="p">,</span> <span class="n">max_lon</span> <span class="o">=</span> <span class="n">LLE_TO_WEB_MERCATOR</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">max_x</span><span class="p">,</span> <span class="n">max_y</span><span class="p">,</span> <span class="n">radians</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="n">TransformDirection</span><span class="o">.</span><span class="n">INVERSE</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">min_lon</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lon</span><span class="p">,</span> <span class="n">max_lat</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

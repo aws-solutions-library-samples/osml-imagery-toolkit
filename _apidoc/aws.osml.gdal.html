@@ -1,0 +1,517 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.gdal &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="aws.osml.image_processing" href="aws.osml.image_processing.html" />
+    <link rel="prev" title="aws.osml.photogrammetry" href="aws.osml.photogrammetry.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">aws.osml.gdal</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#loading-imagery-and-sensor-models-with-osml">Loading Imagery and Sensor Models with OSML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#access-to-nitf-data-extension-segments">Access to NITF Data Extension Segments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#apis">APIs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.set_gdal_default_configuration"><code class="docutils literal notranslate"><span class="pre">set_gdal_default_configuration()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.load_gdal_dataset"><code class="docutils literal notranslate"><span class="pre">load_gdal_dataset()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.get_image_extension"><code class="docutils literal notranslate"><span class="pre">get_image_extension()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.get_type_and_scales"><code class="docutils literal notranslate"><span class="pre">get_type_and_scales()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.GDALCompressionOptions"><code class="docutils literal notranslate"><span class="pre">GDALCompressionOptions</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.GDALConfigEnv"><code class="docutils literal notranslate"><span class="pre">GDALConfigEnv</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.GDALDigitalElevationModelTileFactory"><code class="docutils literal notranslate"><span class="pre">GDALDigitalElevationModelTileFactory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.GDALImageFormats"><code class="docutils literal notranslate"><span class="pre">GDALImageFormats</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.RangeAdjustmentType"><code class="docutils literal notranslate"><span class="pre">RangeAdjustmentType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.NITFDESAccessor"><code class="docutils literal notranslate"><span class="pre">NITFDESAccessor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.ChippedImageInfoFacade"><code class="docutils literal notranslate"><span class="pre">ChippedImageInfoFacade</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.SensorModelFactory"><code class="docutils literal notranslate"><span class="pre">SensorModelFactory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#aws.osml.gdal.SensorModelTypes"><code class="docutils literal notranslate"><span class="pre">SensorModelTypes</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">aws.osml.gdal</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_apidoc/aws.osml.gdal.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-aws.osml.gdal">
+<span id="aws-osml-gdal"></span><h1>aws.osml.gdal<a class="headerlink" href="#module-aws.osml.gdal" title="Link to this heading"></a></h1>
+<p>The gdal package contains utilities that assist with loading imagery and metadata using the OSGeo GDAL library.</p>
+<section id="loading-imagery-and-sensor-models-with-osml">
+<h2>Loading Imagery and Sensor Models with OSML<a class="headerlink" href="#loading-imagery-and-sensor-models-with-osml" title="Link to this heading"></a></h2>
+<p>OSML provides utilities to load a dataset and automatically construct an appropriate sensor model from metadata
+available in the image. Metadata handled by GDAL (e.g. GeoTIFF tags or NITF segment metadata and TREs) is available
+through the dataset accessors.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-text">Example of loading a dataset and sensor model using OSML</span><a class="headerlink" href="#id1" title="Link to this code"></a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aws.osml.gdal</span> <span class="kn">import</span> <span class="n">load_gdal_dataset</span>
+
+<span class="c1"># Load the image and create a sensor model</span>
+<span class="n">dataset</span><span class="p">,</span> <span class="n">sensor_model</span> <span class="o">=</span> <span class="n">load_gdal_dataset</span><span class="p">(</span><span class="s2">&quot;./imagery/sample.nitf&quot;</span><span class="p">)</span>
+<span class="n">width</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">RasterXSize</span>
+<span class="n">height</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">RasterYSize</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded image with dimensions: (</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">) (rows, cols)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using Sensor Model Implementation: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">sensor_model</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">GetMetadata</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="access-to-nitf-data-extension-segments">
+<h2>Access to NITF Data Extension Segments<a class="headerlink" href="#access-to-nitf-data-extension-segments" title="Link to this heading"></a></h2>
+<p>SICD and SIDD imagery contains additional metadata in a XML Data Extension Segment that is not currently processed
+by GDAL. This information can be accessed with the help of the NITFDESAccessor.</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Example of loading a dataset and sensor model using OSML</span><a class="headerlink" href="#id2" title="Link to this code"></a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">xml.dom.minidom</span>
+<span class="kn">from</span> <span class="nn">aws.osml.gdal</span> <span class="kn">import</span> <span class="n">load_gdal_dataset</span><span class="p">,</span> <span class="n">NITFDESAccessor</span>
+
+<span class="n">dataset</span><span class="p">,</span> <span class="n">sensor_model</span> <span class="o">=</span> <span class="n">load_gdal_dataset</span><span class="p">(</span><span class="s2">&quot;./sample-sicd.nitf&quot;</span><span class="p">)</span>
+
+<span class="n">des_accessor</span> <span class="o">=</span> <span class="n">NITFDESAccessor</span><span class="p">(</span><span class="n">dataset</span><span class="o">.</span><span class="n">GetMetadata</span><span class="p">(</span><span class="s2">&quot;xml:DES&quot;</span><span class="p">))</span>
+<span class="n">xml_data_content_segments</span> <span class="o">=</span> <span class="n">des_accessor</span><span class="o">.</span><span class="n">get_segments_by_name</span><span class="p">(</span><span class="s2">&quot;XML_DATA_CONTENT&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">xml_data_content_segments</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">xml_data_segment</span> <span class="ow">in</span> <span class="n">xml_data_content_segments</span><span class="p">:</span>
+        <span class="n">xml_str</span> <span class="o">=</span> <span class="n">des_accessor</span><span class="o">.</span><span class="n">extract_desdata_xml</span><span class="p">(</span><span class="n">xml_data_segment</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;SICD&quot;</span> <span class="ow">in</span> <span class="n">xml_str</span><span class="p">:</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="n">xml</span><span class="o">.</span><span class="n">dom</span><span class="o">.</span><span class="n">minidom</span><span class="o">.</span><span class="n">parseString</span><span class="p">(</span><span class="n">xml_str</span><span class="p">)</span>
+            <span class="n">new_xml</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">toprettyxml</span><span class="p">()</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">new_xml</span><span class="p">)</span>
+            <span class="k">break</span>
+</pre></div>
+</div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="apis">
+<h2>APIs<a class="headerlink" href="#apis" title="Link to this heading"></a></h2>
+</section>
+<dl class="py function">
+<dt class="sig sig-object py" id="aws.osml.gdal.set_gdal_default_configuration">
+<span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">set_gdal_default_configuration</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/gdal_config.html#set_gdal_default_configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.set_gdal_default_configuration" title="Link to this definition"></a></dt>
+<dd><p>This function sets GDAL configuration options to support efficient reading of large raster
+datasets using the /vsis3 virtual file system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aws.osml.gdal.load_gdal_dataset">
+<span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">load_gdal_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><span class="pre">Dataset</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.photogrammetry.sensor_model.html#aws.osml.photogrammetry.sensor_model.SensorModel" title="aws.osml.photogrammetry.sensor_model.SensorModel"><span class="pre">SensorModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/gdal_utils.html#load_gdal_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.load_gdal_dataset" title="Link to this definition"></a></dt>
+<dd><p>This function loads a GDAL raster dataset from the path provided and constructs a camera model
+abstraction used to georeference locations on this image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_path</strong> – the path to the raster data, may be a local path or a virtual file system
+(e.g. /vsis3/…)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the raster dataset and sensor model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aws.osml.gdal.get_image_extension">
+<span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">get_image_extension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/gdal_utils.html#get_image_extension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.get_image_extension" title="Link to this definition"></a></dt>
+<dd><p>Get the image extension based on the provided image path</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>image_path</strong> – an image path</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>image extension</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="aws.osml.gdal.get_type_and_scales">
+<span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">get_type_and_scales</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raster_dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desired_output_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">range_adjustment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="aws.osml.gdal.typing.html#aws.osml.gdal.typing.RangeAdjustmentType" title="aws.osml.gdal.typing.RangeAdjustmentType"><span class="pre">RangeAdjustmentType</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">RangeAdjustmentType.NONE</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/gdal_utils.html#get_type_and_scales"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.get_type_and_scales" title="Link to this definition"></a></dt>
+<dd><p>Get type and scales of a provided raster dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raster_dataset</strong> – the raster dataset containing the region</p></li>
+<li><p><strong>desired_output_type</strong> – type to be output after dynamic range adjustments</p></li>
+<li><p><strong>range_adjustment</strong> – the type of pixel scaling effort to</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>a tuple containing type and scales</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALCompressionOptions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">GDALCompressionOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/gdal/typing.html#GDALCompressionOptions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.GDALCompressionOptions" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Enumeration defining compression algorithms for image.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALCompressionOptions.NONE">
+<span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NONE'</span></em><a class="headerlink" href="#aws.osml.gdal.GDALCompressionOptions.NONE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALCompressionOptions.JPEG">
+<span class="sig-name descname"><span class="pre">JPEG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'JPEG'</span></em><a class="headerlink" href="#aws.osml.gdal.GDALCompressionOptions.JPEG" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALCompressionOptions.J2K">
+<span class="sig-name descname"><span class="pre">J2K</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'J2K'</span></em><a class="headerlink" href="#aws.osml.gdal.GDALCompressionOptions.J2K" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALCompressionOptions.LZW">
+<span class="sig-name descname"><span class="pre">LZW</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'LZW'</span></em><a class="headerlink" href="#aws.osml.gdal.GDALCompressionOptions.LZW" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALConfigEnv">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">GDALConfigEnv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/gdal/gdal_config.html#GDALConfigEnv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.GDALConfigEnv" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This class provides a way to setup a temporary GDAL environment using Python’s “with”
+statement. GDAL configuration options will be set inside the scope of the with statement and
+then reverted to previously set values on exit. This will commonly be used to set AWS security
+credentials (e.g. AWS_SECRET_ACCESS_KEY) for use by other GDAL operations.</p>
+<p>See: <a class="reference external" href="https://gdal.org/user/configoptions.html#gdal-configuration-file">https://gdal.org/user/configoptions.html#gdal-configuration-file</a> for additional options.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALConfigEnv.with_aws_credentials">
+<span class="sig-name descname"><span class="pre">with_aws_credentials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aws_credentials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.13)"><span class="pre">Dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.gdal.gdal_config.html#aws.osml.gdal.gdal_config.GDALConfigEnv" title="aws.osml.gdal.gdal_config.GDALConfigEnv"><span class="pre">GDALConfigEnv</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/gdal_config.html#GDALConfigEnv.with_aws_credentials"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.GDALConfigEnv.with_aws_credentials" title="Link to this definition"></a></dt>
+<dd><p>This method sets the GDAL configuration options for the AWS credentials from the
+credentials object returned by a boto3 call to sts.assume_role(…).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>aws_credentials</strong> – the dictionary of values from the sts.assume_role() response[‘Credentials’]</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self to facilitate a simple builder constructor pattern</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALDigitalElevationModelTileFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">GDALDigitalElevationModelTileFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tile_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/gdal/gdal_dem_tile_factory.html#GDALDigitalElevationModelTileFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.GDALDigitalElevationModelTileFactory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="aws.osml.photogrammetry.digital_elevation_model.html#aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileFactory" title="aws.osml.photogrammetry.digital_elevation_model.DigitalElevationModelTileFactory"><code class="xref py py-class docutils literal notranslate"><span class="pre">DigitalElevationModelTileFactory</span></code></a></p>
+<p>This tile factory uses GDAL to load elevation data into numpy arrays. Any raster format supported by GDAL is
+fair game but the format must have sufficient metadata to populate the GDAL geo transform.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALDigitalElevationModelTileFactory.get_tile">
+<span class="sig-name descname"><span class="pre">get_tile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tile_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.13)"><span class="pre">Tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.13)"><span class="pre">Any</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.photogrammetry.gdal_sensor_model.html#aws.osml.photogrammetry.gdal_sensor_model.GDALAffineSensorModel" title="aws.osml.photogrammetry.gdal_sensor_model.GDALAffineSensorModel"><span class="pre">GDALAffineSensorModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="aws.osml.photogrammetry.elevation_model.html#aws.osml.photogrammetry.elevation_model.ElevationRegionSummary" title="aws.osml.photogrammetry.elevation_model.ElevationRegionSummary"><span class="pre">ElevationRegionSummary</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/gdal_dem_tile_factory.html#GDALDigitalElevationModelTileFactory.get_tile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.GDALDigitalElevationModelTileFactory.get_tile" title="Link to this definition"></a></dt>
+<dd><p>Retrieve a numpy array of elevation values and a sensor model.</p>
+<p>TODO: Replace Any with numpy.typing.ArrayLike once we move to numpy &gt;1.20</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tile_path</strong> – the location of the tile to load</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>an array of elevation values, a sensor model, and a summary or (None, None, None)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALImageFormats">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">GDALImageFormats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/gdal/typing.html#GDALImageFormats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.GDALImageFormats" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Subset of GDAL supported image formats commonly used by this software. See
+<a class="reference external" href="https://gdal.org/drivers/raster/index.html">https://gdal.org/drivers/raster/index.html</a> for a complete listing of the formats.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALImageFormats.NITF">
+<span class="sig-name descname"><span class="pre">NITF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NITF'</span></em><a class="headerlink" href="#aws.osml.gdal.GDALImageFormats.NITF" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALImageFormats.JPEG">
+<span class="sig-name descname"><span class="pre">JPEG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'JPEG'</span></em><a class="headerlink" href="#aws.osml.gdal.GDALImageFormats.JPEG" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALImageFormats.PNG">
+<span class="sig-name descname"><span class="pre">PNG</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PNG'</span></em><a class="headerlink" href="#aws.osml.gdal.GDALImageFormats.PNG" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.GDALImageFormats.GTIFF">
+<span class="sig-name descname"><span class="pre">GTIFF</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'GTiff'</span></em><a class="headerlink" href="#aws.osml.gdal.GDALImageFormats.GTIFF" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.gdal.RangeAdjustmentType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">RangeAdjustmentType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/gdal/typing.html#RangeAdjustmentType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.RangeAdjustmentType" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Enumeration defining ways to scale raw image pixels to an output value range.</p>
+<ul class="simple">
+<li><p>NONE indicates that the full range available to the input type will be used.</p></li>
+<li><p>MINMAX chooses the portion of the input range that actually contains values.</p></li>
+<li><p>DRA is a dynamic range adjustment that attempts to select the most important portion of the input range.
+It differs from MINMAX in that it can exclude outliers to reduce the impact of unusually bright/dark
+spots in an image.</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.RangeAdjustmentType.NONE">
+<span class="sig-name descname"><span class="pre">NONE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NONE'</span></em><a class="headerlink" href="#aws.osml.gdal.RangeAdjustmentType.NONE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.RangeAdjustmentType.MINMAX">
+<span class="sig-name descname"><span class="pre">MINMAX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'MINMAX'</span></em><a class="headerlink" href="#aws.osml.gdal.RangeAdjustmentType.MINMAX" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.RangeAdjustmentType.DRA">
+<span class="sig-name descname"><span class="pre">DRA</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'DRA'</span></em><a class="headerlink" href="#aws.osml.gdal.RangeAdjustmentType.DRA" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.gdal.NITFDESAccessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">NITFDESAccessor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdal_xml_des_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/gdal/nitf_des_accessor.html#NITFDESAccessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.NITFDESAccessor" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This class is a facade that makes it easier to work with the XML formatted Data Extension Segments parsed by
+GDAL.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.gdal.NITFDESAccessor.get_segments_by_name">
+<span class="sig-name descname"><span class="pre">get_segments_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">des_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element" title="(in Python v3.13)"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/nitf_des_accessor.html#NITFDESAccessor.get_segments_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.NITFDESAccessor.get_segments_by_name" title="Link to this definition"></a></dt>
+<dd><p>This method searches through the GDAL xml:DES metadata and returns the XML structure for any segments
+matching the provided name. This is equivalent to retrieving all segments that have a matching DESID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>des_name</strong> – the DESID (e.g. XML_DATA_CONTENT)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the list of segments, multiple items in the list will occur if the NITF has multiple matching segments</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.gdal.NITFDESAccessor.extract_des_header">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_des_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">des_element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element" title="(in Python v3.13)"><span class="pre">Element</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/nitf_des_accessor.html#NITFDESAccessor.extract_des_header"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.NITFDESAccessor.extract_des_header" title="Link to this definition"></a></dt>
+<dd><p>This function encodes the existing values from the Data Extension Segment header into a fields appropriately
+sized for including in a NITF image. The DESDATA field is not copied because the assumption is that the data
+itself will be updated. The DE and DESID fields are not included either because GDAL adds them itself
+when writing the segment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>des_element</strong> – the Data Extension Segment containing current segment</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the encoded DESVER through DESSHF fields.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.gdal.NITFDESAccessor.extract_desdata_xml">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extract_desdata_xml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">des_element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element" title="(in Python v3.13)"><span class="pre">Element</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/nitf_des_accessor.html#NITFDESAccessor.extract_desdata_xml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.NITFDESAccessor.extract_desdata_xml" title="Link to this definition"></a></dt>
+<dd><p>This function attempts to extract a block of XML from the field element named DESDATA. Versions of GDAL
+before 3.9 returned the XML data base64 encoded as a value attribute. Versions &gt;=3.9 are automatically
+expanding the xml into the text area of an &lt;xml_content&gt; element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>des_element</strong> – the root xml:DES metadata element</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the xml content if it is found and can be extracted</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.gdal.NITFDESAccessor.parse_field_value">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parse_field_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">des_element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element" title="(in Python v3.13)"><span class="pre">Element</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_conversion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.13)"><span class="pre">Callable</span></a><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">T</span></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/nitf_des_accessor.html#NITFDESAccessor.parse_field_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.NITFDESAccessor.parse_field_value" title="Link to this definition"></a></dt>
+<dd><p>This is method will find a named “field” element in the children of a TRE Element and
+return the “value” attribute of that named field. A type conversion function can be provided to convert the
+attribute value to a specific Python type (e.g. int, float, or str)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>des_element</strong> – the root element to find the named field in</p></li>
+<li><p><strong>field_name</strong> – the name of the field element</p></li>
+<li><p><strong>type_conversion</strong> – the desired type of the output, must support construction from a string</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>the value converted to the requested type</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.gdal.ChippedImageInfoFacade">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">ChippedImageInfoFacade</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ichipb_tre</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element" title="(in Python v3.13)"><span class="pre">Element</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/gdal/sensor_model_factory.html#ChippedImageInfoFacade"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.ChippedImageInfoFacade" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This is a facade class that can be initialized with an ICHIPB TRE. It provides accessors for the values
+so that they can easily be used to create an ChippedImageSensorModel</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.gdal.SensorModelFactory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">SensorModelFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">actual_image_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">actual_image_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">xml_tres</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element" title="(in Python v3.13)"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xml_dess</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geo_transform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_wkt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ground_control_points</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><span class="pre">GCP</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_sensor_model_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.13)"><span class="pre">List</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="aws.osml.gdal.sensor_model_factory.html#aws.osml.gdal.sensor_model_factory.SensorModelTypes" title="aws.osml.gdal.sensor_model_factory.SensorModelTypes"><span class="pre">SensorModelTypes</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/gdal/sensor_model_factory.html#SensorModelFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.SensorModelFactory" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>This class encapsulates the logic necessary to construct SensorModels from imagery metadata parsed using GDAL.
+Users initialize the builder by providing whatever metadata is available and this class will decide how to create
+the most accurate SensorModel from the available information.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="aws.osml.gdal.SensorModelFactory.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="aws.osml.photogrammetry.sensor_model.html#aws.osml.photogrammetry.sensor_model.SensorModel" title="aws.osml.photogrammetry.sensor_model.SensorModel"><span class="pre">SensorModel</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/aws/osml/gdal/sensor_model_factory.html#SensorModelFactory.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.SensorModelFactory.build" title="Link to this definition"></a></dt>
+<dd><p>Constructs the sensor model from the available information. Note that in cases where not enough information is
+available to provide any solution this method will return None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>the highest quality sensor model available given the information provided</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="aws.osml.gdal.SensorModelTypes">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">aws.osml.gdal.</span></span><span class="sig-name descname"><span class="pre">SensorModelTypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/aws/osml/gdal/sensor_model_factory.html#SensorModelTypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#aws.osml.gdal.SensorModelTypes" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>This enumeration defines the various sensor model types this factory can build.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.SensorModelTypes.AFFINE">
+<span class="sig-name descname"><span class="pre">AFFINE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AFFINE'</span></em><a class="headerlink" href="#aws.osml.gdal.SensorModelTypes.AFFINE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.SensorModelTypes.PROJECTIVE">
+<span class="sig-name descname"><span class="pre">PROJECTIVE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PROJECTIVE'</span></em><a class="headerlink" href="#aws.osml.gdal.SensorModelTypes.PROJECTIVE" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.SensorModelTypes.RPC">
+<span class="sig-name descname"><span class="pre">RPC</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RPC'</span></em><a class="headerlink" href="#aws.osml.gdal.SensorModelTypes.RPC" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.SensorModelTypes.RSM">
+<span class="sig-name descname"><span class="pre">RSM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RSM'</span></em><a class="headerlink" href="#aws.osml.gdal.SensorModelTypes.RSM" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="aws.osml.gdal.SensorModelTypes.SICD">
+<span class="sig-name descname"><span class="pre">SICD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'SICD'</span></em><a class="headerlink" href="#aws.osml.gdal.SensorModelTypes.SICD" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="aws.osml.photogrammetry.html" class="btn btn-neutral float-left" title="aws.osml.photogrammetry" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="aws.osml.image_processing.html" class="btn btn-neutral float-right" title="aws.osml.image_processing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

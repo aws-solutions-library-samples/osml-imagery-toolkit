@@ -1,0 +1,16 @@
+aws.osml namespace
+==================
+
+.. py:module:: aws.osml
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   aws.osml.features
+   aws.osml.formats
+   aws.osml.gdal
+   aws.osml.image_processing
+   aws.osml.photogrammetry

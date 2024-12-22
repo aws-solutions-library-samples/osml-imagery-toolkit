@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.gdal.nitf_des_accessor &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.gdal.nitf_des_accessor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.gdal.nitf_des_accessor</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">ElementTree</span> <span class="k">as</span> <span class="n">ET</span>
+
+<span class="kn">from</span> <span class="nn">defusedxml</span> <span class="kn">import</span> <span class="n">ElementTree</span>
+
+<span class="c1"># This is a type placeholder needed by the _get_tre_field_value() type hints</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;T&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="NITFDESAccessor">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.nitf_des_accessor.html#aws.osml.gdal.NITFDESAccessor">[docs]</a>
+<span class="k">class</span> <span class="nc">NITFDESAccessor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is a facade that makes it easier to work with the XML formatted Data Extension Segments parsed by</span>
+<span class="sd">    GDAL.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdal_xml_des_metadata</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct the DES accessor given the contents of the xml:DES metadata domain from GDAL.</span>
+<span class="sd">        ``</span>
+<span class="sd">            raster_dataset = gdal.Open(path_to_nitf_image)</span>
+<span class="sd">            xml_des = raster_dataset.GetMetadata(&quot;xml:DES&quot;)</span>
+<span class="sd">            des_accessor = NITFDESAccessor(xml_des)</span>
+<span class="sd">        ``</span>
+
+<span class="sd">        :param gdal_xml_des_metadata: the GDAL parsed DES metadata</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parsed_des_lists</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">gdal_xml_des_metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdal_xml_des_metadata</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">xml_des_list</span> <span class="ow">in</span> <span class="n">gdal_xml_des_metadata</span><span class="p">:</span>
+                <span class="c1"># The new handling GDAL has for XML data content causes an XML document to be expanded in the middle</span>
+                <span class="c1"># of the xml:DES data structure. An embedded xml prolog (e.g. &lt;?xml version= ... ?&gt;) is invalid syntax</span>
+                <span class="c1"># that will throw off some XML parsers. The xml prolog is optional, so we can strip all of them from</span>
+                <span class="c1"># the XML as a workaround while we look for a better way to address this recent GDAL change.</span>
+                <span class="n">clean_xml_string</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;\?xml.*?\?&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">xml_des_list</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="n">des_list</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">clean_xml_string</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parsed_des_lists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">des_list</span><span class="p">)</span>
+
+<div class="viewcode-block" id="NITFDESAccessor.get_segments_by_name">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.nitf_des_accessor.html#aws.osml.gdal.NITFDESAccessor.get_segments_by_name">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_segments_by_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">des_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method searches through the GDAL xml:DES metadata and returns the XML structure for any segments</span>
+<span class="sd">        matching the provided name. This is equivalent to retrieving all segments that have a matching DESID.</span>
+
+<span class="sd">        :param des_name: the DESID (e.g. XML_DATA_CONTENT)</span>
+<span class="sd">        :return: the list of segments, multiple items in the list will occur if the NITF has multiple matching segments</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">des_list</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsed_des_lists</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">des_list</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./des[@name=&#39;</span><span class="si">{</span><span class="n">des_name</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="NITFDESAccessor.extract_des_header">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.nitf_des_accessor.html#aws.osml.gdal.NITFDESAccessor.extract_des_header">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract_des_header</span><span class="p">(</span><span class="n">des_element</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function encodes the existing values from the Data Extension Segment header into a fields appropriately</span>
+<span class="sd">        sized for including in a NITF image. The DESDATA field is not copied because the assumption is that the data</span>
+<span class="sd">        itself will be updated. The DE and DESID fields are not included either because GDAL adds them itself</span>
+<span class="sd">        when writing the segment.</span>
+
+<span class="sd">        :param des_element: the Data Extension Segment containing current segment</span>
+<span class="sd">        :return: the encoded DESVER through DESSHF fields.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_builder</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">()</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESVER&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span> <span class="s2">&quot;02d&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DECLAS&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;1&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESCLSY&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;2&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESCODE&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;11&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESCTLH&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;2&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESREL&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;20&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESDCTP&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;2&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESDCDT&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;8&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESDCXM&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;4&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESDG&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;1&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESDGDT&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;8&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESCLTX&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;43&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESCATP&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;1&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESCAUT&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;40&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESCRSN&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;1&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESSRDT&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;8&quot;</span><span class="p">))</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESCTLN&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span> <span class="s2">&quot;&gt;15&quot;</span><span class="p">))</span>
+
+        <span class="c1"># TODO: If DESID = TRE_OVERFLOW DESOFLW, DESITEM</span>
+
+        <span class="n">subheader_length</span> <span class="o">=</span> <span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESSHL&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">subheader_length</span><span class="p">,</span> <span class="s2">&quot;04d&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">subheader_length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">result_builder</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="nb">format</span><span class="p">(</span>
+                    <span class="n">NITFDESAccessor</span><span class="o">.</span><span class="n">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">,</span> <span class="s2">&quot;DESSHF&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">),</span>
+                    <span class="sa">f</span><span class="s2">&quot;&gt;</span><span class="si">{</span><span class="n">subheader_length</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result_builder</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="NITFDESAccessor.extract_desdata_xml">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.nitf_des_accessor.html#aws.osml.gdal.NITFDESAccessor.extract_desdata_xml">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">extract_desdata_xml</span><span class="p">(</span><span class="n">des_element</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function attempts to extract a block of XML from the field element named DESDATA. Versions of GDAL</span>
+<span class="sd">        before 3.9 returned the XML data base64 encoded as a value attribute. Versions &gt;=3.9 are automatically</span>
+<span class="sd">        expanding the xml into the text area of an &lt;xml_content&gt; element.</span>
+
+<span class="sd">        :param des_element: the root xml:DES metadata element</span>
+<span class="sd">        :return: the xml content if it is found and can be extracted</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">desdata_element</span> <span class="o">=</span> <span class="n">des_element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;./field[@name=&#39;DESDATA&#39;]&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">desdata_element</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">value_attribute</span> <span class="o">=</span> <span class="n">desdata_element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value_attribute</span><span class="p">:</span>
+            <span class="c1"># This appears to be the encoding used by GDAL versions &lt;3.9. Extract the</span>
+            <span class="c1"># XML from the base64 encoded value attribute</span>
+            <span class="n">xml_bytes</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">value_attribute</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">xml_bytes</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">xml_content_element</span> <span class="o">=</span> <span class="n">desdata_element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;xml_content&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">xml_content_element</span><span class="p">:</span>
+            <span class="c1"># This appears to be a encoding used by GDAL &gt;3.9. The XML is already parsed</span>
+            <span class="c1"># and available as the content of this element. See: https://github.com/OSGeo/gdal/pull/8953</span>
+            <span class="k">return</span> <span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">xml_content_element</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;unicode&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Unable to parse the XML from the data segment. This sometimes happens if GDAL</span>
+        <span class="c1"># changes the representation of this information in their APIs</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="NITFDESAccessor.parse_field_value">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.nitf_des_accessor.html#aws.osml.gdal.NITFDESAccessor.parse_field_value">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_field_value</span><span class="p">(</span><span class="n">des_element</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="n">field_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">type_conversion</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is method will find a named &quot;field&quot; element in the children of a TRE Element and</span>
+<span class="sd">        return the &quot;value&quot; attribute of that named field. A type conversion function can be provided to convert the</span>
+<span class="sd">        attribute value to a specific Python type (e.g. int, float, or str)</span>
+
+<span class="sd">        :param des_element: the root element to find the named field in</span>
+<span class="sd">        :param field_name: the name of the field element</span>
+<span class="sd">        :param type_conversion: the desired type of the output, must support construction from a string</span>
+
+<span class="sd">        :return: the value converted to the requested type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">field_element</span> <span class="o">=</span> <span class="n">des_element</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./field[@name=&#39;</span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">field_element</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to find TRE field named </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">str_value</span> <span class="o">=</span> <span class="n">field_element</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">str_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Field </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> does not have a value attribute.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">type_conversion</span><span class="p">(</span><span class="n">str_value</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

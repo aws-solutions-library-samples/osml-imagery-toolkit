@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.gdal.rsm_sensor_model_builder &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.gdal.rsm_sensor_model_builder</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.gdal.rsm_sensor_model_builder</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">ElementTree</span> <span class="k">as</span> <span class="n">ET</span>
+
+<span class="kn">from</span> <span class="nn">aws.osml.photogrammetry</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RSMContext</span><span class="p">,</span>
+    <span class="n">RSMGroundDomain</span><span class="p">,</span>
+    <span class="n">RSMGroundDomainForm</span><span class="p">,</span>
+    <span class="n">RSMImageDomain</span><span class="p">,</span>
+    <span class="n">RSMLowOrderPolynomial</span><span class="p">,</span>
+    <span class="n">RSMPolynomial</span><span class="p">,</span>
+    <span class="n">RSMPolynomialSensorModel</span><span class="p">,</span>
+    <span class="n">RSMSectionedPolynomialSensorModel</span><span class="p">,</span>
+    <span class="n">SensorModel</span><span class="p">,</span>
+    <span class="n">WorldCoordinate</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">.sensor_model_builder</span> <span class="kn">import</span> <span class="n">SensorModelBuilder</span>
+<span class="kn">from</span> <span class="nn">.xmltre_utils</span> <span class="kn">import</span> <span class="n">get_tre_field_value</span><span class="p">,</span> <span class="n">parse_rpc_coefficients</span>
+
+
+<div class="viewcode-block" id="RSMSensorModelBuilder">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.rsm_sensor_model_builder.html#aws.osml.gdal.rsm_sensor_model_builder.RSMSensorModelBuilder">[docs]</a>
+<span class="k">class</span> <span class="nc">RSMSensorModelBuilder</span><span class="p">(</span><span class="n">SensorModelBuilder</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This builder is used to create sensor models for images that have RSM TREs. The inputs are not the TREs themselves</span>
+<span class="sd">    but rather the XML formatted TREs resulting from GDAL&#39;s parsing of that information. This information can be</span>
+<span class="sd">    obtained by accessing the xml:TRE metadata domain for a given GDAL dataset.</span>
+
+<span class="sd">    The actual type and number of RSM TREs included with an image will vary depending on the type of RSM sensor model</span>
+<span class="sd">    defined. In general all images with these sensor models must have an RSMID TRE that defines the overall context</span>
+<span class="sd">    of the sensor model along with RSMDCA and RSMECA TREs that define the direct and indirect error covariance</span>
+<span class="sd">    data.</span>
+
+<span class="sd">    The polynomial based sensor models will then have at least one RSMPCA TRE and may have multiple. If there are</span>
+<span class="sd">    multiple then a RSMPIA TRE will also be present to describe how the various polynomial models cover the overall</span>
+<span class="sd">    image domain.</span>
+
+<span class="sd">    The grid based sensor models will have at least one RSMGGA TRE and may have multiple. If there are multiple then</span>
+<span class="sd">    a RSMGIA TRE will also be present to describe how the various interpolation grids cover the overall image domain.</span>
+
+<span class="sd">    It is also possible that adjustment parameters will be in RSMAPA TREs. These adjustments are frequently used to</span>
+<span class="sd">    modify / update a sensor model after it was originally created.</span>
+
+<span class="sd">    See STDI-0002 Volume 1 Appendix U for more detailed information.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xml_tres</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the builder accepting the required XML TREs.</span>
+
+<span class="sd">        :param xml_tres: the XML tres for this image</span>
+
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xml_tres</span> <span class="o">=</span> <span class="n">xml_tres</span>
+
+<div class="viewcode-block" id="RSMSensorModelBuilder.build">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.rsm_sensor_model_builder.html#aws.osml.gdal.rsm_sensor_model_builder.RSMSensorModelBuilder.build">[docs]</a>
+    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SensorModel</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Examine the TRE metadata for RSM information, parse the necessary values out of those TREs, and construct a</span>
+<span class="sd">        RSM sensor model.</span>
+
+<span class="sd">        :return: a RSM Polynomial SensorModel if one can be constructed, None otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Check to see if an RSMIDA TRE is included with the metadata. This is a mandatory TRE that will be available</span>
+        <span class="c1"># for all RSM based sensor models. If it is not available then we can stop because the metadata does not</span>
+        <span class="c1"># contain the basic information necessary to support RSM.</span>
+        <span class="n">rsmid_tre</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_tres</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;./tre[@name=&#39;RSMIDA&#39;]&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">rsmid_tre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No RSMID TRE found. Skipping RSM sensor model build.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Use the information in the RSMID TRE to build the context. This context contains the ground and image</span>
+            <span class="c1"># domains that bound the valid regions for the RSM model in this image.</span>
+            <span class="n">rsm_context</span> <span class="o">=</span> <span class="n">RSMSensorModelBuilder</span><span class="o">.</span><span class="n">_build_rsm_context</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">)</span>
+
+            <span class="c1"># If an RSM model is using polynomial coefficients to define the sensor model then those coefficients</span>
+            <span class="c1"># will be stored in RSMPC TREs. Note that some images may have several of these TREs defined so we will</span>
+            <span class="c1"># construct RSMPolynomialSensorModels for every TRE of this kind.</span>
+            <span class="n">rsmpc_tres</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_tres</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;./tre[@name=&#39;RSMPCA&#39;]&quot;</span><span class="p">)</span>
+            <span class="n">rsm_polynomial_sensor_models</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">RSMSensorModelBuilder</span><span class="o">.</span><span class="n">_build_rsm_polynomial_sensor_model</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="n">rsm_context</span><span class="p">)</span> <span class="k">for</span> <span class="n">rsmpc_tre</span> <span class="ow">in</span> <span class="n">rsmpc_tres</span>
+            <span class="p">]</span>
+
+            <span class="c1"># If we only have one RSM polynomial sensor model then it applies to the entire RSM domain. If we have</span>
+            <span class="c1"># multiple then we are dealing with a sectioned sensor model which will require additional TREs to be</span>
+            <span class="c1"># parsed.</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rsm_polynomial_sensor_models</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rsm_polynomial_sensor_models</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">rsm_polynomial_sensor_models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Parse RSMPI and construct a segmented polynomial sensor model</span>
+                    <span class="n">rsmpi_tre</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml_tres</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;./tre[@name=&#39;RSMPIA&#39;]&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">rsmpi_tre</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                            <span class="s2">&quot;Image has multiple RSMPCA TREs but is missing a RSMPIA that assigns them to sections.&quot;</span>
+                            <span class="s2">&quot;No sensor model can be built! &quot;</span>
+                        <span class="p">)</span>
+                        <span class="k">return</span> <span class="kc">None</span>
+                    <span class="k">return</span> <span class="n">RSMSensorModelBuilder</span><span class="o">.</span><span class="n">_build_rsm_sectioned_polynomial_sensor_model</span><span class="p">(</span>
+                        <span class="n">rsmpi_tre</span><span class="p">,</span> <span class="n">rsm_context</span><span class="p">,</span> <span class="n">rsm_polynomial_sensor_models</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># TODO: Check for RSMGGA and RSMGIA TREs and construct a RSM grid interpolation sensor model</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Image has RSMID TRE but no polynomials. Grid based RSM not implemented so no sensor model returned.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ve</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Unable to parse RSM TREs found in XML metadata. No SensorModel created.&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">ve</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_build_rsm_ground_domain</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RSMGroundDomain</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This private method constructs the ground domain from information in the RSMIDA TRE.</span>
+
+<span class="sd">        :param rsmid_tre: the GDAL XML for RSMIDA</span>
+
+<span class="sd">        :return: the ground domain</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># This is the type of ground domain for this RSM sensor model</span>
+        <span class="n">ground_domain_form</span> <span class="o">=</span> <span class="n">RSMGroundDomainForm</span><span class="p">(</span><span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="s2">&quot;GRNDD&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span>
+
+        <span class="c1"># The valid region of the ground domain is defined by 8 sets of world coordinates (V1 - V8)</span>
+        <span class="n">ground_domain_vertices</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">WorldCoordinate</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;V</span><span class="si">{</span><span class="n">vertex_number</span><span class="si">}</span><span class="s2">X&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;V</span><span class="si">{</span><span class="n">vertex_number</span><span class="si">}</span><span class="s2">Y&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;V</span><span class="si">{</span><span class="n">vertex_number</span><span class="si">}</span><span class="s2">Z&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">vertex_number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Ground domains are either rectangular or geodetic. Rectangular ground domains have additional values</span>
+        <span class="c1"># that define a cartesian coordinate system anchored at a point on the earth.</span>
+        <span class="n">rectangular_coordinate_origin</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">rectangular_coordinate_unit_vectors</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">ground_domain_form</span> <span class="o">==</span> <span class="n">RSMGroundDomainForm</span><span class="o">.</span><span class="n">RECTANGULAR</span><span class="p">:</span>
+            <span class="c1"># The world location for the origin (0, 0, 0) of the rectangular coordinate system</span>
+            <span class="n">rectangular_coordinate_origin</span> <span class="o">=</span> <span class="n">WorldCoordinate</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="s2">&quot;XUOR&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="s2">&quot;YUOR&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="s2">&quot;ZUOR&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Unit vectors defining the cartesian coordinate system</span>
+            <span class="n">rectangular_coordinate_unit_vectors</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">row_coefficient</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;XR&quot;</span><span class="p">,</span> <span class="s2">&quot;YR&quot;</span><span class="p">,</span> <span class="s2">&quot;ZR&quot;</span><span class="p">]:</span>
+                <span class="n">row</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col_coefficient</span><span class="si">}</span><span class="s2">U</span><span class="si">{</span><span class="n">row_coefficient</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">col_coefficient</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="n">rectangular_coordinate_unit_vectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">ground_reference_point</span> <span class="o">=</span> <span class="n">WorldCoordinate</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="s2">&quot;GRPX&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="s2">&quot;GRPY&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                    <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="s2">&quot;GRPZ&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="c1"># The ground reference point is optional and these elements may be filled with spaces. If we can&#39;t parse</span>
+            <span class="c1"># floating point numbers from these fields we should assume this information has not been provided.</span>
+            <span class="n">ground_reference_point</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">RSMGroundDomain</span><span class="p">(</span>
+            <span class="n">ground_domain_form</span><span class="p">,</span>
+            <span class="n">ground_domain_vertices</span><span class="p">,</span>
+            <span class="n">rectangular_coordinate_origin</span><span class="o">=</span><span class="n">rectangular_coordinate_origin</span><span class="p">,</span>
+            <span class="n">rectangular_coordinate_unit_vectors</span><span class="o">=</span><span class="n">rectangular_coordinate_unit_vectors</span><span class="p">,</span>
+            <span class="n">ground_reference_point</span><span class="o">=</span><span class="n">ground_reference_point</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_build_rsm_image_domain</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RSMImageDomain</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This private method constructs the image domain from information in the RSMIDA TRE.</span>
+
+<span class="sd">        :param rsmid_tre: the GDAL XML for RSMIDA</span>
+<span class="sd">        :return: the image domain</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RSMImageDomain</span><span class="p">(</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="s2">&quot;MINR&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="s2">&quot;MAXR&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="s2">&quot;MINC&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">,</span> <span class="s2">&quot;MAXC&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_build_rsm_context</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RSMContext</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This private method constructs a RSM context from information in the RSMIDA TRE.</span>
+
+<span class="sd">        :param rsmid_tre: the GDAL XML for RSMIDA</span>
+
+<span class="sd">        :return: the RSM context</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RSMContext</span><span class="p">(</span>
+            <span class="n">RSMSensorModelBuilder</span><span class="o">.</span><span class="n">_build_rsm_ground_domain</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">),</span>
+            <span class="n">RSMSensorModelBuilder</span><span class="o">.</span><span class="n">_build_rsm_image_domain</span><span class="p">(</span><span class="n">rsmid_tre</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_build_rsm_polynomial</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="n">polynomial_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RSMPolynomial</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This private method constructs an RSM polynomial from a group of related fields in the RSMPCA TRE. These</span>
+<span class="sd">        TREs have similar fields grouped by the RN, RD, CN, and CD prefixes which correspond to the row or column</span>
+<span class="sd">        (R or C) numerator or denominator (N or D) identifiers for the polynomial they&#39;re associated with.</span>
+
+<span class="sd">        :param rsmpc_tre: the GDAL XML for RSMPCA</span>
+<span class="sd">        :param polynomial_prefix: the prefix identifying the polynomial</span>
+
+<span class="sd">        :return: RSMPolynomial = the RSM polynomial</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">polynomial_prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;RN&quot;</span><span class="p">,</span> <span class="s2">&quot;RD&quot;</span><span class="p">,</span> <span class="s2">&quot;CN&quot;</span><span class="p">,</span> <span class="s2">&quot;CD&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected prefix </span><span class="si">{</span><span class="n">polynomial_prefix</span><span class="si">}</span><span class="s2">. Expecting RN, RD, CN, or CD&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">RSMPolynomial</span><span class="p">(</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">polynomial_prefix</span><span class="si">}</span><span class="s2">PWRX&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">polynomial_prefix</span><span class="si">}</span><span class="s2">PWRY&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">polynomial_prefix</span><span class="si">}</span><span class="s2">PWRZ&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="n">parse_rpc_coefficients</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">polynomial_prefix</span><span class="si">}</span><span class="s2">PCF&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_build_rsm_polynomial_sensor_model</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="n">rsm_context</span><span class="p">:</span> <span class="n">RSMContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RSMPolynomialSensorModel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This private method constructs an RSM polynomial sensor model from an RSMPCA TRE and the context object.</span>
+
+<span class="sd">        :param rsmpc_tre: the GDAL XML for RSMPCA</span>
+<span class="sd">        :param rsm_context: the corresponding RSM context</span>
+
+<span class="sd">        :return: the RSM polynomial sensor model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">RSMPolynomialSensorModel</span><span class="p">(</span>
+            <span class="n">rsm_context</span><span class="p">,</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;RSN&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;CSN&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;RNRMO&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;CNRMO&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;XNRMO&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;YNRMO&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;ZNRMO&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;RNRMSF&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;CNRMSF&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;XNRMSF&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;YNRMSF&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;ZNRMSF&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">RSMSensorModelBuilder</span><span class="o">.</span><span class="n">_build_rsm_polynomial</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;RN&quot;</span><span class="p">),</span>
+            <span class="n">RSMSensorModelBuilder</span><span class="o">.</span><span class="n">_build_rsm_polynomial</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;RD&quot;</span><span class="p">),</span>
+            <span class="n">RSMSensorModelBuilder</span><span class="o">.</span><span class="n">_build_rsm_polynomial</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;CN&quot;</span><span class="p">),</span>
+            <span class="n">RSMSensorModelBuilder</span><span class="o">.</span><span class="n">_build_rsm_polynomial</span><span class="p">(</span><span class="n">rsmpc_tre</span><span class="p">,</span> <span class="s2">&quot;CD&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_build_loworder_rsm_polynomial</span><span class="p">(</span><span class="n">rsmpi_tre</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="n">polynomial_prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RSMLowOrderPolynomial</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This private method constructs a low order RSM polynomial from a group of related fields in the RSMPIA TRE.</span>
+<span class="sd">        These TREs have similar fields grouped by the R and C prefixes which correspond to the row or column</span>
+<span class="sd">        identifiers for the polynomial they&#39;re associated with.</span>
+
+<span class="sd">        :param rsmpi_tre: the GDAL XML for RSMPIA</span>
+<span class="sd">        :param polynomial_prefix: the prefix identifying the polynomial</span>
+
+<span class="sd">        :return: the low order RSM polynomial</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">polynomial_prefix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected prefix </span><span class="si">{</span><span class="n">polynomial_prefix</span><span class="si">}</span><span class="s2">. Expecting R or C&quot;</span><span class="p">)</span>
+
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">coeff_suffix</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;XX&quot;</span><span class="p">,</span> <span class="s2">&quot;XY&quot;</span><span class="p">,</span> <span class="s2">&quot;XZ&quot;</span><span class="p">,</span> <span class="s2">&quot;YY&quot;</span><span class="p">,</span> <span class="s2">&quot;YZ&quot;</span><span class="p">,</span> <span class="s2">&quot;ZZ&quot;</span><span class="p">]:</span>
+            <span class="n">coefficients</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpi_tre</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">polynomial_prefix</span><span class="si">}{</span><span class="n">coeff_suffix</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">RSMLowOrderPolynomial</span><span class="p">(</span><span class="n">coefficients</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_build_rsm_sectioned_polynomial_sensor_model</span><span class="p">(</span>
+        <span class="n">rsmpi_tre</span><span class="p">:</span> <span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span>
+        <span class="n">rsm_context</span><span class="p">:</span> <span class="n">RSMContext</span><span class="p">,</span>
+        <span class="n">rsm_polynomial_sensor_models</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RSMPolynomialSensorModel</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RSMSectionedPolynomialSensorModel</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This private method constructs an RSM sectioned polynomial sensor model from an RSMPIA TRE, the context object,</span>
+<span class="sd">        and a collection of RSMPolynomialSensorModels.</span>
+
+<span class="sd">        :param rsmpi_tre: the GDAL XML for RSMPCA</span>
+<span class="sd">        :param rsm_context: the corresponding RSM context</span>
+
+
+<span class="sd">        :return: the RSM polynomial sensor model</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">num_section_rows</span> <span class="o">=</span> <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpi_tre</span><span class="p">,</span> <span class="s2">&quot;RNIS&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="n">num_section_cols</span> <span class="o">=</span> <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpi_tre</span><span class="p">,</span> <span class="s2">&quot;CNIS&quot;</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+        <span class="n">sensor_model_grid_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">sensor_model</span> <span class="ow">in</span> <span class="n">rsm_polynomial_sensor_models</span><span class="p">:</span>
+            <span class="n">sensor_model_grid_map</span><span class="p">[(</span><span class="n">sensor_model</span><span class="o">.</span><span class="n">section_row</span><span class="p">,</span> <span class="n">sensor_model</span><span class="o">.</span><span class="n">section_col</span><span class="p">)]</span> <span class="o">=</span> <span class="n">sensor_model</span>
+
+        <span class="n">section_sensor_model_grid</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_section_rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">row_of_sensor_models</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_section_cols</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">row_of_sensor_models</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sensor_model_grid_map</span><span class="p">[(</span><span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">)])</span>
+            <span class="n">section_sensor_model_grid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row_of_sensor_models</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">RSMSectionedPolynomialSensorModel</span><span class="p">(</span>
+            <span class="n">rsm_context</span><span class="p">,</span>
+            <span class="n">num_section_rows</span><span class="p">,</span>
+            <span class="n">num_section_cols</span><span class="p">,</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpi_tre</span><span class="p">,</span> <span class="s2">&quot;RSSIZ&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">get_tre_field_value</span><span class="p">(</span><span class="n">rsmpi_tre</span><span class="p">,</span> <span class="s2">&quot;CSSIZ&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">),</span>
+            <span class="n">RSMSensorModelBuilder</span><span class="o">.</span><span class="n">_build_loworder_rsm_polynomial</span><span class="p">(</span><span class="n">rsmpi_tre</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">),</span>
+            <span class="n">RSMSensorModelBuilder</span><span class="o">.</span><span class="n">_build_loworder_rsm_polynomial</span><span class="p">(</span><span class="n">rsmpi_tre</span><span class="p">,</span> <span class="s2">&quot;C&quot;</span><span class="p">),</span>
+            <span class="n">section_sensor_model_grid</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+aws.osml.formats.sicd.models 
+=============================
+
+.. automodule:: aws.osml.formats.sicd.models
+   :members:
+   :undoc-members:
+   :show-inheritance:

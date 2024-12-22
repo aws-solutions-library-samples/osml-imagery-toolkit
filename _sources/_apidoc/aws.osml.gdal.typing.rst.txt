@@ -1,0 +1,7 @@
+aws.osml.gdal.typing module
+===========================
+
+.. automodule:: aws.osml.gdal.typing
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,211 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.image_processing.map_tileset &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.image_processing.map_tileset</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.image_processing.map_tileset</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span> <span class="nn">aws.osml.photogrammetry</span> <span class="kn">import</span> <span class="n">GeodeticWorldCoordinate</span>
+
+<span class="n">MapTileId</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;TildId&quot;</span><span class="p">,</span> <span class="s2">&quot;tile_matrix tile_row tile_col&quot;</span><span class="p">)</span>
+<span class="n">MapTileId</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">This type represents the unique id of a map tile within a map tile set. It is implemented as a named tuple to make</span>
+<span class="s2">use of that constructs immutability and hashing features.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">MapTileSize</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MapTileSize&quot;</span><span class="p">,</span> <span class="s2">&quot;width height&quot;</span><span class="p">)</span>
+<span class="n">MapTileSize</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">This type represents the size of a map tile (width, height). These dimensions are typically the same (i.e. square</span>
+<span class="s2">tiles) but this is not required.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">MapTileBounds</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s2">&quot;MapTileBounds&quot;</span><span class="p">,</span> <span class="s2">&quot;min_lon min_lat max_lon max_lat&quot;</span><span class="p">)</span>
+<span class="n">MapTileBounds</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">This type represents the geodetic bounds of a map tile (min_lon, min_lat, max_lon, max_lat).</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="MapTile">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.MapTile">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">MapTile</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This dataclass provides a description of a map tile that is part of a well known tile set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">id</span><span class="p">:</span> <span class="n">MapTileId</span>
+    <span class="n">size</span><span class="p">:</span> <span class="n">MapTileSize</span>
+    <span class="n">bounds</span><span class="p">:</span> <span class="n">MapTileBounds</span></div>
+
+
+
+<div class="viewcode-block" id="MapTileSet">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.MapTileSet">[docs]</a>
+<span class="k">class</span> <span class="nc">MapTileSet</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class provides an abstract interface to a well known set of map tiles.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">tile_matrix_set_id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the identifier for this map tile set. This is the tile matrix set ID in the OGC definitions.</span>
+
+<span class="sd">        :return: the tile matrix set ID</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="MapTileSet.get_tile">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.MapTileSet.get_tile">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_tile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tile_id</span><span class="p">:</span> <span class="n">MapTileId</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MapTile</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a description of the tile identified by a specific map tile ID.</span>
+
+<span class="sd">        :param tile_id: the tile ID</span>
+<span class="sd">        :return: the tile description</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="MapTileSet.get_tile_for_location">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.MapTileSet.get_tile_for_location">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">get_tile_for_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world_coordinate</span><span class="p">:</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">,</span> <span class="n">tile_matrix</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MapTile</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a description of the tile containing a specific world location.</span>
+
+<span class="sd">        :param world_coordinate: the location in the world</span>
+<span class="sd">        :param tile_matrix: the tile_matrix or zoom level of interest</span>
+<span class="sd">        :return: the tile description</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+<div class="viewcode-block" id="MapTileSet.get_tile_matrix_limits_for_area">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.image_processing.map_tileset.html#aws.osml.image_processing.MapTileSet.get_tile_matrix_limits_for_area">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_tile_matrix_limits_for_area</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">boundary_coordinates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">GeodeticWorldCoordinate</span><span class="p">],</span> <span class="n">tile_matrix</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of all tiles that intersect a specific area.</span>
+
+<span class="sd">        :param boundary_coordinates: the boundary of the area</span>
+<span class="sd">        :param tile_matrix: the tile_matrix or zoom level of interest</span>
+<span class="sd">        :return: the (min_col, min_row, max_col, max_row) limits of tiles containing all points</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">map_tiles_for_corners</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_tile_for_location</span><span class="p">(</span><span class="n">world_corner</span><span class="p">,</span> <span class="n">tile_matrix</span><span class="o">=</span><span class="n">tile_matrix</span><span class="p">)</span> <span class="k">for</span> <span class="n">world_corner</span> <span class="ow">in</span> <span class="n">boundary_coordinates</span>
+        <span class="p">]</span>
+        <span class="n">tile_rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">tile_id</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">tile_row</span> <span class="k">for</span> <span class="n">tile_id</span> <span class="ow">in</span> <span class="n">map_tiles_for_corners</span><span class="p">]</span>
+        <span class="n">tile_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">tile_id</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">tile_col</span> <span class="k">for</span> <span class="n">tile_id</span> <span class="ow">in</span> <span class="n">map_tiles_for_corners</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">tile_cols</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">tile_rows</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">tile_cols</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">tile_rows</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

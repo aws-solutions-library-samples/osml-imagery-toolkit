@@ -1,0 +1,1321 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.photogrammetry.sicd_sensor_model &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.photogrammetry.sicd_sensor_model</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.photogrammetry.sicd_sensor_model</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.typing</span> <span class="k">as</span> <span class="nn">npt</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ElevationModel</span>
+<span class="kn">from</span> <span class="nn">.coordinates</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">GeodeticWorldCoordinate</span><span class="p">,</span>
+    <span class="n">ImageCoordinate</span><span class="p">,</span>
+    <span class="n">WorldCoordinate</span><span class="p">,</span>
+    <span class="n">geocentric_to_geodetic</span><span class="p">,</span>
+    <span class="n">geodetic_to_geocentric</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.sensor_model</span> <span class="kn">import</span> <span class="n">SensorModel</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Polynomial2D">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.Polynomial2D">[docs]</a>
+<span class="k">class</span> <span class="nc">Polynomial2D</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class contains coefficients for a two-dimensional polynomial.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coef</span><span class="p">:</span> <span class="n">npt</span><span class="o">.</span><span class="n">ArrayLike</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor that takes the coefficients of the polynomial. The coefficients should be ordered so that the</span>
+<span class="sd">        coefficient of the term of multi-degree i,j is contained in coef[i,j].</span>
+
+<span class="sd">        :param coef: array-like structure of coefficients</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">coef</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coef</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Coefficients for class Polynomial2D must be two-dimensional. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Received numpy.ndarray of shape </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">coef</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Invoke NumPy&#39;s polyval2d given the inputs and the coefficients of the polynomial.</span>
+
+<span class="sd">        :param x: the first input parameter</span>
+<span class="sd">        :param y: the second input parameter</span>
+<span class="sd">        :return: the values of the 2-d polynomial at points formed with pairs of corresponding values from x and y.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">polyval2d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="PolynomialXYZ">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.PolynomialXYZ">[docs]</a>
+<span class="k">class</span> <span class="nc">PolynomialXYZ</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is an aggregation 3 one-dimensional polynomials all with the same input variable. The result of</span>
+<span class="sd">    evaluating this class on the input variable is an [x, y, z] vector.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x_polynomial</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">Polynomial</span><span class="p">,</span>
+        <span class="n">y_polynomial</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">Polynomial</span><span class="p">,</span>
+        <span class="n">z_polynomial</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">Polynomial</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor that accepts the 3 NumPy 1-d polynomials one for each component.</span>
+
+<span class="sd">        :param x_polynomial: polynomial for the x component</span>
+<span class="sd">        :param y_polynomial: polynomial for the y component</span>
+<span class="sd">        :param z_polynomial: polynomial for the z component</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x_polynomial</span> <span class="o">=</span> <span class="n">x_polynomial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_polynomial</span> <span class="o">=</span> <span class="n">y_polynomial</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z_polynomial</span> <span class="o">=</span> <span class="n">z_polynomial</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate the x, y, and z polynomials at t and return the result as a vector.</span>
+
+<span class="sd">        :param t: the value</span>
+<span class="sd">        :return: the polynomial result</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_polynomial</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_polynomial</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_polynomial</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PolynomialXYZ.deriv">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.PolynomialXYZ.deriv">[docs]</a>
+    <span class="k">def</span> <span class="nf">deriv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new PolynomialXYZ that is the derivative of the current PolynomialXYZ.</span>
+
+<span class="sd">        :param m: find the derivative of order m</span>
+<span class="sd">        :return: the new polynomial derivative</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x_derivative</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_polynomial</span><span class="o">.</span><span class="n">deriv</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
+        <span class="n">y_derivative</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_polynomial</span><span class="o">.</span><span class="n">deriv</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
+        <span class="n">z_derivative</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_polynomial</span><span class="o">.</span><span class="n">deriv</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">PolynomialXYZ</span><span class="p">(</span><span class="n">x_polynomial</span><span class="o">=</span><span class="n">x_derivative</span><span class="p">,</span> <span class="n">y_polynomial</span><span class="o">=</span><span class="n">y_derivative</span><span class="p">,</span> <span class="n">z_polynomial</span><span class="o">=</span><span class="n">z_derivative</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SARImageCoordConverter">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.SARImageCoordConverter">[docs]</a>
+<span class="k">class</span> <span class="nc">SARImageCoordConverter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class contains image grid and image plane coordinate conversions for a provided set of SICD parameters. The</span>
+<span class="sd">    equations are mostly defined in Section 2 of the SICD Standard Volume 3.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">scp_pixel</span><span class="p">:</span> <span class="n">ImageCoordinate</span><span class="p">,</span>
+        <span class="n">scp_ecf</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">,</span>
+        <span class="n">u_row</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">u_col</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">row_ss</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">col_ss</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">first_pixel</span><span class="p">:</span> <span class="n">ImageCoordinate</span> <span class="o">=</span> <span class="n">ImageCoordinate</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct the coordinate converter given parameters from the metadata. The names of these parameters have been</span>
+<span class="sd">        chosen to align with the names in the specification.</span>
+
+<span class="sd">        :param scp_pixel: location of the scene center point (SCP) in the global pixel grid</span>
+<span class="sd">        :param scp_ecf: location of the scene center point (SCP) in earth centered fixed (ECF) coordinates</span>
+<span class="sd">        :param u_row: unit vector in the increasing row direction in ECF coordinates.</span>
+<span class="sd">        :param u_col: unit vector in the increasing column direction in ECF coordinates.</span>
+<span class="sd">        :param row_ss: sample spacing in the row direction</span>
+<span class="sd">        :param col_ss: sample spacing in the column direction</span>
+<span class="sd">        :param first_pixel: location of the first row/column of the pixel array. For a full image array [0, 0]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scp_pixel</span> <span class="o">=</span> <span class="n">scp_pixel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span> <span class="o">=</span> <span class="n">scp_ecf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row_ss</span> <span class="o">=</span> <span class="n">row_ss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col_ss</span> <span class="o">=</span> <span class="n">col_ss</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_row</span> <span class="o">=</span> <span class="n">u_row</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_col</span> <span class="o">=</span> <span class="n">u_col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_pixel</span> <span class="o">=</span> <span class="n">first_pixel</span>
+        <span class="c1"># Section 2.4 calculation of the image plane unit normal vector</span>
+        <span class="n">ipn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_col</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uvect_ipn</span> <span class="o">=</span> <span class="n">ipn</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ipn</span><span class="p">)</span>
+
+        <span class="c1"># Section 2.4 calculation of transform from ipp to xrow, ycol</span>
+        <span class="n">cos_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_col</span><span class="p">)</span>
+        <span class="n">sin_theta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">cos_theta</span> <span class="o">*</span> <span class="n">cos_theta</span><span class="p">)</span>
+        <span class="n">ipp_transform</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">cos_theta</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="n">cos_theta</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">sin_theta</span> <span class="o">*</span> <span class="n">sin_theta</span><span class="p">)</span>
+        <span class="n">row_col_transform</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+        <span class="n">row_col_transform</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_row</span>
+        <span class="n">row_col_transform</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matrix_transform</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">row_col_transform</span><span class="p">,</span> <span class="n">ipp_transform</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SARImageCoordConverter.rowcol_to_xrowycol">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.SARImageCoordConverter.rowcol_to_xrowycol">[docs]</a>
+    <span class="k">def</span> <span class="nf">rowcol_to_xrowycol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row_col</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function converts the row and column indexes (row, col) in the global image grid to SCP centered</span>
+<span class="sd">        image coordinates (xrow, ycol) using equations (2) (3) in Section 2.2 of the SICD Specification</span>
+<span class="sd">        Volume 3.</span>
+
+<span class="sd">        :param row_col: the [row, col] location as an array</span>
+<span class="sd">        :return: the [xrow, ycol] location as an array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xrow_ycol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+        <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">row_col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_pixel</span><span class="o">.</span><span class="n">r</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_ss</span>
+        <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">row_col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_pixel</span><span class="o">.</span><span class="n">c</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">col_ss</span>
+        <span class="k">return</span> <span class="n">xrow_ycol</span></div>
+
+
+<div class="viewcode-block" id="SARImageCoordConverter.xrowycol_to_rowcol">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.SARImageCoordConverter.xrowycol_to_rowcol">[docs]</a>
+    <span class="k">def</span> <span class="nf">xrowycol_to_rowcol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xrow_ycol</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function converts the SCP centered image coordinates (xrow, ycol) to row and column indexes (row, col)</span>
+<span class="sd">        in the global image grid using equations (2) (3) in Section 2.2 of the SICD Specification Volume 3.</span>
+
+<span class="sd">        :param xrow_ycol: the [xrow, ycol] location as an array</span>
+<span class="sd">        :return: the [row, col] location as an array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">row_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">)</span>
+        <span class="n">row_col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">row_ss</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_pixel</span><span class="o">.</span><span class="n">r</span>
+        <span class="n">row_col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">col_ss</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_pixel</span><span class="o">.</span><span class="n">c</span>
+        <span class="k">return</span> <span class="n">row_col</span></div>
+
+
+<div class="viewcode-block" id="SARImageCoordConverter.xrowycol_to_ipp">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.SARImageCoordConverter.xrowycol_to_ipp">[docs]</a>
+    <span class="k">def</span> <span class="nf">xrowycol_to_ipp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xrow_ycol</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function converts SCP centered image coordinates (xrow, ycol) to a ECF coordinate, image plane point (IPP),</span>
+<span class="sd">        on the image plane using equations in Section 2.4 of the SICD Specification Volume 3.</span>
+
+<span class="sd">        :param xrow_ycol: the [xrow, ycol] location as an array</span>
+<span class="sd">        :return: the image plane point [x, y, z] ECF location on the image plane</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">delta_ipp</span> <span class="o">=</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_row</span> <span class="o">+</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_col</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">+</span> <span class="n">delta_ipp</span></div>
+
+
+<div class="viewcode-block" id="SARImageCoordConverter.ipp_to_xrowycol">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.SARImageCoordConverter.ipp_to_xrowycol">[docs]</a>
+    <span class="k">def</span> <span class="nf">ipp_to_xrowycol</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ipp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function converts an ECF location on the image plane into SCP centered image coordinates (xrow, ycol)</span>
+<span class="sd">        using equations in Section 2.4 of the SICD Specification volume 3.</span>
+
+<span class="sd">        :param ipp: the image plane point [x, y, z] ECF location on the image plane</span>
+<span class="sd">        :return: the [xrow, ycol] location as an array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">delta_ipp</span> <span class="o">=</span> <span class="n">ipp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span><span class="o">.</span><span class="n">coordinate</span>
+        <span class="n">xrow_ycol</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">delta_ipp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">matrix_transform</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xrow_ycol</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="COAProjectionSet">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.COAProjectionSet">[docs]</a>
+<span class="k">class</span> <span class="nc">COAProjectionSet</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is an abstract base class for R/Rdot projection contour computations described in Section 4 of the SICD</span>
+<span class="sd">    Standard Volume 3.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">coa_time_poly</span><span class="p">:</span> <span class="n">Polynomial2D</span><span class="p">,</span>
+        <span class="n">arp_poly</span><span class="p">:</span> <span class="n">PolynomialXYZ</span><span class="p">,</span>
+        <span class="n">delta_arp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span>
+        <span class="n">delta_varp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span>
+        <span class="n">range_bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor with parameters supporting the calculations common to all R/Rdot projections (i.e. the</span>
+<span class="sd">        calculations that do not depend on grid type and image formation algorithm).</span>
+
+<span class="sd">        :param coa_time_poly: Center Of Aperture (COA) time polynomial.</span>
+<span class="sd">        :param arp_poly: Aperture Reference Point (ARP) position polynomial coefficients.</span>
+<span class="sd">        :param delta_arp: the ARP position offset</span>
+<span class="sd">        :param delta_varp: the ARP velocity offset</span>
+<span class="sd">        :param range_bias: the range bias offset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coa_time_poly</span> <span class="o">=</span> <span class="n">coa_time_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arp_poly</span> <span class="o">=</span> <span class="n">arp_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">varp_poly</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arp_poly</span><span class="o">.</span><span class="n">deriv</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_arp</span> <span class="o">=</span> <span class="n">delta_arp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_varp</span> <span class="o">=</span> <span class="n">delta_varp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range_bias</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">range_bias</span><span class="p">)</span>
+
+<div class="viewcode-block" id="COAProjectionSet.precise_rrdot_computation">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.COAProjectionSet.precise_rrdot_computation">[docs]</a>
+    <span class="k">def</span> <span class="nf">precise_rrdot_computation</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">xrow_ycol</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This executes the precise image pixel grid location to R/Rdot projection. This function invokes</span>
+<span class="sd">        the _grid_specific_projection() function implemented by subclasses which should handle the portions</span>
+<span class="sd">        of the calculation that are dependent on the image grid and image formation algorithm.</span>
+
+<span class="sd">        :param xrow_ycol: the [xrow, ycol] location as an array</span>
+<span class="sd">        :return: the COA projection set { Rcoa, Rdotcoa, tcoa, arpcoa, varpcoa }</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># These are the common calculations for image COA time (coa_time), COA ARP position and velocity</span>
+        <span class="c1"># (arp_position and arp_velocity) as described in Section 2 of the SICD specification Volume 3.</span>
+        <span class="n">coa_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coa_time_poly</span><span class="p">(</span><span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">arp_position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arp_poly</span><span class="p">(</span><span class="n">coa_time</span><span class="p">)</span>
+        <span class="n">arp_velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">varp_poly</span><span class="p">(</span><span class="n">coa_time</span><span class="p">)</span>
+
+        <span class="c1"># These are the image grid and image formation algorithm dependent calculations for the precise</span>
+        <span class="c1"># computation of the R/Rdot contour. Each subclass should implement an approach as described in</span>
+        <span class="c1"># sections 4.1 through 4.6 of the SICD specification Volume 3.</span>
+        <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid_specific_projection</span><span class="p">(</span><span class="n">xrow_ycol</span><span class="p">,</span> <span class="n">coa_time</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)</span>
+
+        <span class="c1"># If provided the Adjustable Parameter Offsets are incorporated into the computation from</span>
+        <span class="c1"># image pixel location to COA projection parameters. See Section 8.1 of the SICD specification Volume 3.</span>
+        <span class="c1"># TODO: Check this. This is the same approach as SarPy but I&#39;m not 100% sure it is correct</span>
+        <span class="n">arp_position</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_arp</span>
+        <span class="n">arp_velocity</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_varp</span>
+        <span class="n">r_tgt_coa</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_bias</span>
+
+        <span class="k">return</span> <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">coa_time</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span></div>
+
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_grid_specific_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xrow_ycol</span><span class="p">,</span> <span class="n">coa_time</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The precise computation of the R/Rdot contour is dependent upon the image grid type and the image</span>
+<span class="sd">        formation algorithm that produced the image but the computation of the COA time, ARP position, and</span>
+<span class="sd">        velocity is the same for all image products.</span>
+
+<span class="sd">        This abstract method should be overriden by subclasses to perform the R/Rdot calculations for a</span>
+<span class="sd">        specific image grid and formation algorithm.</span>
+
+<span class="sd">        :param xrow_ycol: the [xrow, ycol] location as an array</span>
+<span class="sd">        :param coa_time: Center Of Aperture (COA) time</span>
+<span class="sd">        :param arp_position: Aperture Reference Point (ARP) position</span>
+<span class="sd">        :param arp_velocity: Aperture Reference Point (ARP) velocity</span>
+<span class="sd">        :return: the tuple containing range and range rate relative to the ARP at COA time</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="PFAProjectionSet">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.PFAProjectionSet">[docs]</a>
+<span class="k">class</span> <span class="nc">PFAProjectionSet</span><span class="p">(</span><span class="n">COAProjectionSet</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This Center Of Aperture (COA) Projection set is to be used with a range azimuth image grid (RGAZIM) and polar</span>
+<span class="sd">    formatted (PFA) phase history data. See section 4.1 of the SICD Specification Volume 3.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">scp_ecf</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">,</span>
+        <span class="n">polar_ang_poly</span><span class="p">,</span>
+        <span class="n">spatial_freq_sf_poly</span><span class="p">,</span>
+        <span class="n">coa_time_poly</span><span class="p">:</span> <span class="n">Polynomial2D</span><span class="p">,</span>
+        <span class="n">arp_poly</span><span class="p">:</span> <span class="n">PolynomialXYZ</span><span class="p">,</span>
+        <span class="n">delta_arp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span>
+        <span class="n">delta_varp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span>
+        <span class="n">range_bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for this projection set.</span>
+
+<span class="sd">        :param scp_ecf: Scene Center Point position in ECF coordinates</span>
+<span class="sd">        :param polar_ang_poly: Polar Angle polynomial coefficients</span>
+<span class="sd">        :param spatial_freq_sf_poly: Spatial Frequency Scale Factor polynomial coefficients</span>
+<span class="sd">        :param coa_time_poly: Center Of Aperture (COA) time polynomial</span>
+<span class="sd">        :param arp_poly: Aperture Reference Point (ARP) position polynomial coefficients</span>
+<span class="sd">        :param delta_arp: the ARP position offset</span>
+<span class="sd">        :param delta_varp: the ARP velocity offset</span>
+<span class="sd">        :param range_bias: the range bias offset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">coa_time_poly</span><span class="p">,</span> <span class="n">arp_poly</span><span class="p">,</span> <span class="n">delta_arp</span><span class="p">,</span> <span class="n">delta_varp</span><span class="p">,</span> <span class="n">range_bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span> <span class="o">=</span> <span class="n">scp_ecf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">polar_ang_poly</span> <span class="o">=</span> <span class="n">polar_ang_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spatial_freq_sf_poly</span> <span class="o">=</span> <span class="n">spatial_freq_sf_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">polar_ang_poly_der</span> <span class="o">=</span> <span class="n">polar_ang_poly</span><span class="o">.</span><span class="n">deriv</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spatial_freq_sf_poly_der</span> <span class="o">=</span> <span class="n">spatial_freq_sf_poly</span><span class="o">.</span><span class="n">deriv</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_grid_specific_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xrow_ycol</span><span class="p">,</span> <span class="n">coa_time</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        These are the calculations for the precise computation of the R/Rdot contour unique to these grid and</span>
+<span class="sd">        image formation algorithm types. See SICD Volume 3 Section 4.1</span>
+
+<span class="sd">        :param xrow_ycol: the [xrow, ycol] location as an array</span>
+<span class="sd">        :param coa_time: Center Of Aperture (COA) time</span>
+<span class="sd">        :param arp_position: Aperture Reference Point (ARP) position</span>
+<span class="sd">        :param arp_velocity: Aperture Reference Point (ARP) velocity</span>
+<span class="sd">        :return: the tuple containing range and range rate relative to the ARP at COA time</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># For the RGAZIM grid, the image coordinates are range and azimuth. The row coordinate is the range</span>
+        <span class="c1"># coordinate, xrow = rg. The column coordinate is the azimuth coordinate, ycol = az.</span>
+        <span class="n">rg</span> <span class="o">=</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">az</span> <span class="o">=</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># (2) Compute the range and range rate to the SCP at the pixel COA time</span>
+        <span class="n">arp_minus_scp</span> <span class="o">=</span> <span class="n">arp_position</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span><span class="o">.</span><span class="n">coordinate</span>
+        <span class="n">range_to_scp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arp_minus_scp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">rdot_to_scp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">arp_velocity</span> <span class="o">*</span> <span class="n">arp_minus_scp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">range_to_scp</span>
+
+        <span class="c1"># (3) Compute the polar angle (theta) and its derivative with respect to time (d_theta_d_time)</span>
+        <span class="c1"># at the pixel COA time.</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polar_ang_poly</span><span class="p">(</span><span class="n">coa_time</span><span class="p">)</span>
+        <span class="n">d_theta_d_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polar_ang_poly_der</span><span class="p">(</span><span class="n">coa_time</span><span class="p">)</span>
+
+        <span class="c1"># (4) Compute the polar aperture scale factor (KSF) and its derivative with respect to polar angle</span>
+        <span class="c1"># (d_ksf_d_theta) at the pixel COA time</span>
+        <span class="n">ksf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_freq_sf_poly</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">d_ksf_d_theta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spatial_freq_sf_poly_der</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+        <span class="c1"># (5) Compute the spatial frequency domain phase slopes in the radial (ka) and cross radial</span>
+        <span class="c1"># (kc) directions (d_phi_d_ka and d_phi_d_kc) for the radial direction at theta. Note: The sign COA</span>
+        <span class="c1"># parameter (SGN) for the phase may be ignored as it is cancelled in a subsequent computation.</span>
+        <span class="n">d_phi_d_ka</span> <span class="o">=</span> <span class="n">rg</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">+</span> <span class="n">az</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+        <span class="n">d_phi_d_kc</span> <span class="o">=</span> <span class="o">-</span><span class="n">rg</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">+</span> <span class="n">az</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+
+        <span class="c1"># (6) Compute range relative to the SCP (delta_range) at the COA.</span>
+        <span class="n">delta_range</span> <span class="o">=</span> <span class="n">ksf</span> <span class="o">*</span> <span class="n">d_phi_d_ka</span>
+
+        <span class="c1"># (7) Compute the derivative of the range relative to the SCP with respect to polar angle</span>
+        <span class="c1"># (d_delta_range_d_theta) at the COA. Scale by the derivative of the polar angle with respect</span>
+        <span class="c1"># to time to yield the derivative with respect to time (delta_r_dot_tgt_coa).</span>
+        <span class="n">d_delta_range_d_theta</span> <span class="o">=</span> <span class="n">d_ksf_d_theta</span> <span class="o">*</span> <span class="n">d_phi_d_ka</span> <span class="o">+</span> <span class="n">ksf</span> <span class="o">*</span> <span class="n">d_phi_d_kc</span>
+        <span class="n">delta_r_dot_tgt_coa</span> <span class="o">=</span> <span class="n">d_delta_range_d_theta</span> <span class="o">*</span> <span class="n">d_theta_d_time</span>
+
+        <span class="c1"># (8) Compute the range and range rate relative to the ARP at COA ( r_tgt_coa and rdot_tgt_coa).</span>
+        <span class="c1"># The projection to three-dimensional scene point for grid location (rgTGT, azTGT) is along this</span>
+        <span class="c1"># R/Rdot contour.</span>
+        <span class="n">r_tgt_coa</span> <span class="o">=</span> <span class="n">range_to_scp</span> <span class="o">+</span> <span class="n">delta_range</span>
+        <span class="n">rdot_tgt_coa</span> <span class="o">=</span> <span class="n">rdot_to_scp</span> <span class="o">+</span> <span class="n">delta_r_dot_tgt_coa</span>
+
+        <span class="k">return</span> <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">rdot_tgt_coa</span></div>
+
+
+
+<div class="viewcode-block" id="RGAZCOMPProjectionSet">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.RGAZCOMPProjectionSet">[docs]</a>
+<span class="k">class</span> <span class="nc">RGAZCOMPProjectionSet</span><span class="p">(</span><span class="n">COAProjectionSet</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">scp_ecf</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">,</span>
+        <span class="n">az_scale_factor</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">coa_time_poly</span><span class="p">:</span> <span class="n">Polynomial2D</span><span class="p">,</span>
+        <span class="n">arp_poly</span><span class="p">:</span> <span class="n">PolynomialXYZ</span><span class="p">,</span>
+        <span class="n">delta_arp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span>
+        <span class="n">delta_varp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span>
+        <span class="n">range_bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for this projection set.</span>
+
+<span class="sd">        :param scp_ecf: Scene Center Point position in ECF coordinates</span>
+<span class="sd">        :param az_scale_factor: Scale factor that converts azimuth coordinate to an increment in cosine of the DCA at COA</span>
+<span class="sd">        :param coa_time_poly: Center Of Aperture (COA) time polynomial</span>
+<span class="sd">        :param arp_poly: Aperture Reference Point (ARP) position polynomial coefficients</span>
+<span class="sd">        :param delta_arp: the ARP position offset</span>
+<span class="sd">        :param delta_varp: the ARP velocity offset</span>
+<span class="sd">        :param range_bias: the range bias offset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">coa_time_poly</span><span class="p">,</span> <span class="n">arp_poly</span><span class="p">,</span> <span class="n">delta_arp</span><span class="p">,</span> <span class="n">delta_varp</span><span class="p">,</span> <span class="n">range_bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span> <span class="o">=</span> <span class="n">scp_ecf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">az_scale_factor</span> <span class="o">=</span> <span class="n">az_scale_factor</span>
+
+    <span class="k">def</span> <span class="nf">_grid_specific_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xrow_ycol</span><span class="p">,</span> <span class="n">coa_time</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        These are the calculations for the precise computation of the R/Rdot contour unique to these grid and</span>
+<span class="sd">        image formation algorithm types. See SICD Volume 3 Section 4.2</span>
+
+<span class="sd">        :param xrow_ycol: the [xrow, ycol] location as an array</span>
+<span class="sd">        :param coa_time: Center Of Aperture (COA) time</span>
+<span class="sd">        :param arp_position: Aperture Reference Point (ARP) position</span>
+<span class="sd">        :param arp_velocity: Aperture Reference Point (ARP) velocity</span>
+<span class="sd">        :return: the tuple containing range and range rate relative to the ARP at COA time</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># For the RGAZIM grid, the image coordinates are range and azimuth. The row coordinate is the range</span>
+        <span class="c1"># coordinate, xrow = rg. The column coordinate is the azimuth coordinate, ycol = az.</span>
+        <span class="n">rg</span> <span class="o">=</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">az</span> <span class="o">=</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># (2) Compute the range and range rate to the SCP at COA.</span>
+        <span class="n">arp_minus_scp</span> <span class="o">=</span> <span class="n">arp_position</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span><span class="o">.</span><span class="n">coordinate</span>
+        <span class="n">range_to_scp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arp_minus_scp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">rdot_to_scp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">arp_velocity</span> <span class="o">*</span> <span class="n">arp_minus_scp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">range_to_scp</span>
+
+        <span class="c1"># (3) Compute the increment in cosine of the DCA at COA of the target (delta_cos_dca_tgt_coa) by</span>
+        <span class="c1"># scaling the azimuth coordinate by the azimuth to DCA scale factor. Compute the increment</span>
+        <span class="c1"># in range rate (delta_rdot_tgt_coa) by scaling by the magnitude of the velocity vector at COA.</span>
+        <span class="n">delta_cos_dca_tgt_coa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">az_scale_factor</span> <span class="o">*</span> <span class="n">az</span>
+        <span class="n">delta_r_dot_tgt_coa</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arp_velocity</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">delta_cos_dca_tgt_coa</span>
+
+        <span class="c1"># (4) Compute the range and range rate to the target at COA as follows.</span>
+        <span class="n">r_tgt_coa</span> <span class="o">=</span> <span class="n">range_to_scp</span> <span class="o">+</span> <span class="n">rg</span>
+        <span class="n">rdot_tgt_coa</span> <span class="o">=</span> <span class="n">rdot_to_scp</span> <span class="o">+</span> <span class="n">delta_r_dot_tgt_coa</span>
+
+        <span class="k">return</span> <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">rdot_tgt_coa</span></div>
+
+
+
+<div class="viewcode-block" id="INCAProjectionSet">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.INCAProjectionSet">[docs]</a>
+<span class="k">class</span> <span class="nc">INCAProjectionSet</span><span class="p">(</span><span class="n">COAProjectionSet</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">r_ca_scp</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">inca_time_coa_poly</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">polynomial</span><span class="o">.</span><span class="n">Polynomial</span><span class="p">,</span>
+        <span class="n">drate_sf_poly</span><span class="p">:</span> <span class="n">Polynomial2D</span><span class="p">,</span>
+        <span class="n">coa_time_poly</span><span class="p">:</span> <span class="n">Polynomial2D</span><span class="p">,</span>
+        <span class="n">arp_poly</span><span class="p">:</span> <span class="n">PolynomialXYZ</span><span class="p">,</span>
+        <span class="n">delta_arp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span>
+        <span class="n">delta_varp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span>
+        <span class="n">range_bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for this projection set.</span>
+
+<span class="sd">        :param r_ca_scp: Range at Closest Approach for the SCP (m)</span>
+<span class="sd">        :param inca_time_coa_poly: Time of Closest Approach polynomial coefficients</span>
+<span class="sd">        :param drate_sf_poly: Doppler Rate Scale Factor polynomial coefficients</span>
+<span class="sd">        :param coa_time_poly: Center Of Aperture (COA) time polynomial</span>
+<span class="sd">        :param arp_poly: Aperture Reference Point (ARP) position polynomial coefficients</span>
+<span class="sd">        :param delta_arp: the ARP position offset</span>
+<span class="sd">        :param delta_varp: the ARP velocity offset</span>
+<span class="sd">        :param range_bias: the range bias offset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">coa_time_poly</span><span class="p">,</span> <span class="n">arp_poly</span><span class="p">,</span> <span class="n">delta_arp</span><span class="p">,</span> <span class="n">delta_varp</span><span class="p">,</span> <span class="n">range_bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r_ca_scp</span> <span class="o">=</span> <span class="n">r_ca_scp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inca_time_coa_poly</span> <span class="o">=</span> <span class="n">inca_time_coa_poly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drate_sf_poly</span> <span class="o">=</span> <span class="n">drate_sf_poly</span>
+
+    <span class="k">def</span> <span class="nf">_grid_specific_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xrow_ycol</span><span class="p">,</span> <span class="n">coa_time</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        These are the calculations for the precise computation of the R/Rdot contour unique to these grid and</span>
+<span class="sd">        image formation algorithm types. See SICD Volume 3 Section 4.3</span>
+
+<span class="sd">        :param xrow_ycol: the [xrow, ycol] location as an array</span>
+<span class="sd">        :param coa_time: Center Of Aperture (COA) time</span>
+<span class="sd">        :param arp_position: Aperture Reference Point (ARP) position</span>
+<span class="sd">        :param arp_velocity: Aperture Reference Point (ARP) velocity</span>
+<span class="sd">        :return: the tuple containing range and range rate relative to the ARP at COA time</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># For the RGZERO grid, the image coordinates are range and azimuth. The row coordinate is the range</span>
+        <span class="c1"># coordinate, xrow = rg. The column coordinates is the azimuth coordinate, ycol = az.</span>
+        <span class="n">rg</span> <span class="o">=</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">az</span> <span class="o">=</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># (2) Compute the range at closest approach and the time of closest approach for the image</span>
+        <span class="c1"># grid location. The range at closest approach, R TGT , is computed from the range coordinate.</span>
+        <span class="c1"># The time of closest approach, tTGT , is computed from the azimuth coordinate. CA</span>
+        <span class="n">range_ca_tgt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">r_ca_scp</span> <span class="o">+</span> <span class="n">rg</span>
+        <span class="n">time_ca_tgt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inca_time_coa_poly</span><span class="p">(</span><span class="n">az</span><span class="p">)</span>
+
+        <span class="c1"># (2 repeated in v1.3.0 of the spec) Compute the ARP velocity at the time of closest approach</span>
+        <span class="c1"># and the magnitude of the vector.</span>
+        <span class="n">arp_velocity_ca_tgt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">varp_poly</span><span class="p">(</span><span class="n">time_ca_tgt</span><span class="p">)</span>
+        <span class="n">mag_arp_velocity_ca_tgt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arp_velocity_ca_tgt</span><span class="p">)</span>
+
+        <span class="c1"># (3) Compute the Doppler Rate Scale Factor (drsf_tgt) for image grid location (rg, az).</span>
+        <span class="n">drsf_tgt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">drate_sf_poly</span><span class="p">(</span><span class="n">rg</span><span class="p">,</span> <span class="n">az</span><span class="p">)</span>
+
+        <span class="c1"># (4) Compute the time difference between the COA time and the CA time (delta_coa_tgt).</span>
+        <span class="n">delta_coa_tgt</span> <span class="o">=</span> <span class="n">coa_time</span> <span class="o">-</span> <span class="n">time_ca_tgt</span>
+
+        <span class="c1"># (5) Compute the range and range rate relative to the ARP at COA ( RTGT and RdotTGT ).</span>
+        <span class="n">r_tgt_coa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">range_ca_tgt</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">drsf_tgt</span> <span class="o">*</span> <span class="n">mag_arp_velocity_ca_tgt</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">delta_coa_tgt</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">r_dot_tgt_coa</span> <span class="o">=</span> <span class="p">(</span><span class="n">drsf_tgt</span> <span class="o">/</span> <span class="n">r_tgt_coa</span><span class="p">)</span> <span class="o">*</span> <span class="n">mag_arp_velocity_ca_tgt</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">delta_coa_tgt</span>
+
+        <span class="k">return</span> <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span></div>
+
+
+
+<div class="viewcode-block" id="PlaneProjectionSet">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.PlaneProjectionSet">[docs]</a>
+<span class="k">class</span> <span class="nc">PlaneProjectionSet</span><span class="p">(</span><span class="n">COAProjectionSet</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">scp_ecf</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">,</span>
+        <span class="n">image_plane_urow</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">image_plane_ucol</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">coa_time_poly</span><span class="p">:</span> <span class="n">Polynomial2D</span><span class="p">,</span>
+        <span class="n">arp_poly</span><span class="p">:</span> <span class="n">PolynomialXYZ</span><span class="p">,</span>
+        <span class="n">delta_arp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span>
+        <span class="n">delta_varp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float64&quot;</span><span class="p">),</span>
+        <span class="n">range_bias</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for this projection set.</span>
+
+<span class="sd">        :param scp_ecf: Scene Center Point position in ECF coordinates</span>
+<span class="sd">        :param image_plane_urow: Unit vector in the increasing row direction in ECF coordinates (uRow)</span>
+<span class="sd">        :param image_plane_ucol: Unit vector in the increasing column direction in ECF coordinates (uCol)</span>
+<span class="sd">        :param coa_time_poly: Center Of Aperture (COA) time polynomial</span>
+<span class="sd">        :param arp_poly: Aperture Reference Point (ARP) position polynomial coefficients</span>
+<span class="sd">        :param delta_arp: the ARP position offset</span>
+<span class="sd">        :param delta_varp: the ARP velocity offset</span>
+<span class="sd">        :param range_bias: the range bias offset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">coa_time_poly</span><span class="p">,</span> <span class="n">arp_poly</span><span class="p">,</span> <span class="n">delta_arp</span><span class="p">,</span> <span class="n">delta_varp</span><span class="p">,</span> <span class="n">range_bias</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span> <span class="o">=</span> <span class="n">scp_ecf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_plane_urow</span> <span class="o">=</span> <span class="n">image_plane_urow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_plane_ucol</span> <span class="o">=</span> <span class="n">image_plane_ucol</span>
+
+    <span class="k">def</span> <span class="nf">_grid_specific_projection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xrow_ycol</span><span class="p">,</span> <span class="n">coa_time</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        These are the calculations for the precise computation of the R/Rdot contour unique to these grid and</span>
+<span class="sd">        image formation algorithm types. See SICD Volume 3 Sections 4.4, 4.5, and 4.6.</span>
+
+<span class="sd">        Note that the calculations in sections 4.4, 4.5, and 4.6 are the same with the only difference being the</span>
+<span class="sd">        interpretation of the xrow and ycol gird positions. To share this one implementation for all three grid</span>
+<span class="sd">        planes assume: xrow = xrg = xct and ycol = ycr = yat</span>
+
+<span class="sd">        :param xrow_ycol: the [xrow, ycol] location as an array</span>
+<span class="sd">        :param coa_time: Center Of Aperture (COA) time</span>
+<span class="sd">        :param arp_position: Aperture Reference Point (ARP) position</span>
+<span class="sd">        :param arp_velocity: Aperture Reference Point (ARP) velocity</span>
+<span class="sd">        :return: the tuple containing range and range rate relative to the ARP at COA time</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># xrow = xrg = xct and ycol = ycr = yat</span>
+
+        <span class="c1"># (2) The samples of an XRGYCR, XCTYAT, or PLANE grid are uniformly spaced locations in the image plane</span>
+        <span class="c1"># formed by the SCP, and image plane vectors uRow and uCol. Vectors uRow and uCol are orthogonal. Compute</span>
+        <span class="c1"># the point the image plane point for image grid location (xrgTGT, ycrTGT).</span>
+        <span class="n">image_plane_point</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">+</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_plane_urow</span> <span class="o">+</span> <span class="n">xrow_ycol</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_plane_ucol</span>
+        <span class="p">)</span>
+
+        <span class="c1"># (3) Compute the range and range rate relative to the ARP at COA (r_tgt_coa and rdot_tgt_coa) for image plane</span>
+        <span class="c1"># point (image_plane_point).</span>
+        <span class="n">arp_minus_ipp</span> <span class="o">=</span> <span class="n">arp_position</span> <span class="o">-</span> <span class="n">image_plane_point</span>
+        <span class="n">r_tgt_coa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arp_minus_ipp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">rdot_tgt_coa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">arp_velocity</span> <span class="o">*</span> <span class="n">arp_minus_ipp</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">r_tgt_coa</span>
+
+        <span class="k">return</span> <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">rdot_tgt_coa</span></div>
+
+
+
+<div class="viewcode-block" id="RRDotSurfaceProjection">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.RRDotSurfaceProjection">[docs]</a>
+<span class="k">class</span> <span class="nc">RRDotSurfaceProjection</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the base class for calculations that project the R/RDot contour onto a surface model. The SICD specification</span>
+<span class="sd">    defines a way to do this for planes, a surface of constant height above an ellipsoid, or a digital elevation model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="RRDotSurfaceProjection.rrdot_to_ground">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.RRDotSurfaceProjection.rrdot_to_ground">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">rrdot_to_ground</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Subclasses should implement this method to compute the R/RDot Contour Ground Plane intersection with a</span>
+<span class="sd">        specific surface type (e.g. planar, HAE, DEM)</span>
+
+<span class="sd">        :param r_tgt_coa: target COA range</span>
+<span class="sd">        :param r_dot_tgt_coa: target COA range rate</span>
+<span class="sd">        :param arp_position: ARP position</span>
+<span class="sd">        :param arp_velocity: ARP velocity</span>
+<span class="sd">        :return: the intersection between the R/Rdot Contour and the ground plane</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="GroundPlaneRRDotSurfaceProjection">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.GroundPlaneRRDotSurfaceProjection">[docs]</a>
+<span class="k">class</span> <span class="nc">GroundPlaneRRDotSurfaceProjection</span><span class="p">(</span><span class="n">RRDotSurfaceProjection</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class implements the Precise R/RDot Ground Plane Projection described in Section 5 of the SICD Specification</span>
+<span class="sd">    Volume 3 (v1.3.0).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="GroundPlaneRRDotSurfaceProjection.GroundPlaneNormalType">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.GroundPlaneRRDotSurfaceProjection.GroundPlaneNormalType">[docs]</a>
+    <span class="k">class</span> <span class="nc">GroundPlaneNormalType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+        <span class="n">SPHERICAL_EARTH</span> <span class="o">=</span> <span class="s2">&quot;SPHERICAL_EARTH&quot;</span>
+        <span class="n">GEODETIC_EARTH</span> <span class="o">=</span> <span class="s2">&quot;GEODETIC_EARTH&quot;</span></div>
+
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ref_ecf</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">,</span>
+        <span class="n">gpn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">gpn_type</span><span class="p">:</span> <span class="n">GroundPlaneNormalType</span> <span class="o">=</span> <span class="n">GroundPlaneNormalType</span><span class="o">.</span><span class="n">GEODETIC_EARTH</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The ground plane is defined by a reference point in the plane (ref_ect) and the vector normal to the plane</span>
+<span class="sd">        (gpn). The reference point and plane orientation may be based upon specific terrain height and slope</span>
+<span class="sd">        information for the imaged area. When only a reference point is specified, a ground plane normal may be</span>
+<span class="sd">        derived assuming the plane is tangent to a spherical earth model or a surface of constant geodetic height</span>
+<span class="sd">        above the WGS-84 reference ellipsoid passing through (ref_ect).</span>
+
+<span class="sd">        :param ref_ecf: reference point in the plane, GREF in the specification</span>
+<span class="sd">        :param gpn: optional vector normal to the ground plane; if missing it will be computed using gpn_type</span>
+<span class="sd">        :param gpn_type: method to derive the ground plan normal</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ref_ecf</span> <span class="o">=</span> <span class="n">ref_ecf</span>
+
+        <span class="k">if</span> <span class="n">gpn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u_gpn</span> <span class="o">=</span> <span class="n">gpn</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">gpn</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">gpn_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">GroundPlaneNormalType</span><span class="o">.</span><span class="n">SPHERICAL_EARTH</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u_gpn</span> <span class="o">=</span> <span class="n">ref_ecf</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ref_ecf</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">gpn_type</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">GroundPlaneNormalType</span><span class="o">.</span><span class="n">GEODETIC_EARTH</span><span class="p">:</span>
+            <span class="n">ref_lle</span> <span class="o">=</span> <span class="n">geocentric_to_geodetic</span><span class="p">(</span><span class="n">ref_ecf</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">u_gpn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ref_lle</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ref_lle</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">ref_lle</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ref_lle</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">ref_lle</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Provided gpn_type, </span><span class="si">{</span><span class="n">gpn_type</span><span class="si">}</span><span class="s2">, is invalid.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="GroundPlaneRRDotSurfaceProjection.rrdot_to_ground">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.GroundPlaneRRDotSurfaceProjection.rrdot_to_ground">[docs]</a>
+    <span class="k">def</span> <span class="nf">rrdot_to_ground</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method implements the R/RDot Contour Ground Plane Intersection described in section 5.2</span>
+
+<span class="sd">        :param r_tgt_coa: target COA range</span>
+<span class="sd">        :param r_dot_tgt_coa: target COA range rate</span>
+<span class="sd">        :param arp_position: ARP position</span>
+<span class="sd">        :param arp_velocity: ARP velocity</span>
+<span class="sd">        :return: the intersection between the R/Rdot Contour and the ground plane</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># (1) Compute the unit vector in the +Z direction (normal to the ground plane).</span>
+        <span class="n">uvect_z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">u_gpn</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">u_gpn</span><span class="p">)</span>
+
+        <span class="c1"># (2) Compute the ARP distance from the plane (arp_z). Also compute the ARP ground plane nadir (agpn).</span>
+        <span class="n">arp_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">arp_position</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_ecf</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span> <span class="o">*</span> <span class="n">uvect_z</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">arp_z</span> <span class="o">&gt;</span> <span class="n">r_tgt_coa</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No solution exists. Distance between ARP and the plane is greater than range.&quot;</span><span class="p">)</span>
+
+        <span class="n">agpn</span> <span class="o">=</span> <span class="n">arp_position</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">arp_z</span><span class="p">,</span> <span class="n">uvect_z</span><span class="p">)</span>
+
+        <span class="c1"># (3) Compute the ground plane distance (gp_distance) from the ARP nadir to the circle of constant range. Also</span>
+        <span class="c1"># compute the sine and cosine of the grazing angle (sin_graz and cos_graz).</span>
+        <span class="n">gp_distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">r_tgt_coa</span> <span class="o">*</span> <span class="n">r_tgt_coa</span> <span class="o">-</span> <span class="n">arp_z</span> <span class="o">*</span> <span class="n">arp_z</span><span class="p">)</span>
+        <span class="n">sin_graz</span> <span class="o">=</span> <span class="n">arp_z</span> <span class="o">/</span> <span class="n">r_tgt_coa</span>
+        <span class="n">cos_graz</span> <span class="o">=</span> <span class="n">gp_distance</span> <span class="o">/</span> <span class="n">r_tgt_coa</span>
+
+        <span class="c1"># (4) Compute velocity components normal to the ground plane (v_z) and parallel to the ground plane (v_x).</span>
+        <span class="n">v_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">arp_velocity</span><span class="p">,</span> <span class="n">uvect_z</span><span class="p">)</span>
+        <span class="n">v_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arp_velocity</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">v_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">v_mag</span> <span class="o">*</span> <span class="n">v_mag</span> <span class="o">-</span> <span class="n">v_z</span> <span class="o">*</span> <span class="n">v_z</span><span class="p">)</span>
+
+        <span class="c1"># (5) Orient the +X direction in the ground plane such that the v_x &gt; 0. Compute unit vectors uvect_x</span>
+        <span class="c1"># and uvect_y.</span>
+        <span class="n">uvect_x</span> <span class="o">=</span> <span class="p">(</span><span class="n">arp_velocity</span> <span class="o">-</span> <span class="p">(</span><span class="n">v_z</span> <span class="o">*</span> <span class="n">uvect_z</span><span class="p">))</span> <span class="o">/</span> <span class="n">v_x</span>
+        <span class="n">uvect_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">uvect_z</span><span class="p">,</span> <span class="n">uvect_x</span><span class="p">)</span>
+
+        <span class="c1"># (6) Compute the cosine of the azimuth angle to the ground plane point.</span>
+        <span class="n">cos_az</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">r_dot_tgt_coa</span> <span class="o">+</span> <span class="n">v_z</span> <span class="o">*</span> <span class="n">sin_graz</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">v_x</span> <span class="o">*</span> <span class="n">cos_graz</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">cos_az</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No solution exists. cos_az &lt; -1 or cos_az &gt; 1.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># (7) Compute the sine of the azimuth angle. Use parameter LOOK to establish the correct sign corresponding</span>
+        <span class="c1"># to the correct Side of Track.</span>
+        <span class="n">look</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">arp_position</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">ref_ecf</span><span class="o">.</span><span class="n">coordinate</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">),</span> <span class="n">uvect_z</span><span class="p">))</span>
+        <span class="n">sin_az</span> <span class="o">=</span> <span class="n">look</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">cos_az</span> <span class="o">*</span> <span class="n">cos_az</span><span class="p">)</span>
+
+        <span class="c1"># (8) Compute GPPTGT at distance G from the AGPN and at the correct azimuth angle.</span>
+        <span class="k">return</span> <span class="n">agpn</span> <span class="o">+</span> <span class="n">uvect_x</span> <span class="o">*</span> <span class="p">(</span><span class="n">gp_distance</span> <span class="o">*</span> <span class="n">cos_az</span><span class="p">)</span> <span class="o">+</span> <span class="n">uvect_y</span> <span class="o">*</span> <span class="p">(</span><span class="n">gp_distance</span> <span class="o">*</span> <span class="n">sin_az</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HAERRDotSurfaceProjection">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.HAERRDotSurfaceProjection">[docs]</a>
+<span class="k">class</span> <span class="nc">HAERRDotSurfaceProjection</span><span class="p">(</span><span class="n">RRDotSurfaceProjection</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class implements the Precise R/RDot Height Above Ellipsioid (HAE) Projection described in Section 9 of the</span>
+<span class="sd">    SICD Specification Volume 3 (v1.3.0).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">scp_ecf</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">,</span>
+        <span class="n">side_of_track</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">hae</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">height_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">max_number_iterations</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the projection that takes the image parameters and a height above theWGS-84 ellipsoid.</span>
+<span class="sd">        The parameter defaults are the recommended values for the user selectable parameters in section 9.2.</span>
+
+<span class="sd">        :param scp_ecf: Scene Center Point position in ECF coordinates</span>
+<span class="sd">        :param side_of_track: side of track imaged</span>
+<span class="sd">        :param hae: the surface height (m) above the WGS-84 reference ellipsoid</span>
+<span class="sd">        :param height_threshold: the height threshold for convergence of iterative projection sequence</span>
+<span class="sd">        :param max_number_iterations: maximum number of iterations allowed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span> <span class="o">=</span> <span class="n">scp_ecf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scp_lle</span> <span class="o">=</span> <span class="n">geocentric_to_geodetic</span><span class="p">(</span><span class="n">scp_ecf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">side_of_track</span> <span class="o">=</span> <span class="n">side_of_track</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hae</span> <span class="o">=</span> <span class="n">hae</span>
+
+        <span class="c1"># Integer based on side of track parameter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">look</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">side_of_track</span> <span class="o">==</span> <span class="s2">&quot;R&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">look</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_hae_max</span> <span class="o">=</span> <span class="n">height_threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlim</span> <span class="o">=</span> <span class="n">max_number_iterations</span>
+
+<div class="viewcode-block" id="HAERRDotSurfaceProjection.rrdot_to_ground">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.HAERRDotSurfaceProjection.rrdot_to_ground">[docs]</a>
+    <span class="k">def</span> <span class="nf">rrdot_to_ground</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method implements the R/RDot Contour Ground Plane Intersection described in section 9.2.</span>
+
+<span class="sd">        The precise projection to a surface of constant height above the WGS-84 reference ellipsoid along an</span>
+<span class="sd">        R/Rdot contour. The R/Rdot contour is relative to an ARP Center Of Aperture position and velocity. The</span>
+<span class="sd">        algorithm computes the R/Rdot projection to one or more ground planes that are tangent to the constant</span>
+<span class="sd">        height surface. Each ground plane projection point computed is slightly above the constant HAE surface.</span>
+<span class="sd">        The final surface position is computed by projecting from the final ground plane projection point down</span>
+<span class="sd">        to the HAE surface.</span>
+
+<span class="sd">        :param r_tgt_coa: target COA range</span>
+<span class="sd">        :param r_dot_tgt_coa: target COA range rate</span>
+<span class="sd">        :param arp_position: ARP position</span>
+<span class="sd">        :param arp_velocity: ARP velocity</span>
+<span class="sd">        :return: the intersection between the R/Rdot Contour and the ground plane</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># (1) Compute the geodetic ground plane normal at the SCP. Compute the parameters for the initial ground plane.</span>
+        <span class="c1"># The reference point position is gref and the unit normal is u_gpn.</span>
+        <span class="n">u_gpn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scp_lle</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scp_lle</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scp_lle</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scp_lle</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scp_lle</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">gref</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hae</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">scp_lle</span><span class="o">.</span><span class="n">z</span><span class="p">)</span> <span class="o">*</span> <span class="n">u_gpn</span>
+
+        <span class="n">cont</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">cont</span><span class="p">:</span>
+            <span class="c1"># (2) Compute the precise projection along the R/Rdot contour to Ground Plane. The result is ground plane</span>
+            <span class="c1"># point position gpp_ecf. Convert from ECF coordinates to geodetic coordinates (gpp_lle).</span>
+            <span class="n">gp_surface_projection</span> <span class="o">=</span> <span class="n">GroundPlaneRRDotSurfaceProjection</span><span class="p">(</span><span class="n">ref_ecf</span><span class="o">=</span><span class="n">WorldCoordinate</span><span class="p">(</span><span class="n">gref</span><span class="p">),</span> <span class="n">gpn</span><span class="o">=</span><span class="n">u_gpn</span><span class="p">)</span>
+            <span class="n">gpp_ecf</span> <span class="o">=</span> <span class="n">gp_surface_projection</span><span class="o">.</span><span class="n">rrdot_to_ground</span><span class="p">(</span><span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">gpp_lle</span> <span class="o">=</span> <span class="n">geocentric_to_geodetic</span><span class="p">(</span><span class="n">WorldCoordinate</span><span class="p">(</span><span class="n">coordinate</span><span class="o">=</span><span class="n">gpp_ecf</span><span class="p">))</span>
+
+            <span class="c1"># (3) Compute the unit vector in the increasing height direction at point gpp_lle, (u_up). Also</span>
+            <span class="c1"># compute the height difference at point gpp_lle relative to the desired surface height (delta_hae).</span>
+            <span class="n">u_up</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">gpp_lle</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">gpp_lle</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">gpp_lle</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">gpp_lle</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">gpp_lle</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">delta_hae</span> <span class="o">=</span> <span class="n">gpp_lle</span><span class="o">.</span><span class="n">elevation</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">hae</span>
+
+            <span class="c1"># (4) Test to see if the point is sufficiently close the surface or if the maximum number of iterations</span>
+            <span class="c1"># has been reached.  Otherwise, compute a new ground reference point (gref) and unit normal (u_up); repeat</span>
+            <span class="c1"># Steps 2, 3 and 4.</span>
+            <span class="k">if</span> <span class="n">delta_hae</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_hae_max</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlim</span><span class="p">:</span>
+                <span class="n">cont</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">gref</span> <span class="o">=</span> <span class="n">gpp_ecf</span> <span class="o">-</span> <span class="n">delta_hae</span> <span class="o">*</span> <span class="n">u_up</span>
+                <span class="n">u_gpn</span> <span class="o">=</span> <span class="n">u_up</span>
+                <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># (5) Compute the unit slant plane normal vector, u_spn, that is tangent to the R/Rdot contour at point gpp.</span>
+        <span class="c1"># Unit vector u_spn points away from the center of the earth and in a direction of increasing HAE at gpp.</span>
+        <span class="n">spn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">look</span> <span class="o">*</span> <span class="n">arp_velocity</span><span class="p">,</span> <span class="n">gpp_ecf</span> <span class="o">-</span> <span class="n">arp_position</span><span class="p">)</span>
+        <span class="n">u_spn</span> <span class="o">=</span> <span class="n">spn</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">spn</span><span class="p">)</span>
+
+        <span class="c1"># (6) Compute the straight line projection from point gpp_ecf along the slant plane normal to point slp.</span>
+        <span class="c1"># Point slp is very close to the precise R/Rdot contour intersection with the constant height surface.</span>
+        <span class="c1"># Convert the position of point slp from ECF coordinates to geodetic coordinates (slp_lle).</span>
+        <span class="n">sf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u_up</span><span class="p">,</span> <span class="n">u_spn</span><span class="p">)</span>
+        <span class="n">slp</span> <span class="o">=</span> <span class="n">gpp_ecf</span> <span class="o">-</span> <span class="p">(</span><span class="n">delta_hae</span> <span class="o">/</span> <span class="n">sf</span><span class="p">)</span> <span class="o">*</span> <span class="n">u_spn</span>
+        <span class="n">slp_lle</span> <span class="o">=</span> <span class="n">geocentric_to_geodetic</span><span class="p">(</span><span class="n">WorldCoordinate</span><span class="p">(</span><span class="n">slp</span><span class="p">))</span>
+
+        <span class="c1"># (7) Assign surface point spp position by adjusting the HAE to be on the desired surface. Convert from</span>
+        <span class="c1"># geodetic coordinates to ECF coordinates.</span>
+        <span class="n">spp_lle</span> <span class="o">=</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">([</span><span class="n">slp_lle</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span> <span class="n">slp_lle</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hae</span><span class="p">])</span>
+        <span class="n">spp_ecf</span> <span class="o">=</span> <span class="n">geodetic_to_geocentric</span><span class="p">(</span><span class="n">spp_lle</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">spp_ecf</span><span class="o">.</span><span class="n">coordinate</span><span class="p">])</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DEMRRDotSurfaceProjection">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.DEMRRDotSurfaceProjection">[docs]</a>
+<span class="k">class</span> <span class="nc">DEMRRDotSurfaceProjection</span><span class="p">(</span><span class="n">RRDotSurfaceProjection</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class implements the Precise R/RDot Height Above a Digital Elevation Model (DEM) Projection described in</span>
+<span class="sd">    Section 10 of the SICD Specification Volume 3 (v1.3.0).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">scp_ecf</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">,</span>
+        <span class="n">side_of_track</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">elevation_model</span><span class="p">:</span> <span class="n">ElevationModel</span><span class="p">,</span>
+        <span class="n">max_adjacent_point_distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">height_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the projection that takes the image parameters and a digital elevation model (DEM).</span>
+<span class="sd">        The parameter defaults are the recommended values for the user selectable parameters in section 10.3.</span>
+
+<span class="sd">        :param scp_ecf: Scene Center Point position in ECF coordinates</span>
+<span class="sd">        :param side_of_track: side of track imaged</span>
+<span class="sd">        :param elevation_model: the digital elevation model</span>
+<span class="sd">        :param max_adjacent_point_distance: Maximum distance between adjacent points along the R/Rdot contour</span>
+<span class="sd">        :param height_threshold: threshold for determining if a R/Rdot contour point is on the DEM surface (m)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scp_ecf</span> <span class="o">=</span> <span class="n">scp_ecf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">scp_lle</span> <span class="o">=</span> <span class="n">geocentric_to_geodetic</span><span class="p">(</span><span class="n">scp_ecf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">side_of_track</span> <span class="o">=</span> <span class="n">side_of_track</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elevation_model</span> <span class="o">=</span> <span class="n">elevation_model</span>
+
+        <span class="c1"># Integer based on Side of Track parameter.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">look</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">if</span> <span class="n">side_of_track</span> <span class="o">==</span> <span class="s2">&quot;R&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">look</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+        <span class="n">elevation_summary</span> <span class="o">=</span> <span class="n">elevation_model</span><span class="o">.</span><span class="n">describe_region</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scp_lle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hae_min</span> <span class="o">=</span> <span class="n">elevation_summary</span><span class="o">.</span><span class="n">min_elevation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hae_max</span> <span class="o">=</span> <span class="n">elevation_summary</span><span class="o">.</span><span class="n">max_elevation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hae_max_surface_projection</span> <span class="o">=</span> <span class="n">HAERRDotSurfaceProjection</span><span class="p">(</span>
+            <span class="n">scp_ecf</span><span class="o">=</span><span class="n">scp_ecf</span><span class="p">,</span> <span class="n">side_of_track</span><span class="o">=</span><span class="n">side_of_track</span><span class="p">,</span> <span class="n">hae</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hae_max</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hae_min_surface_projection</span> <span class="o">=</span> <span class="n">HAERRDotSurfaceProjection</span><span class="p">(</span>
+            <span class="n">scp_ecf</span><span class="o">=</span><span class="n">scp_ecf</span><span class="p">,</span> <span class="n">side_of_track</span><span class="o">=</span><span class="n">side_of_track</span><span class="p">,</span> <span class="n">hae</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hae_min</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_dist_dem</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">elevation_summary</span><span class="o">.</span><span class="n">post_spacing</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_dist_rrc</span> <span class="o">=</span> <span class="n">max_adjacent_point_distance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_hd_lim</span> <span class="o">=</span> <span class="n">height_threshold</span>
+
+<div class="viewcode-block" id="DEMRRDotSurfaceProjection.rrdot_to_ground">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.DEMRRDotSurfaceProjection.rrdot_to_ground">[docs]</a>
+    <span class="k">def</span> <span class="nf">rrdot_to_ground</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method implements the R/RDot Contour Ground Plane Intersection described in section 10.3</span>
+
+<span class="sd">        The R/Rdot contour is relative to an ARP Center Of Aperture position and velocity. The earth surface is</span>
+<span class="sd">        described by a Digital Elevation Model (DEM) that defines a unique surface height as a function of two</span>
+<span class="sd">        horizontal coordinates. The projection computation may yield one or more surface points that lie along</span>
+<span class="sd">        the R/Rdot contour.</span>
+
+<span class="sd">        :param r_tgt_coa: target COA range</span>
+<span class="sd">        :param r_dot_tgt_coa: target COA range rate</span>
+<span class="sd">        :param arp_position: ARP position</span>
+<span class="sd">        :param arp_velocity: ARP velocity</span>
+<span class="sd">        :return: the intersection between the R/Rdot Contour and the DEM, if multiple intersections occur they will</span>
+<span class="sd">                 be returned in order of increasing height above the WGS-84 ellipsoid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># (1) Compute the center point (ctr) and the radius of the R/Rdot projection contour (rrrc).</span>
+        <span class="n">v_mag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arp_velocity</span><span class="p">)</span>
+        <span class="n">u_vel</span> <span class="o">=</span> <span class="n">arp_velocity</span> <span class="o">/</span> <span class="n">v_mag</span>
+        <span class="n">cos_dca</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="n">r_dot_tgt_coa</span> <span class="o">/</span> <span class="n">v_mag</span>
+        <span class="n">sin_dca</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">cos_dca</span> <span class="o">*</span> <span class="n">cos_dca</span><span class="p">)</span>
+        <span class="n">ctr</span> <span class="o">=</span> <span class="n">arp_position</span> <span class="o">+</span> <span class="n">r_tgt_coa</span> <span class="o">*</span> <span class="n">cos_dca</span> <span class="o">*</span> <span class="n">u_vel</span>
+        <span class="n">rrrc</span> <span class="o">=</span> <span class="n">r_tgt_coa</span> <span class="o">*</span> <span class="n">sin_dca</span>
+
+        <span class="c1"># (2) Compute the unit vectors u_rrx and u_rry to be used to compute points located on the R/Rdot contour.</span>
+        <span class="n">dec_arp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">arp_position</span><span class="p">)</span>
+        <span class="n">u_up</span> <span class="o">=</span> <span class="n">arp_position</span> <span class="o">/</span> <span class="n">dec_arp</span>
+        <span class="n">rry</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">u_up</span><span class="p">,</span> <span class="n">u_vel</span><span class="p">)</span>
+        <span class="n">u_rry</span> <span class="o">=</span> <span class="n">rry</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">rry</span><span class="p">)</span>
+        <span class="n">u_rrx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">u_rry</span><span class="p">,</span> <span class="n">u_vel</span><span class="p">)</span>
+
+        <span class="c1"># (3) Compute the projection along the R/Rdot contour to the surface of constant HAE at height hae_max.</span>
+        <span class="c1"># The projection point at height hae_max is point_a. Also compute the cosine and sine of the contour angle</span>
+        <span class="c1"># to point_a, cos_caa and sin_caa.</span>
+        <span class="n">point_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hae_max_surface_projection</span><span class="o">.</span><span class="n">rrdot_to_ground</span><span class="p">(</span><span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cos_caa</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">point_a</span> <span class="o">-</span> <span class="n">ctr</span><span class="p">,</span> <span class="n">u_rrx</span><span class="p">)</span> <span class="o">/</span> <span class="n">rrrc</span>
+        <span class="c1"># This variable is defined in the specification but it does not appear to be used anywhere</span>
+        <span class="c1"># sin_caa = self.look * np.sqrt(1 - cos_caa * cos_caa)</span>
+
+        <span class="c1"># (4) Compute the projection along the R/Rdot contour to the surface of constant HAE at height hae_min.</span>
+        <span class="c1"># The projection point at height hae_min is point_b. Also compute the cosine and sine of the contour angle</span>
+        <span class="c1"># to point_b, cos_cab and sin_cab.</span>
+        <span class="n">point_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hae_min_surface_projection</span><span class="o">.</span><span class="n">rrdot_to_ground</span><span class="p">(</span><span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">arp_position</span><span class="p">,</span> <span class="n">arp_velocity</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cos_cab</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">point_b</span> <span class="o">-</span> <span class="n">ctr</span><span class="p">,</span> <span class="n">u_rrx</span><span class="p">)</span> <span class="o">/</span> <span class="n">rrrc</span>
+        <span class="n">sin_cab</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">look</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">cos_cab</span> <span class="o">*</span> <span class="n">cos_cab</span><span class="p">)</span>
+
+        <span class="c1"># (5) A set of points along the R/Rdot contour are to be computed. The points will be spaced in equal</span>
+        <span class="c1"># increments of the cosine of the contour angle. Compute the step size, delta_cos_ca.</span>
+
+        <span class="c1"># (5.1) Step size delta_cos_rrc is computed such that the distance between adjacent points on the R/Rdot</span>
+        <span class="c1"># contour is approximately equal to delta_dist_rrc.</span>
+        <span class="n">delta_cos_rrc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_dist_rrc</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sin_cab</span><span class="p">)</span> <span class="o">/</span> <span class="n">rrrc</span>
+
+        <span class="c1"># (5.2) Step size delta_cos_dem is computed such that the horizontal distance between adjacent points on</span>
+        <span class="c1"># the R/Rdot contour is approximately equal to delta_dist_dem.</span>
+        <span class="n">delta_cos_dem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_dist_dem</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">sin_cab</span><span class="p">)</span> <span class="o">/</span> <span class="n">cos_cab</span><span class="p">)</span> <span class="o">/</span> <span class="n">rrrc</span>
+
+        <span class="c1"># (5.3) Set delta_cos_ca (Note the value of delta_cos_ca is &lt; 0)</span>
+        <span class="n">delta_cos_ca</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">*</span> <span class="nb">min</span><span class="p">(</span><span class="n">delta_cos_rrc</span><span class="p">,</span> <span class="n">delta_cos_dem</span><span class="p">)</span>
+
+        <span class="c1"># (6) Determine the number of points along the R/Rdot contour to be computed, npts.</span>
+        <span class="n">npts</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">((</span><span class="n">cos_caa</span> <span class="o">-</span> <span class="n">cos_cab</span><span class="p">)</span> <span class="o">/</span> <span class="n">delta_cos_ca</span><span class="p">))</span> <span class="o">+</span> <span class="mi">2</span>
+
+        <span class="c1"># (7) Compute the set of points along the R/Rdot contour, {Pn} for n =0, 2, ..., npts-1. Initial point P1 is</span>
+        <span class="c1"># located on the hae_min surface. The final point is located above the hae_max surface. Point Pn is computed</span>
+        <span class="c1"># in ECF coordinates. Note that here n ranges from [0, npts-1] while in the specification n is [1, npts].</span>
+        <span class="c1"># Equations have been modified accordingly.</span>
+        <span class="n">points_ecf</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">npts</span><span class="p">):</span>
+            <span class="n">cos_can</span> <span class="o">=</span> <span class="n">cos_cab</span> <span class="o">+</span> <span class="n">n</span> <span class="o">*</span> <span class="n">delta_cos_ca</span>  <span class="c1"># n-1 is unnecessary since n is zero based here</span>
+            <span class="n">sin_can</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">look</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">cos_can</span> <span class="o">*</span> <span class="n">cos_can</span><span class="p">)</span>
+            <span class="n">pn</span> <span class="o">=</span> <span class="n">ctr</span> <span class="o">+</span> <span class="n">rrrc</span> <span class="o">*</span> <span class="p">(</span><span class="n">cos_can</span> <span class="o">*</span> <span class="n">u_rrx</span> <span class="o">+</span> <span class="n">sin_can</span> <span class="o">*</span> <span class="n">u_rry</span><span class="p">)</span>
+            <span class="n">points_ecf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pn</span><span class="p">)</span>
+
+        <span class="c1"># (8 - 10) For each of the NPTS points, convert from ECF coordinates to DEM coordinates (lon, lat, ele). Also</span>
+        <span class="c1"># compute the DEM surface height for the point with DEM horizontal coordinates (lon, lat). Compute the</span>
+        <span class="c1"># difference in height (delta_height) between the point on the contour and DEM surface point. Also,</span>
+        <span class="c1"># set an indicator to track if that point is ABOVE, ON, or BELOW the DEM surface.</span>
+        <span class="c1">#</span>
+        <span class="c1"># Contour points that are within delta_hd_lim of the surface point are considered to be “on” the surface and</span>
+        <span class="c1"># will be added to the result set. Also compute a result point when points n and n+1 when both are “off”</span>
+        <span class="c1"># the surface and the R/Rdot contour intersects the surface between them (i.e. indicator n-1 x indicator n = -1)</span>
+        <span class="c1">#</span>
+        <span class="c1"># All height coordinates are in meters.</span>
+        <span class="n">intersection_points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">prev_indicator</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">prev_delta_height</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">npts</span><span class="p">):</span>
+            <span class="n">point_lle</span> <span class="o">=</span> <span class="n">geocentric_to_geodetic</span><span class="p">(</span><span class="n">WorldCoordinate</span><span class="p">(</span><span class="n">points_ecf</span><span class="p">[</span><span class="n">n</span><span class="p">]))</span>
+            <span class="n">point_dem</span> <span class="o">=</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">(</span><span class="n">point_lle</span><span class="o">.</span><span class="n">coordinate</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elevation_model</span><span class="o">.</span><span class="n">set_elevation</span><span class="p">(</span><span class="n">point_dem</span><span class="p">)</span>
+            <span class="n">delta_height</span> <span class="o">=</span> <span class="n">point_lle</span><span class="o">.</span><span class="n">elevation</span> <span class="o">-</span> <span class="n">point_dem</span><span class="o">.</span><span class="n">elevation</span>
+
+            <span class="c1"># Determine if the contour point is ABOVE (indicator = 1), ON (indicator = 0), or BELOW (indicator = -1)</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">delta_height</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_hd_lim</span><span class="p">:</span>
+                <span class="c1"># Contour point is on the DEM surface, add it to the result set</span>
+                <span class="n">indicator</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">intersection_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">points_ecf</span><span class="p">[</span><span class="n">n</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">delta_height</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">delta_hd_lim</span><span class="p">:</span>
+                <span class="c1"># Contour point is above the DEM surface</span>
+                <span class="n">indicator</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Contour point is below the DEM surface</span>
+                <span class="n">indicator</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+            <span class="c1"># If in two adjacent points one is ABOVE and the other BELOW then the contour intersected the DEM</span>
+            <span class="c1"># surface between the two points. Interpolate an intersection point and add it to the result.</span>
+            <span class="k">if</span> <span class="n">prev_indicator</span> <span class="ow">and</span> <span class="n">prev_indicator</span> <span class="o">*</span> <span class="n">indicator</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># contour crossed between two points; compute the surface point between</span>
+                <span class="n">frac</span> <span class="o">=</span> <span class="n">prev_delta_height</span> <span class="o">/</span> <span class="p">(</span><span class="n">prev_delta_height</span> <span class="o">-</span> <span class="n">delta_height</span><span class="p">)</span>
+                <span class="n">cos_cas</span> <span class="o">=</span> <span class="n">cos_cab</span> <span class="o">+</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">frac</span><span class="p">)</span> <span class="o">*</span> <span class="n">delta_cos_ca</span>  <span class="c1"># here the -1 is necessary for previous point</span>
+                <span class="n">sin_cas</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">look</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">cos_cas</span> <span class="o">*</span> <span class="n">cos_cas</span><span class="p">)</span>
+                <span class="n">sm</span> <span class="o">=</span> <span class="n">ctr</span> <span class="o">+</span> <span class="n">rrrc</span> <span class="o">*</span> <span class="p">(</span><span class="n">cos_cas</span> <span class="o">*</span> <span class="n">u_rrx</span> <span class="o">+</span> <span class="n">sin_cas</span> <span class="o">*</span> <span class="n">u_rry</span><span class="p">)</span>
+                <span class="n">intersection_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sm</span><span class="p">)</span>
+
+            <span class="c1"># Keep track of the current indicator and delta height for comparison to the next point</span>
+            <span class="n">prev_indicator</span> <span class="o">=</span> <span class="n">indicator</span>
+            <span class="n">prev_delta_height</span> <span class="o">=</span> <span class="n">delta_height</span>
+
+        <span class="c1"># Return the set of surface points found. Points will be ordered of increasing height above the WGS-84</span>
+        <span class="c1"># ellipsoid.</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">intersection_points</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SICDSensorModel">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.SICDSensorModel">[docs]</a>
+<span class="k">class</span> <span class="nc">SICDSensorModel</span><span class="p">(</span><span class="n">SensorModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is an implementation of the SICD sensor model as described by SICD Volume 3 Image Projections Description</span>
+<span class="sd">    NGA.STND.0024-3_1.3.0 (2021-11-30)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">coord_converter</span><span class="p">:</span> <span class="n">SARImageCoordConverter</span><span class="p">,</span>
+        <span class="n">coa_projection_set</span><span class="p">:</span> <span class="n">COAProjectionSet</span><span class="p">,</span>
+        <span class="n">u_spn</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">side_of_track</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;L&quot;</span><span class="p">,</span>
+        <span class="n">u_gpn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructs a SICD sensor model from the information derived from the XML metadata.</span>
+
+<span class="sd">        :param coord_converter: converts coordinates between image grid and image plane</span>
+<span class="sd">        :param coa_projection_set: projects image locations to the r/rdot contour</span>
+<span class="sd">        :param u_spn: slant plane normal</span>
+<span class="sd">        :param side_of_track: side of track imaged, &quot;L&quot; or &quot;R&quot;, default &quot;L&quot;</span>
+<span class="sd">        :param u_gpn: optional unit normal for ground plane</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coa_projection_set</span> <span class="o">=</span> <span class="n">coa_projection_set</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span> <span class="o">=</span> <span class="n">coord_converter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uvect_gpn</span> <span class="o">=</span> <span class="n">u_gpn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">uvect_spn</span> <span class="o">=</span> <span class="n">u_spn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">side_of_track</span> <span class="o">=</span> <span class="n">side_of_track</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_surface_projection</span> <span class="o">=</span> <span class="n">GroundPlaneRRDotSurfaceProjection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">scp_ecf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uvect_gpn</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SICDSensorModel.compute_u_spn">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.SICDSensorModel.compute_u_spn">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">compute_u_spn</span><span class="p">(</span><span class="n">scp_ecf</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">,</span> <span class="n">scp_arp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">scp_varp</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">side_of_track</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This helper function computes the slant plane normal.</span>
+
+<span class="sd">        :param scp_ecf: Scene Center Point position in ECF coordinates</span>
+<span class="sd">        :param scp_arp: aperture reference point position</span>
+<span class="sd">        :param scp_varp: aperture reference point velocity</span>
+<span class="sd">        :param side_of_track: side of track imaged</span>
+<span class="sd">        :return: unit vector for the slant plane normal</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">u_spn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">scp_varp</span><span class="p">,</span> <span class="n">scp_ecf</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">-</span> <span class="n">scp_arp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">side_of_track</span> <span class="o">==</span> <span class="s2">&quot;R&quot;</span><span class="p">:</span>
+            <span class="n">u_spn</span> <span class="o">*=</span> <span class="o">-</span><span class="mf">1.0</span>
+        <span class="n">u_spn</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">u_spn</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">u_spn</span></div>
+
+
+<div class="viewcode-block" id="SICDSensorModel.compute_u_gpn">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.SICDSensorModel.compute_u_gpn">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">compute_u_gpn</span><span class="p">(</span><span class="n">scp_ecf</span><span class="p">:</span> <span class="n">WorldCoordinate</span><span class="p">,</span> <span class="n">u_row</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">u_col</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">u_gpn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">u_row</span><span class="p">,</span> <span class="n">u_col</span><span class="p">)</span>
+        <span class="n">u_gpn</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">u_gpn</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">u_gpn</span><span class="p">,</span> <span class="n">scp_ecf</span><span class="o">.</span><span class="n">coordinate</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">u_gpn</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">u_gpn</span></div>
+
+
+<div class="viewcode-block" id="SICDSensorModel.image_to_world">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.SICDSensorModel.image_to_world">[docs]</a>
+    <span class="k">def</span> <span class="nf">image_to_world</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">image_coordinate</span><span class="p">:</span> <span class="n">ImageCoordinate</span><span class="p">,</span>
+        <span class="n">elevation_model</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ElevationModel</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is an implementation of an Image Grid to Scene point projection that first projects the image</span>
+<span class="sd">        location to the R/RDot contour and then intersects the R/RDot contour with the elevation model. If</span>
+<span class="sd">        an elevation model is provided then this routine intersects the R/Rdot contour with the DEM surface which</span>
+<span class="sd">        may result in multiple solutions. In that case the solution with the lowest HAE is returned.</span>
+
+<span class="sd">        :param image_coordinate: the x,y image coordinate</span>
+<span class="sd">        :param elevation_model: the optional elevation model, if none supplied a plane tangent to SCP is assumed</span>
+<span class="sd">        :param options: no additional options are supported at this time</span>
+<span class="sd">        :return: the lon, lat, elev geodetic coordinate of the surface matching the image coordinate</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">row_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">image_coordinate</span><span class="o">.</span><span class="n">r</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">first_pixel</span><span class="o">.</span><span class="n">r</span><span class="p">,</span>
+                <span class="n">image_coordinate</span><span class="o">.</span><span class="n">c</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">first_pixel</span><span class="o">.</span><span class="n">c</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">xrow_ycol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">rowcol_to_xrowycol</span><span class="p">(</span><span class="n">row_col</span><span class="o">=</span><span class="n">row_col</span><span class="p">)</span>
+        <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">time_coa</span><span class="p">,</span> <span class="n">arp_coa</span><span class="p">,</span> <span class="n">varp_coa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coa_projection_set</span><span class="o">.</span><span class="n">precise_rrdot_computation</span><span class="p">(</span><span class="n">xrow_ycol</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">elevation_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">surface_projection</span> <span class="o">=</span> <span class="n">DEMRRDotSurfaceProjection</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">scp_ecf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">side_of_track</span><span class="p">,</span> <span class="n">elevation_model</span><span class="o">=</span><span class="n">elevation_model</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">surface_projection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_surface_projection</span>
+
+        <span class="c1"># Note that for a DEM the r/rdot contour may intersect the surface at multiple locations</span>
+        <span class="c1"># resulting in an ambiguous location. Here we are arbitrarily selecting the first result.</span>
+        <span class="c1"># TODO: Is there a better way to handle multiple DEM intersections?</span>
+        <span class="n">coords_ecf</span> <span class="o">=</span> <span class="n">surface_projection</span><span class="o">.</span><span class="n">rrdot_to_ground</span><span class="p">(</span><span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">arp_coa</span><span class="p">,</span> <span class="n">varp_coa</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">geocentric_to_geodetic</span><span class="p">(</span><span class="n">WorldCoordinate</span><span class="p">(</span><span class="n">coords_ecf</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span></div>
+
+
+<div class="viewcode-block" id="SICDSensorModel.world_to_image">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.photogrammetry.sicd_sensor_model.html#aws.osml.photogrammetry.SICDSensorModel.world_to_image">[docs]</a>
+    <span class="k">def</span> <span class="nf">world_to_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">world_coordinate</span><span class="p">:</span> <span class="n">GeodeticWorldCoordinate</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ImageCoordinate</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This is an implementation of Section 6.1 Scene To Image Grid Projection for a single point.</span>
+
+<span class="sd">        :param world_coordinate: lon, lat, elevation coordinate of the scene point</span>
+<span class="sd">        :return: the x,y pixel location in this image</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ecf_world_coordinate</span> <span class="o">=</span> <span class="n">geodetic_to_geocentric</span><span class="p">(</span><span class="n">world_coordinate</span><span class="p">)</span>
+
+        <span class="c1"># TODO: Consider making these options like we have for image_to_world</span>
+        <span class="n">tolerance</span> <span class="o">=</span> <span class="mf">1e-2</span>
+        <span class="n">max_iterations</span> <span class="o">=</span> <span class="mi">10</span>
+
+        <span class="c1"># (2) Ground plane points are projected along straight lines to the image plane to establish points.</span>
+        <span class="c1"># The GP to IP projection direction is along the SCP COA slant plane normal. Also, compute the image</span>
+        <span class="c1"># plane unit normal, uIPN. Compute projection scale factor SF as shown.</span>
+        <span class="n">uvect_proj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uvect_spn</span>
+        <span class="n">scale_factor</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">uvect_proj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">uvect_ipn</span><span class="p">))</span>
+
+        <span class="c1"># (3) Set initial ground plane position G1 to the scene point position S.</span>
+        <span class="n">scene_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">ecf_world_coordinate</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">ecf_world_coordinate</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">ecf_world_coordinate</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
+        <span class="n">g_n</span> <span class="o">=</span> <span class="n">scene_point</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">xrow_ycol_n</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">cont</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">iteration</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">cont</span><span class="p">:</span>
+            <span class="n">iteration</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># (4) Project ground plane point g_n to image plane point i_n. The projection distance is dist_n. Compute</span>
+            <span class="c1"># image coordinates xrown and ycoln.</span>
+            <span class="n">dist_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">scp_ecf</span><span class="o">.</span><span class="n">coordinate</span> <span class="o">-</span> <span class="n">g_n</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">uvect_ipn</span><span class="p">)</span> <span class="o">/</span> <span class="n">scale_factor</span>
+            <span class="n">i_n</span> <span class="o">=</span> <span class="n">g_n</span> <span class="o">+</span> <span class="n">dist_n</span> <span class="o">*</span> <span class="n">uvect_proj</span>
+            <span class="n">xrow_ycol_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">ipp_to_xrowycol</span><span class="p">(</span><span class="n">i_n</span><span class="p">)</span>
+
+            <span class="c1"># (5) Compute the precise projection for image grid location (xrown, ycoln) to the ground plane containing</span>
+            <span class="c1"># the scene point S. The result is point p_n. For image grid location (xrown, ycoln), compute COA</span>
+            <span class="c1"># parameters per Section 2. Compute the precise R/Rdot projection contour per Section 4. Compute the</span>
+            <span class="c1"># R/Rdot intersection with the ground plane per Section 5.</span>
+            <span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">time_coa</span><span class="p">,</span> <span class="n">arp_coa</span><span class="p">,</span> <span class="n">varp_coa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coa_projection_set</span><span class="o">.</span><span class="n">precise_rrdot_computation</span><span class="p">(</span>
+                <span class="n">xrow_ycol_n</span>
+            <span class="p">)</span>
+            <span class="n">p_n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_surface_projection</span><span class="o">.</span><span class="n">rrdot_to_ground</span><span class="p">(</span><span class="n">r_tgt_coa</span><span class="p">,</span> <span class="n">r_dot_tgt_coa</span><span class="p">,</span> <span class="n">arp_coa</span><span class="p">,</span> <span class="n">varp_coa</span><span class="p">)</span>
+
+            <span class="c1"># (6) Compute the displacement between ground plane point Pn and the scene point S.</span>
+            <span class="n">diff_n</span> <span class="o">=</span> <span class="n">scene_point</span> <span class="o">-</span> <span class="n">p_n</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">delta_gpn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diff_n</span><span class="p">)</span>
+            <span class="n">g_n</span> <span class="o">+=</span> <span class="n">diff_n</span>
+
+            <span class="c1"># If the displacement is greater than the threshold (GP_MAX), compute point Gn+1 and repeat the</span>
+            <span class="c1"># projections in steps (4) and (5) above. If the displacement is less than the threshold, accept image</span>
+            <span class="c1"># grid location (xrown, ycoln) as the precise image grid location for scene point S.</span>
+            <span class="n">cont</span> <span class="o">=</span> <span class="n">delta_gpn</span> <span class="o">&gt;</span> <span class="n">tolerance</span> <span class="ow">and</span> <span class="p">(</span><span class="n">iteration</span> <span class="o">&lt;</span> <span class="n">max_iterations</span><span class="p">)</span>
+
+        <span class="n">row_col</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">xrowycol_to_rowcol</span><span class="p">(</span><span class="n">xrow_ycol_n</span><span class="p">)</span>
+
+        <span class="c1"># Convert the row_col image grid location to an x,y image coordinate. Note that row_col is in reference</span>
+        <span class="c1"># to the full image, so we subtract off the first_pixel offset to make the image coordinate correct if this</span>
+        <span class="c1"># is a chip.</span>
+        <span class="k">return</span> <span class="n">ImageCoordinate</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">row_col</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">first_pixel</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">row_col</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">coord_converter</span><span class="o">.</span><span class="n">first_pixel</span><span class="o">.</span><span class="n">y</span><span class="p">]</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

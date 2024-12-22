@@ -1,0 +1,7 @@
+aws.osml.gdal.rpc\_sensor\_model\_builder module
+================================================
+
+.. automodule:: aws.osml.gdal.rpc_sensor_model_builder
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,16 @@
+aws.osml.formats 
+=================
+
+.. automodule:: aws.osml.formats
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 2
+
+   aws.osml.formats.sicd
+   aws.osml.formats.sidd

@@ -1,0 +1,7 @@
+aws.osml.gdal.sidd\_sensor\_model\_builder module
+=================================================
+
+.. automodule:: aws.osml.gdal.sidd_sensor_model_builder
+   :members:
+   :undoc-members:
+   :show-inheritance:

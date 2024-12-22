@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>aws.osml.gdal.gdal_utils &mdash; OversightML Imagery Toolkit  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            OversightML Imagery Toolkit
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.photogrammetry.html">aws.osml.photogrammetry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.gdal.html">aws.osml.gdal</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.image_processing.html">aws.osml.image_processing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_apidoc/aws.osml.features.html">aws.osml.features</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">OversightML Imagery Toolkit</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">aws.osml.gdal.gdal_utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for aws.osml.gdal.gdal_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1">#  Copyright 2023-2024 Amazon.com, Inc. or its affiliates.</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">defusedxml</span> <span class="kn">import</span> <span class="n">ElementTree</span>
+<span class="kn">from</span> <span class="nn">osgeo</span> <span class="kn">import</span> <span class="n">gdal</span><span class="p">,</span> <span class="n">gdalconst</span>
+
+<span class="kn">from</span> <span class="nn">aws.osml.photogrammetry</span> <span class="kn">import</span> <span class="n">SensorModel</span>
+
+<span class="kn">from</span> <span class="nn">.dynamic_range_adjustment</span> <span class="kn">import</span> <span class="n">DRAParameters</span>
+<span class="kn">from</span> <span class="nn">.sensor_model_factory</span> <span class="kn">import</span> <span class="n">SensorModelFactory</span><span class="p">,</span> <span class="n">SensorModelTypes</span>
+<span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">RangeAdjustmentType</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_gdal_dataset">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.gdal_utils.html#aws.osml.gdal.load_gdal_dataset">[docs]</a>
+<span class="k">def</span> <span class="nf">load_gdal_dataset</span><span class="p">(</span><span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">gdal</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">Optional</span><span class="p">[</span><span class="n">SensorModel</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function loads a GDAL raster dataset from the path provided and constructs a camera model</span>
+<span class="sd">    abstraction used to georeference locations on this image.</span>
+
+<span class="sd">    :param image_path: the path to the raster data, may be a local path or a virtual file system</span>
+<span class="sd">        (e.g. /vsis3/...)</span>
+<span class="sd">    :return: the raster dataset and sensor model</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;GDAL attempted to load image: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">image_path</span><span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">gdal</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ds</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;GDAL Unable to load dataset and UseExceptions is not enabled.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Skipping: </span><span class="si">%s</span><span class="s2"> - GDAL Unable to Process&quot;</span><span class="p">,</span> <span class="n">image_path</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;GDAL Unable to Load: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_path</span><span class="p">))</span>
+
+    <span class="c1"># Get a GDAL Geo Transform and any available GCPs</span>
+    <span class="n">geo_transform</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">GetGeoTransform</span><span class="p">(</span><span class="n">can_return_null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ground_control_points</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">GetGCPs</span><span class="p">()</span>
+    <span class="n">proj_wkt</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">GetProjection</span><span class="p">()</span>
+
+    <span class="c1"># If this image has NITF TREs defined parse them</span>
+    <span class="n">parsed_tres</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">xml_tres</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">GetMetadata</span><span class="p">(</span><span class="s2">&quot;xml:TRE&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">xml_tres</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">xml_tres</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">parsed_tres</span> <span class="o">=</span> <span class="n">ElementTree</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">xml_tres</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># If this image has NITF DES segments read them</span>
+    <span class="n">xml_dess</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">GetMetadata</span><span class="p">(</span><span class="s2">&quot;xml:DES&quot;</span><span class="p">)</span>
+
+    <span class="n">selected_sensor_model_types</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">SensorModelTypes</span><span class="o">.</span><span class="n">AFFINE</span><span class="p">,</span>
+        <span class="n">SensorModelTypes</span><span class="o">.</span><span class="n">PROJECTIVE</span><span class="p">,</span>
+        <span class="n">SensorModelTypes</span><span class="o">.</span><span class="n">RPC</span><span class="p">,</span>
+        <span class="n">SensorModelTypes</span><span class="o">.</span><span class="n">SICD</span><span class="p">,</span>
+        <span class="n">SensorModelTypes</span><span class="o">.</span><span class="n">RSM</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="c1"># Create the best sensor model available</span>
+    <span class="n">sensor_model</span> <span class="o">=</span> <span class="n">SensorModelFactory</span><span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">RasterXSize</span><span class="p">,</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">RasterYSize</span><span class="p">,</span>
+        <span class="n">xml_tres</span><span class="o">=</span><span class="n">parsed_tres</span><span class="p">,</span>
+        <span class="n">xml_dess</span><span class="o">=</span><span class="n">xml_dess</span><span class="p">,</span>
+        <span class="n">geo_transform</span><span class="o">=</span><span class="n">geo_transform</span><span class="p">,</span>
+        <span class="n">proj_wkt</span><span class="o">=</span><span class="n">proj_wkt</span><span class="p">,</span>
+        <span class="n">ground_control_points</span><span class="o">=</span><span class="n">ground_control_points</span><span class="p">,</span>
+        <span class="n">selected_sensor_model_types</span><span class="o">=</span><span class="n">selected_sensor_model_types</span><span class="p">,</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">ds</span><span class="p">,</span> <span class="n">sensor_model</span></div>
+
+
+
+<div class="viewcode-block" id="get_minmax_for_type">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.gdal_utils.html#aws.osml.gdal.get_minmax_for_type">[docs]</a>
+<span class="k">def</span> <span class="nf">get_minmax_for_type</span><span class="p">(</span><span class="n">gdal_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function computes the minimum and maximum values that can be stored in a given GDAL pixel type.</span>
+
+<span class="sd">    :param gdal_type: the pixel type</span>
+<span class="sd">    :return: tuple of min, max values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">min_value</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">max_value</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="k">if</span> <span class="n">gdal_type</span> <span class="o">==</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Byte</span><span class="p">:</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">8</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">gdal_type</span> <span class="o">==</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_UInt16</span><span class="p">:</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">16</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">gdal_type</span> <span class="o">==</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Int16</span><span class="p">:</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">15</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">gdal_type</span> <span class="o">==</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_UInt32</span><span class="p">:</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">32</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">gdal_type</span> <span class="o">==</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Int32</span><span class="p">:</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">31</span><span class="p">)</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">31</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">gdal_type</span> <span class="o">==</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_UInt64</span><span class="p">:</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">64</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">gdal_type</span> <span class="o">==</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Int64</span><span class="p">:</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="mi">63</span><span class="p">)</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">63</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">gdal_type</span> <span class="o">==</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Float32</span><span class="p">:</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.4028235e38</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="mf">3.4028235e38</span>
+    <span class="k">elif</span> <span class="n">gdal_type</span> <span class="o">==</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Float64</span><span class="p">:</span>
+        <span class="n">min_value</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.7976931348623157e308</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="mf">1.7976931348623157e308</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Image uses unsupported GDAL datatype </span><span class="si">{}</span><span class="s2">. Defaulting to [0,255] range&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">gdal_type</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span></div>
+
+
+
+<div class="viewcode-block" id="get_type_and_scales">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.gdal_utils.html#aws.osml.gdal.get_type_and_scales">[docs]</a>
+<span class="k">def</span> <span class="nf">get_type_and_scales</span><span class="p">(</span>
+    <span class="n">raster_dataset</span><span class="p">:</span> <span class="n">gdal</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">desired_output_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">range_adjustment</span><span class="p">:</span> <span class="n">RangeAdjustmentType</span> <span class="o">=</span> <span class="n">RangeAdjustmentType</span><span class="o">.</span><span class="n">NONE</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get type and scales of a provided raster dataset</span>
+
+<span class="sd">    :param raster_dataset: the raster dataset containing the region</span>
+<span class="sd">    :param desired_output_type: type to be output after dynamic range adjustments</span>
+<span class="sd">    :param range_adjustment: the type of pixel scaling effort to</span>
+
+<span class="sd">    :return: a tuple containing type and scales</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">scale_params</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">output_type</span> <span class="o">=</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Byte</span>
+    <span class="n">num_bands</span> <span class="o">=</span> <span class="n">raster_dataset</span><span class="o">.</span><span class="n">RasterCount</span>
+    <span class="k">for</span> <span class="n">band_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_bands</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">band</span> <span class="o">=</span> <span class="n">raster_dataset</span><span class="o">.</span><span class="n">GetRasterBand</span><span class="p">(</span><span class="n">band_num</span><span class="p">)</span>
+        <span class="n">band_type</span> <span class="o">=</span> <span class="n">band</span><span class="o">.</span><span class="n">DataType</span>
+        <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span> <span class="o">=</span> <span class="n">get_minmax_for_type</span><span class="p">(</span><span class="n">band_type</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">desired_output_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output_type</span> <span class="o">=</span> <span class="n">band_type</span>
+            <span class="n">output_min</span> <span class="o">=</span> <span class="n">min_value</span>
+            <span class="n">output_max</span> <span class="o">=</span> <span class="n">max_value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">output_type</span> <span class="o">=</span> <span class="n">desired_output_type</span>
+            <span class="n">output_min</span><span class="p">,</span> <span class="n">output_max</span> <span class="o">=</span> <span class="n">get_minmax_for_type</span><span class="p">(</span><span class="n">desired_output_type</span><span class="p">)</span>
+
+        <span class="c1"># If a range adjustment is requested compute the range of source pixel values that will be mapped to the full</span>
+        <span class="c1"># output range.</span>
+        <span class="n">selected_min</span> <span class="o">=</span> <span class="n">min_value</span>
+        <span class="n">selected_max</span> <span class="o">=</span> <span class="n">max_value</span>
+        <span class="k">if</span> <span class="n">range_adjustment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">RangeAdjustmentType</span><span class="o">.</span><span class="n">NONE</span><span class="p">:</span>
+            <span class="c1"># GetStatistics(1,1) means it is ok to approximate but force computation is stats not already available</span>
+            <span class="n">stats</span> <span class="o">=</span> <span class="n">band</span><span class="o">.</span><span class="n">GetStatistics</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">min_value</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">max_value</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">num_buckets</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">max_value</span> <span class="o">-</span> <span class="n">min_value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">band_type</span> <span class="o">==</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Float32</span> <span class="ow">or</span> <span class="n">band_type</span> <span class="o">==</span> <span class="n">gdalconst</span><span class="o">.</span><span class="n">GDT_Float64</span><span class="p">:</span>
+                <span class="n">num_buckets</span> <span class="o">=</span> <span class="mi">255</span>
+
+            <span class="n">dra</span> <span class="o">=</span> <span class="n">DRAParameters</span><span class="o">.</span><span class="n">from_counts</span><span class="p">(</span>
+                <span class="n">counts</span><span class="o">=</span><span class="n">band</span><span class="o">.</span><span class="n">GetHistogram</span><span class="p">(</span>
+                    <span class="n">buckets</span><span class="o">=</span><span class="n">num_buckets</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span> <span class="nb">min</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span> <span class="n">include_out_of_range</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">approx_ok</span><span class="o">=</span><span class="mi">1</span>
+                <span class="p">),</span>
+                <span class="n">first_bucket_value</span><span class="o">=</span><span class="n">min_value</span><span class="p">,</span>
+                <span class="n">last_bucket_value</span><span class="o">=</span><span class="n">max_value</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">range_adjustment</span> <span class="o">==</span> <span class="n">RangeAdjustmentType</span><span class="o">.</span><span class="n">DRA</span><span class="p">:</span>
+                <span class="n">selected_min</span> <span class="o">=</span> <span class="n">dra</span><span class="o">.</span><span class="n">suggested_min_value</span>
+                <span class="n">selected_max</span> <span class="o">=</span> <span class="n">dra</span><span class="o">.</span><span class="n">suggested_max_value</span>
+            <span class="k">elif</span> <span class="n">range_adjustment</span> <span class="o">==</span> <span class="n">RangeAdjustmentType</span><span class="o">.</span><span class="n">MINMAX</span><span class="p">:</span>
+                <span class="n">selected_min</span> <span class="o">=</span> <span class="n">dra</span><span class="o">.</span><span class="n">actual_min_value</span>
+                <span class="n">selected_max</span> <span class="o">=</span> <span class="n">dra</span><span class="o">.</span><span class="n">actual_max_value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown range adjustment selected </span><span class="si">{</span><span class="n">range_adjustment</span><span class="si">}</span><span class="s2">. Skipping.&quot;</span><span class="p">)</span>
+
+        <span class="n">band_scale_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="n">selected_min</span><span class="p">,</span> <span class="n">selected_max</span><span class="p">,</span> <span class="n">output_min</span><span class="p">,</span> <span class="n">output_max</span><span class="p">]</span>
+        <span class="n">scale_params</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">band_scale_parameters</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_type</span><span class="p">,</span> <span class="n">scale_params</span></div>
+
+
+
+<div class="viewcode-block" id="get_image_extension">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.gdal_utils.html#aws.osml.gdal.get_image_extension">[docs]</a>
+<span class="k">def</span> <span class="nf">get_image_extension</span><span class="p">(</span><span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the image extension based on the provided image path</span>
+
+<span class="sd">    :param image_path: an image path</span>
+
+<span class="sd">    :return: image extension</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">possible_extensions</span> <span class="o">=</span> <span class="n">get_extensions_from_driver</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+    <span class="n">selected_extension</span> <span class="o">=</span> <span class="n">select_extension</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">possible_extensions</span><span class="p">)</span>
+    <span class="n">image_extension</span> <span class="o">=</span> <span class="n">normalize_extension</span><span class="p">(</span><span class="n">selected_extension</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Image extension: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">image_extension</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">image_extension</span></div>
+
+
+
+<div class="viewcode-block" id="select_extension">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.gdal_utils.html#aws.osml.gdal.select_extension">[docs]</a>
+<span class="k">def</span> <span class="nf">select_extension</span><span class="p">(</span><span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">possible_extensions</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check to see if provided image path contains a known possible extensions</span>
+
+<span class="sd">    :param image_path: an image path</span>
+<span class="sd">    :param possible_extensions: list of possible extensions</span>
+
+<span class="sd">    :return: select extension</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">selected_extension</span> <span class="o">=</span> <span class="s2">&quot;UNKNOWN&quot;</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">possible_extension</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">possible_extensions</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">selected_extension</span> <span class="o">=</span> <span class="n">possible_extension</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">possible_extension</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="ow">in</span> <span class="n">image_path</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span>
+            <span class="n">selected_extension</span> <span class="o">=</span> <span class="n">possible_extension</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">selected_extension</span></div>
+
+
+
+<div class="viewcode-block" id="normalize_extension">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.gdal_utils.html#aws.osml.gdal.normalize_extension">[docs]</a>
+<span class="k">def</span> <span class="nf">normalize_extension</span><span class="p">(</span><span class="n">unnormalized_extension</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert the extension into a proper formatted string</span>
+
+<span class="sd">    :param unnormalized_extension: an unnormalized extension</span>
+
+<span class="sd">    :return: normalized extension</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">normalized_extension</span> <span class="o">=</span> <span class="n">unnormalized_extension</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;ni?tf&quot;</span><span class="p">,</span> <span class="n">normalized_extension</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
+        <span class="n">normalized_extension</span> <span class="o">=</span> <span class="s2">&quot;NITF&quot;</span>
+    <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;tif{1,2}&quot;</span><span class="p">,</span> <span class="n">normalized_extension</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
+        <span class="n">normalized_extension</span> <span class="o">=</span> <span class="s2">&quot;TIFF&quot;</span>
+    <span class="k">elif</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;jpe?g&quot;</span><span class="p">,</span> <span class="n">normalized_extension</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
+        <span class="n">normalized_extension</span> <span class="o">=</span> <span class="s2">&quot;JPEG&quot;</span>
+    <span class="k">return</span> <span class="n">normalized_extension</span></div>
+
+
+
+<div class="viewcode-block" id="get_extensions_from_driver">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.gdal_utils.html#aws.osml.gdal.get_extensions_from_driver">[docs]</a>
+<span class="k">def</span> <span class="nf">get_extensions_from_driver</span><span class="p">(</span><span class="n">image_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of driver extensions</span>
+
+<span class="sd">    :param image_path: an image path</span>
+
+<span class="sd">    :return: driver extensions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">driver_extension_lookup</span> <span class="o">=</span> <span class="n">get_gdal_driver_extensions</span><span class="p">()</span>
+    <span class="n">info</span> <span class="o">=</span> <span class="n">gdal</span><span class="o">.</span><span class="n">Info</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;json&quot;</span><span class="p">)</span>
+    <span class="n">driver_long_name</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;driverLongName&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">driver_extension_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">driver_long_name</span><span class="p">,</span> <span class="p">[])</span></div>
+
+
+
+<div class="viewcode-block" id="get_gdal_driver_extensions">
+<a class="viewcode-back" href="../../../../_apidoc/aws.osml.gdal.gdal_utils.html#aws.osml.gdal.get_gdal_driver_extensions">[docs]</a>
+<span class="k">def</span> <span class="nf">get_gdal_driver_extensions</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of gdal driver extensions</span>
+
+<span class="sd">    :return: gdal driver extensions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">driver_lookup</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">gdal</span><span class="o">.</span><span class="n">GetDriverCount</span><span class="p">()):</span>
+        <span class="n">drv</span> <span class="o">=</span> <span class="n">gdal</span><span class="o">.</span><span class="n">GetDriver</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="n">driver_name</span> <span class="o">=</span> <span class="n">drv</span><span class="o">.</span><span class="n">GetMetadataItem</span><span class="p">(</span><span class="n">gdal</span><span class="o">.</span><span class="n">DMD_LONGNAME</span><span class="p">)</span>
+        <span class="n">driver_extensions</span> <span class="o">=</span> <span class="n">drv</span><span class="o">.</span><span class="n">GetMetadataItem</span><span class="p">(</span><span class="n">gdal</span><span class="o">.</span><span class="n">DMD_EXTENSIONS</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">driver_extensions</span><span class="p">:</span>
+            <span class="n">extension_list</span> <span class="o">=</span> <span class="n">driver_extensions</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
+            <span class="n">driver_lookup</span><span class="p">[</span><span class="n">driver_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">extension_list</span>
+    <span class="k">return</span> <span class="n">driver_lookup</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Amazon.com.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>  
+
+<style>
+    .wy-nav-content { max-width: none; }
+</style>
+
+
+
+</body>
+</html>

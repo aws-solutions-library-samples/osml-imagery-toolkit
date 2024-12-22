@@ -1,0 +1,7 @@
+aws.osml.formats.sidd.models.external.ism\_v13.schema.ism.cvegenerated.cvenum\_ismatomic\_energy\_markings module
+=================================================================================================================
+
+.. automodule:: aws.osml.formats.sidd.models.external.ism_v13.schema.ism.cvegenerated.cvenum_ismatomic_energy_markings
+   :members:
+   :undoc-members:
+   :show-inheritance:
